@@ -13,10 +13,6 @@ In summary use the following mechanisms:
  * Always have tests that run within a single machine, but using mocks and multiple instances of service hosts, simulate multi machine deployments. Take advantage of the fact DCP can run 100s of hosts in one machine, with many services (millions each), all independent of each other.
 
 
-# Interaction
-
-For real time communication with the team, join #DCP in vmware slack: https://vmware.slack.com
-
 ## Clients
 DCP uses JSON and HTTP which means the web browser and curl are useful tools to interact with running services.
 
