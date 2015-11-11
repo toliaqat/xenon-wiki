@@ -50,7 +50,8 @@ Note DCP will pause services to disk and remove all runtime cost, when a service
 
 ## Running performance tests
 
-The build verification tests used during maven build and test phases can also be used for performance analysis, by supplying various properties that modify service, request and other counts. For example:
+The build verification tests used during maven build and test phases can also be used for performance analysis, by supplying various properties that modify service, request and other counts.
+
 `
 MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryServicePut -Ddcp.requestCount=500000
 `
