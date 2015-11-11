@@ -122,10 +122,6 @@ service author
 
 # Protocol details
 
-The protocol is described more precisely in a [google doc](
-https://docs.google.com/a/vmware.com/document/d/1aQHpvteiy_bG90eD8yTAxFNOVxDnq5HgjfETFOqESGw/edit).
-Note the document is work in progress.
-
 ## Comparison
 
 The approach outlined below is  most similar to view stamped replication
@@ -147,24 +143,14 @@ concepts in VR / Raft:
  history of updates. The log in our  case is a history of complete state
  snapshots
 
- * The  view, or term, is  the documentOwner field, which  is present in
- every version of the state.
+ * The  view, or term, is  the documentOwner field, plus the 
+documentEpoch, which are present in every version of the state.
 
  *  The commit  number  is the  documentVersion  field, which  increases
  monotonically,  at   the  selected  owner  node,   on  each  successful
  replication with majority of peers.
 
 #### Differences
-
- * Need for  two service up-calls. A  DCP service is not a  simple key /
- value  store  or document  store.  It  has  an "agent"  representing  a
- document  and  the  handler  code can  perform  complex  operations  in
- response to  an update.  This processing should  proceed only  once the
- replicas have  accepted the  proposal. This means  a second  service up
- call  must be  performed, different  that the  original which  produced
- the  new  state. We  call  this  the handleRequestCompletion  call,  vs
- handleRequest.  There is  still  possibility of  duplicate work  (owner
- failing before commit is learned by peers) but its minimized
 
  * Owner selection (or leader election)  is done using a consistent hash
  of  the  service  URI  path,  over  the  node  membership.  Since  node
@@ -175,8 +161,8 @@ concepts in VR / Raft:
  * Owner  selection happens per request,  since we hash the  service URI
  path to  the view of the  nodes, at each  peer. There is no  voting, no
  timeout.  As part  of  replication  or request  processing,  if a  node
- notices it  does not  have the  same owner selected,  it will  fail the
- request and re-synchronization will occur
+ notices it  does not  have the  same owner selected, or disagrees with
+ the epoch,  it will  fail the request and re-synchronization will occur
 
 ## Required Service Options
 
@@ -185,7 +171,7 @@ The following service options must be enabled on a service for the following pro
  * REPLICATION
  * OWNER_SELECTION 
 
-The EAGER_CONSISTENCY option determines if a request is committed only when group membership is stable and a majority of nodes accept the update. The description below assumes EAGER_CONSISTENCY is enabled but it mostly re-used for the best effort replication + owner selection mode.
+The EAGER_CONSISTENCY option determines if a request is committed only when group membership is stable and a majority of nodes accept the update. 
 
 ## Leader/Owner Selection (View Progression/Reconfiguration)
 
@@ -212,7 +198,7 @@ Please see  the  [synchronization page](nodeGroupSynchronizationService).
 
 
 ## Replication protocol
-(Implemented by service client and service host inbound queueing logic)
+(Implemented by service client and service host inbound queuing logic)
 
  * Request from client is forwarded to owner/leader node. If on the same node, request is queued and dispatched to service instance
  * If request was forwarded and node fails to respond (fails with I/O error to request times out):
