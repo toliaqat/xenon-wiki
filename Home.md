@@ -5,8 +5,8 @@ Note that the project name (Xenon) does not currently match the code package nam
 
 ## Documentation
 
-* [DCP Design](dcp-Design) - a starting point for learning about DCP core design and implementation
-* [DCP Glossary](Glossary) - commonly used DCP terms and their definitions
-* [DCP Roadmap](roadmap) - Roadmap for DCP development
-* [Developer guide](dcp-DeveloperGuide) - everything you need to get started and make a contribution
-* [DCP FAQ](dcp-FAQ) - frequently asked questions and answers
+* [Design](dcp-Design) - a starting point for learning about DCP core design and implementation
+* [FAQ](dcp-FAQ) - frequently asked questions and answers
+* [Example Service Tutorial](dcp-Example-Service-Tutorial) - A simple service walk through 
+* [Developer guide](dcp-DeveloperGuide) - How to build, test, contribute
+* [Glossary](Glossary) - commonly used DCP terms and their definitions
