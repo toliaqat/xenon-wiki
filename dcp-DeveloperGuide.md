@@ -2,8 +2,11 @@
 
 This guide  describes a few  common guidelines and  recommendations when
 implementing a micro service and development in the DCP framework (i.e.,
-contributing  code).  It  also  describes a  few  common  micro  service
-patterns.
+contributing  code).  
+
+## Under construction
+The page is under construction and in the process of being updated to properly
+cover open source based work flow, vs the vmware internal details still mentioned below
 
 # Prerequisites
 
