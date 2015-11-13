@@ -7,6 +7,8 @@ configured with  a maximum memory  pool (Xmx)  of 64MB and  _still_ host
 thousands of service instances -- they are about 360-byte of working set
 each, with state kept on index caches and disk, transparently.
 
+The production code base is about 13K lines of code.
+
 A basic  Go implementation of  the service host runtime  is implemented,
 and multiple go  Xenon services exist, and a  Node.js implementation might
 be desirable in the future.

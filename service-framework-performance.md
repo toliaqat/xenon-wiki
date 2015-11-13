@@ -6,7 +6,7 @@ Tests are run twice, in both case with the JVM heap constrained to a specified n
 
 Tests on the loopback interface are used to quantify the HTTP socket processing path (which uses the non blocking I/O APIs).
 
-THe framework provides an asynchronous HTTP client, with a connection pool. The connection pool flexes to N concurrent connections to the same service host, based on outbound operations, which naturally creates a multi client test case.
+The framework provides an asynchronous HTTP client, with a connection pool. The connection pool flexes to N concurrent connections to the same service host, based on outbound operations, which naturally creates a multi client test case.
 
 ## Environment
 ### Software
@@ -36,31 +36,25 @@ THe framework provides an asynchronous HTTP client, with a connection pool. The 
 ## Throughput analysis
 It is strongly recommend to set the following JVM options when running performance tests or running production instances. To see peak performance, set the max and initial heap size for the JVM to something at least 512MB to 2G.
 
--Xmx2G
--XX:+UseParallelOldGC
+-Xmx4G
 
 For constrained environment throughput examples use:
 
 -Xmx64M
 -Xms64M
 
-## Memory analysis
-It is very challenging to get accurate per instance byte allocation counts. When using JVisualVM large service counts cause the JVM and VisualVM to hang. The most reliable alternative is to use the java runtime allocated and free memory number before and after the test. The JVM heap must be limited to get stable results:
-
--Xmx16M
--Xms16M
-
-<strong>For tests that involve durability, increase working set to 64MB.</strong>
-
-Make sure to use the ServiceTestEnvironment.snapshotAndLogMemoryInfo(instanceCount) to get the report at the end of the test method. It forces several GC collection rounds before computing deltas.
-
-Using the constrained JVM heap size and Runtime.getRuntime().totalMemory / freeMemory APIs, N service instances are created, with at least one state update. <strong>The memory delta is calculated after several forced rounds of GC.</strong>
-
 ### Service Footprint
- * ~ 300 bytes / service instance
+ * ~ 400 bytes / service instance
 
 Note Xenon will pause services to disk and remove all runtime cost, when a service is not in use. So its only limited by access patterns and disk size, not memory size.
 
+## Running performance tests
+
+The build verification tests used during maven build and test phases can also be used for performance analysis, by supplying various properties that modify service, request and other counts.
+
+`
+MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryServicePut -Ddcp.requestCount=500000
+`
 ## Update Operation Throughput
 
 ### Single node
