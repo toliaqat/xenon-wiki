@@ -91,7 +91,7 @@ details.
 Yes, if a service author  enables the strong consistency capability. The
 VR protocol, using consistent hashing to  elect a leader, is employed to
 make sure the majority of the nodes  agree on each state update. See the
-[protocol page](leaderElectionAndReplicationDesignPage)
+[protocol page](./leaderElectionAndReplicationDesignPage)
 
 ### 9. How do I view the data with out running my application?
 
@@ -110,4 +110,4 @@ sendRequest to achieve this.
 Xenon offers several mechanisms to debug your application in development or 
 production environments. Note that the multi version document store allows 
 you to see per service state evolution. See the 
-[Debugging and Troubleshooting page](dcp-Debugging-and-Troubleshooting).
+[Debugging and Troubleshooting page](./Debugging-and-Troubleshooting).

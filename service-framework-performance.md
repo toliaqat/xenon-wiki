@@ -67,7 +67,7 @@ Using a payload that serializes to 524 bytes (JSON). For the durable service tes
  * Durable service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
  * Durable service, local sockets: 30,000 ops/sec
 
-The [lucene document index service](luceneDocumentIndexService#performance) has more details on indexing and query throughput.
+The [lucene document index service](./luceneDocumentIndexService#performance) has more details on indexing and query throughput.
 
 ### Multiple nodes
  * Durable, replicated service, 5 nodes (2GB limit): 2,000 ops/sec

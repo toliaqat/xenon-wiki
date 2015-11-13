@@ -1,9 +1,9 @@
 # Overview
-The node selector synchronization service is associated with an instance of a [node selector service](nodeSelectorService) and is invoked to synchronize document versions and document epoch between replicated service instances.
+The node selector synchronization service is associated with an instance of a [node selector service](./nodeSelectorService) and is invoked to synchronize document versions and document epoch between replicated service instances.
 
 The synchronization process is invoked when a node is determined to be the new owner of a service, either on startup or due to node group changes noticed during the steady state replication protocol.
 
-Please refer to the [replication protocol page](leaderElectionAndReplicationDesignPage) for the overall replication and consensus scheme
+Please refer to the [replication protocol page](./leaderElectionAndReplicationDesignPage) for the overall replication and consensus scheme
 
 # REST API
 

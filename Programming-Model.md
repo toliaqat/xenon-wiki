@@ -12,7 +12,7 @@ The following types are the key components of the Xenon framework. Xenon is impl
  
 ## Design patterns
 
-The [design patterns](service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details 
+The [design patterns](./service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details 
 
 ## Xenon Operation processing
 
@@ -394,7 +394,7 @@ The framework makes the handler a completely stateless method: It passes the ope
  
 ### Request Body Routing
 
-Xenon can route to handler methods based on the action and the request body, if a request router is configured and set. See the [request routing](custom-request-routing) for more details.
+Xenon can route to handler methods based on the action and the request body, if a request router is configured and set. See the [request routing](./custom-request-routing) for more details.
 
 ### Concurrency control
 A Xenon service author should never have to:

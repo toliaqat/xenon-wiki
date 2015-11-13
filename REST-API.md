@@ -6,12 +6,12 @@ by any  number of clients or  other services. The behavior  is triggered
 from changes to state, either due to (i) external HTTP methods or (ii)
 background periodic tasks.
 
-Please also review the [service design patterns](service-design-patterns).
+Please also review the [service design patterns](./service-design-patterns).
 
 ## REST Actions (HTTP Verb mapping)
 
 Review    the     [verb    semantics     section    in     the    design
-page](./dcp-Programming-Model#verb-semantics-and-associated-actions)  on
+page](./Programming-Model#verb-semantics-and-associated-actions)  on
 how  Xenon maps  the well  known HTTP  verbs to  service state  update and
 lifecycle actions.
 
@@ -265,7 +265,7 @@ a new  service instance.  Given N  service instances  for child  item A,
 across N nodes, only one of those instances will be routed updates, GETs
 and will  have its handlers  invoked. The other replicas  simply persist
 the  updates  using  the  replication  protocol.  See  the  [replication
-protocol page for details](leaderElectionAndReplicationDesignPage).
+protocol page for details](./leaderElectionAndReplicationDesignPage).
 
 ## Composition and extensibility
 
@@ -281,7 +281,7 @@ that includes both the old and the new fields.
 ## Query capabilities
 
 Rich queries over all indexed documents can be issued through the [Query
-Task Service](queryTaskServiceDocumentation).  It provides a  task based
+Task Service](./queryTaskServiceDocumentation).  It provides a  task based
 model for  specifying multi tier  queries (across nodes) with  a boolean
 algebra composing various clauses.
 

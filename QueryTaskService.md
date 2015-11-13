@@ -457,8 +457,8 @@ The following query sorts the documents of kind ExampleServiceState based on the
 }
 ```
 note: In order for a property to be enabled for sorting, it must have indexingOption `SORT` enabled.
-please see the [programming model page](dcp-Programming-Model) and 
-[example service page](dcp-Example-Service-Tutorial) for more information.
+please see the [programming model page](./Programming-Model) and 
+[example service page](./Example-Service-Tutorial) for more information.
 
 
 ## OData filter queries

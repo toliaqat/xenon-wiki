@@ -12,10 +12,10 @@ The  content that  follows will  make  a lot  more sense  if the  reader
 reviews the following pages. Its  especially recommended the reader goes
 through the example tutorial
 
- * [Glossary](Glossary)
- * [Programming model](dcp-Programming-Model)
+ * [Glossary](./Glossary)
+ * [Programming model](./Programming-Model)
 
-Please refer to the [design page](dcp-Design) for larger context and Xenon
+Please refer to the [design page](./Design) for larger context and Xenon
 motivation.
 
 ## Service Options
@@ -175,7 +175,7 @@ The EAGER_CONSISTENCY option determines if a request is committed only when grou
 
 ## Leader/Owner Selection (View Progression/Reconfiguration)
 
-Each Xenon node belongs to one or more node groups. Each node group is maintained by an instance of the [node group service](NodeGroupService) which implements random gossip, see [SWIM](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf).
+Each Xenon node belongs to one or more node groups. Each node group is maintained by an instance of the [node group service](./NodeGroupService) which implements random gossip, see [SWIM](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf).
 
 Xenon, using the default node selector service, uses consistent hashing to assign a key (for this discussion a service instance link), to a Xenon node. 
 
@@ -194,7 +194,7 @@ Synchronization occurs when new nodes are added to a node group, or existing nod
 
 The steady state protocol outlined below will also trigger a per service resynchronization if it notices disagreement on epoch, owner or version.
 
-Please see  the  [synchronization page](nodeGroupSynchronizationService).
+Please see  the  [synchronization page](./nodeGroupSynchronizationService).
 
 
 ## Replication protocol

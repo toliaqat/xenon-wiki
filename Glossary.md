@@ -28,13 +28,13 @@ Each instance is deployed over a group of Service Hosts (equivalently referred t
 * An instance of a service host process. A service host is a Java or Go process that hosts micro service instances. Its uniquely identified by a stable id and can be reached on a IP address plus TCP port. A single virtual or physical machine can have multiple nodes (multiple service host processes). We refer to nodes and service host interchangeably.
 
 ### Owner
-* For a specific Service Instance, one of the replicas may be designated as owner. The precise guarantees regarding owner consistency and operations associated with it are described in the [replication and leader election page](leaderElectionAndReplicationDesignPage)
+* For a specific Service Instance, one of the replicas may be designated as owner. The precise guarantees regarding owner consistency and operations associated with it are described in the [replication and leader election page](./leaderElectionAndReplicationDesignPage)
 
 ### Runtime
 * The Xenon framework code, instantiated as a ServiceHost. The framework manages requests to services, service lifecycle, concurrency, statistics, etc. 
 
 ### Membership
-* A dynamic state capturing the collection of nodes at some moment in time. Implemented by the [node group service](NodeGroupService)
+* A dynamic state capturing the collection of nodes at some moment in time. Implemented by the [node group service](./NodeGroupService)
 
 ### Membership View (or simply membership)
 * A local value, held by a node, representing its knowledge of the membership

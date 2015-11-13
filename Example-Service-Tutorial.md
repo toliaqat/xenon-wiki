@@ -3,13 +3,13 @@ This simple tutorial describes a very simple service, and its factory (they way 
 
 # Prerequisites
 
-Please refer to the [programming model page](dcp-Programming-Model) for an overview of the Xenon API surface and model.
+Please refer to the [programming model page](./Programming-Model) for an overview of the Xenon API surface and model.
 
-Please refer to the [debugging and interaction page](dcp-Debugging-and-Troubleshooting#starting-a-dcp-host) for more details on starting Xenon, including starting multiple, replicated hosts.
+Please refer to the [debugging and interaction page](./Debugging-and-Troubleshooting#starting-a-dcp-host) for more details on starting Xenon, including starting multiple, replicated hosts.
 
-Please refer to the [custom host and service creation page](Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
+Please refer to the [custom host and service creation page](./Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
 
-Please refer to the [developer guide](dcp-DeveloperGuide) for instructions on how to build, pre reqs, etc
+Please refer to the [developer guide](./DeveloperGuide) for instructions on how to build, pre reqs, etc
 
 # Starting a Xenon host
 
@@ -20,7 +20,7 @@ $ java -jar dcp-host/target/dcp-host-*-with-dependencies.jar
 
 ## Xenon Container
 
-Note that Xenon is packaged also a **[container](dcp-DeveloperGuide#docker-images)** (about 70MB, which includes JR8), that starts the default dcp-host.jar. Load it (replace the **XXYZ** with a build number, like 1780):
+Note that Xenon is packaged also a **[container](./DeveloperGuide#docker-images)** (about 70MB, which includes JR8), that starts the default dcp-host.jar. Load it (replace the **XXYZ** with a build number, like 1780):
 ```sh
 $ curl <Xenon JOB URL>/dcp-jenkins:XXYZ.tgz | gzip -d | docker load
 ```
@@ -55,7 +55,7 @@ public class ExampleFactoryService extends FactoryService {
 ```
 
 ### Per service Utility URIs
-Each service comes with a set of Xenon provided [utility services](dcp-REST-API#helper-services), listening under the service/* suffix. Use them to gather stats, subscribe, or interact with your service through a browser
+Each service comes with a set of Xenon provided [utility services](./REST-API#helper-services), listening under the service/* suffix. Use them to gather stats, subscribe, or interact with your service through a browser
 
 ## POST Handling
 The factory service does not need to implement any handlers, if no additional logic or validation is required for processing POST requests. The _FactoryService_ super class takes care of POST handling, and also GET. What it does need to do however is know how to construct the service object. Every factory service must implement the _createServiceInstance_ method. The child service URI will be the composite of the factory URI (the prefix) and whatever selfLink path was supplied in the POST body. If no body was supplied, a random UUID will be used for the child.
@@ -91,7 +91,7 @@ The response above means no documents / services are created yet.
 
 ### POST Example
 
-Create a new instance by issuing a POST. If no body is supplied the child service will have a default initial state and a random selflink. See [multi node deployment](dcp-Developer-deployments#create-a-service) for the complete example.
+Create a new instance by issuing a POST. If no body is supplied the child service will have a default initial state and a random selflink. See [multi node deployment](./Developer-deployments#create-a-service) for the complete example.
 
 ```sh
 $ curl -X POST -H "Content-type: application/json" -d '{"documentSelfLink":"niki","name":"n"}' http://localhost:8000/core/examples
@@ -269,7 +269,7 @@ public class ExampleService extends StatefulService {
 }
 ```
 
-For an explanation of the options a service can declare, please see the [programming model page](dcp-Programming-Model).
+For an explanation of the options a service can declare, please see the [programming model page](./Programming-Model).
 
 ### PATCH handler
 The PATCH handler above will use the body associated with the request (patch.getBody()) and the latest state of the service, associated with the patch (getState(patch)). Using fields in the patch body, it will update the current state and the complete the operation.
@@ -304,4 +304,4 @@ The response has the new state, but you can also do a GET on the child service, 
 
 # Stats
 
-Xenon tracks per service instance, per operation statistics so you can determine latency, throughput, aid with debugging of your handlers. Please refer to the [REST API page](./dcp-REST-API#per-service-stats)
+Xenon tracks per service instance, per operation statistics so you can determine latency, throughput, aid with debugging of your handlers. Please refer to the [REST API page](./REST-API#per-service-stats)

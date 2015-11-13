@@ -6,8 +6,8 @@
 
 ## Documentation
 
-* [Design](dcp-Design) - a starting point for learning about Xenon core design and implementation
-* [FAQ](dcp-FAQ) - frequently asked questions and answers
-* [Example Service Tutorial](dcp-Example-Service-Tutorial) - A simple service walk through 
-* [Developer guide](dcp-DeveloperGuide) - How to build, test, contribute
-* [Glossary](Glossary) - commonly used DCP terms and their definitions
+* [Design](./Design) - a starting point for learning about Xenon core design and implementation
+* [FAQ](./FAQ) - frequently asked questions and answers
+* [Example Service Tutorial](./Example-Service-Tutorial) - A simple service walk through 
+* [Developer guide](./DeveloperGuide) - How to build, test, contribute
+* [Glossary](./Glossary) - commonly used DCP terms and their definitions

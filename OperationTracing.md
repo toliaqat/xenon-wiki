@@ -1,10 +1,10 @@
 # Operation Tracing
 
-[Services](dcp-Programming-Model) in Xenon use a [REST API](dcp-REST-API) with asynchronous operations to interact with one another.  To aid in debugging, the Operation Tracing Index Service can be used to index each operation sent or received by a service host instance (also referred to as a node).  
+[Services](./Programming-Model) in Xenon use a [REST API](./REST-API) with asynchronous operations to interact with one another.  To aid in debugging, the Operation Tracing Index Service can be used to index each operation sent or received by a service host instance (also referred to as a node).  
 
 For example if a service sends an operation to another service, both the client-side operation sent and the server-side operation received by the destination service will be persisted and indexed in the Operation Tracing index.
 
-The Operation Index, like the Service Document Index used to store service state in Xenon, is backed by a Lucene document store.  The same [query service](QueryTaskService.markdown) and query task semantics can be used to query all of the operations passed into and out of the system.
+The Operation Index, like the Service Document Index used to store service state in Xenon, is backed by a Lucene document store.  The same [query service](./QueryTaskService.markdown) and query task semantics can be used to query all of the operations passed into and out of the system.
 
 ##  Starting and stopping the Operation Tracing Service
 
@@ -175,7 +175,7 @@ The query returns the following
 ...
 ```
 
-Only `SerializedOperation`s are persisted in the Operation Index.  The query `propertyNames` can, therefore, only be fields present in the [serialized operation](https://github.com/vmware/xenon/blob/master/dcp-common/src/main/java/com/vmware/dcp/common/Operation.java#L63).  Refer to the [query service](QueryTaskService.markdown) for further details on querying.
+Only `SerializedOperation`s are persisted in the Operation Index.  The query `propertyNames` can, therefore, only be fields present in the [serialized operation](https://github.com/vmware/xenon/blob/master/dcp-common/src/main/java/com/vmware/dcp/common/Operation.java#L63).  Refer to the [query service](./QueryTaskService.markdown) for further details on querying.
 
 **NOTE** - You must specify the correct `indexLink` to query the operation index (`/core/opreation-index`).  By default, queries will be executed on the document index unless this field is specified.
 

@@ -4,8 +4,8 @@ Xenon provides built-in support for interacting with your services through user 
 The UI support is flexible enough to allow you to point any number or services to the default or the custom UI by sharing the custom endpoint.
 
 This section describes how:
-1. [access the default Xenon UI](HostYourUi#access-the-default-ui)
-2. [host the same custom UI for multiple services](HostYourUi#host-custom-ui-for-a-collection-of-micro-services)
+1. [access the default Xenon UI]./(HostYourUi#access-the-default-ui)
+2. [host the same custom UI for multiple services](./HostYourUi#host-custom-ui-for-a-collection-of-micro-services)
 
 ## Access the default UI
 Xenon provides a generic default user interface, and which will serve any service defined. The default UI is built with AngularJS and is served as a separate service (UiService). The main entry point to the default UI is http://localhost:8000/core/ui/default which loads a basic dashboard (it will gradually include more information as Xenon matures.) This interface allows for drilling down to more details in the system (system information details on the graphs, links to available services etc.)

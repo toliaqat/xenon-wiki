@@ -105,7 +105,7 @@ dcpc get /core/management/go-dcp-process-log | jq -r .items[]
 Please see the node selector [forwarding REST API section](./NodeSelectorService#forwarding-service)
 
 ## Operation Tracing
-To get a view of operations as they are passed throughout the system, Xenon supports [Operation Tracing](OperationTracing).  The operation tracing service will index all inbound and outbound operations, so once again lucene can be used to build a complete timeline of all operations on the service host.
+To get a view of operations as they are passed throughout the system, Xenon supports [Operation Tracing](./OperationTracing).  The operation tracing service will index all inbound and outbound operations, so once again lucene can be used to build a complete timeline of all operations on the service host.
 
 in summary:
  * enable operation tracing by sending a PATCH to /core/management
@@ -166,7 +166,7 @@ GET /core/operation-index?documentSelfLink=*&expand=documentLinks
 
 
 ## Querying the index
-the document index service listens under /core/document-index and is used implicitly by the Xenon framework to manage indexed, durable state. It can be targeted with rich queries by creating a query task through the [query Task Service](queryTaskService). You can also use it directly for simple prefix queries on document links, to find what services are started, essentially "walking" the URI tree.
+the document index service listens under /core/document-index and is used implicitly by the Xenon framework to manage indexed, durable state. It can be targeted with rich queries by creating a query task through the [query Task Service](./queryTaskService). You can also use it directly for simple prefix queries on document links, to find what services are started, essentially "walking" the URI tree.
 
 The query below returns all services with a path starting with "4":
 ```
@@ -210,7 +210,7 @@ Lucene comes with a nice index viewing tool that allows the developer to view wh
 # Logging
 Xenon provides formatted logs that get included in the service host process log files under /var/log. If debugging a host locally, call the <strong>host.toggleDebugMode(true);</strong> method which will enable fine level logging for the host and all services, and delay operation expiration and maintenance.
 
-Process logs are also available through the [log capture service](ServiceHostLogServiceDocumentation) listening at /core/management/process-log
+Process logs are also available through the [log capture service](./ServiceHostLogServiceDocumentation) listening at /core/management/process-log
 
 # Traffic capture for go and go-dcp within a container
 
@@ -224,7 +224,7 @@ tcpdump -i lo -s 0 -A port 8000 or port 8082
 
 
 # Stats per service
-Please refer to the [REST API page](./dcp-REST-API#per-service-stats)
+Please refer to the [REST API page](./REST-API#per-service-stats)
 
 # Single machine development and debugging
 Xenon service host and the micro service test framework enables, and requires, that all logic can be run on a single machine, using multiple service hosts. This allows the developer to test and debug decentralized, scale-out scenarios but with out requiring test VM or container provisioning. It also allows the developer to use a single IDE instance to debug any one of the service host processes that act as a standalone Xenon node.
@@ -240,7 +240,7 @@ The eclipse standalone (no need to use or install eclipse) [memory analyzer tool
 # Mocking
 Xenon services are HTTP endpoints. This means that complex third party services or other micro services can be mocked, and started as part of the test environment. This allows a functional test to be written without being deployed in a complex production-like environment.
 
-The provisioning services use mock services to test esx and bare metal deployment workflow end to end essentially running a full integration and functional test in micro seconds, with the provisioning state machine fully exercised. Please the [provisioning description](dcp-Provisioning-Model) and the ***TestProvisionComputeHostTaskService.java*** file.
+The provisioning services use mock services to test esx and bare metal deployment workflow end to end essentially running a full integration and functional test in micro seconds, with the provisioning state machine fully exercised. Please the [provisioning description](./Provisioning-Model) and the ***TestProvisionComputeHostTaskService.java*** file.
 
 An mock service is shown below:
 

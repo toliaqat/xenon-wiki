@@ -18,7 +18,7 @@ To start your host invoke it using the java 8 jvm:
 
 java --jar <custom-host-name>.jar --port <portnumber>
 
-More details on starting one or more Xenon hosts, see the [debugging page](./dcp-Debugging-and-Troubleshooting#starting-a-dcp-host)
+More details on starting one or more Xenon hosts, see the [debugging page](./Debugging-and-Troubleshooting#starting-a-dcp-host)
 
 ## Derived Host example
 

@@ -32,20 +32,20 @@ Each component, called a service, listens on a HTTP URI. The component has a set
 
 The following links should provide context on Xenon design and on management functionality build as Xenon services
 
- * [programming model page](dcp-Programming-Model) explains how to author a Xenon service, how to select various service options, and how REST actions map to Xenon service behavior.
- * [developer guide](dcp-DeveloperGuide) describes how to start writing code in Xenon, workflow tools and the key programming interfaces in various languages
- * [service directory](dcp-Service-Directory) contains a list of all core micro services and their documentation. This is the place to find higher level functionality such as provisioning, analytics, etc
+ * [programming model page](./Programming-Model) explains how to author a Xenon service, how to select various service options, and how REST actions map to Xenon service behavior.
+ * [developer guide](./DeveloperGuide) describes how to start writing code in Xenon, workflow tools and the key programming interfaces in various languages
+ * [service directory](./Service-Directory) contains a list of all core micro services and their documentation. This is the place to find higher level functionality such as provisioning, analytics, etc
 
 ### Declarative model
 A developer simply declares the options a service needs, and the runtime implements them behind the scenes. Everything is 100% asynchronous using work stealing thread pools to balance work between service instances and processor cores.
 
-In this [example](dcp-Example-Service-Tutorial#example-service-code), a simple service implements a PATCH and PUT handler, updates state, and completes the operation. The current state, if any is supplied as part of the inbound request, loaded from the document store if not already cached.
+In this [example](./Example-Service-Tutorial#example-service-code), a simple service implements a PATCH and PUT handler, updates state, and completes the operation. The current state, if any is supplied as part of the inbound request, loaded from the document store if not already cached.
 
 The service instance is automatically replicated across Xenon nodes, and a consensus algorithm guarantees updates and GETs are routed + replicated appropriately.
 
 The runtime automatically serves GET requests by serializing the latest state (the document) into JSON. It also serves requests directed to the utility services (/stats, /subscriptions, /template).
 
-The runtime also provides per service [utility services](dcp-REST-API#helper-services), simplifying both development and interaction with a service.
+The runtime also provides per service [utility services](./REST-API#helper-services), simplifying both development and interaction with a service.
 
 ## Service discovery
 
@@ -54,10 +54,10 @@ The core principle in Xenon is that services have a URI path to identify them, a
 ## Service state representation: The document
 
 A service can be thought of as representing a live document, with validation code executing before any update occurs. Services can represent singleton configuration objects or dynamically composed collections of thousands of entities. 
-Please review the [rest api page](dcp-REST-API) for concrete examples on how state is represented (often referred to as the "document"), and additional helpers look like.
+Please review the [rest api page](./REST-API) for concrete examples on how state is represented (often referred to as the "document"), and additional helpers look like.
 
 ## Concurrency and State management
-Xenon takes care of managing state, concurrency, metrics, and queueing of requests. Please see the [programming model](dcp-Programming-Model) for details.
+Xenon takes care of managing state, concurrency, metrics, and queueing of requests. Please see the [programming model](./Programming-Model) for details.
 
 ## Multi version state indexing
 State changes never overwrite a previous change. Instead, they get indexed with a new version number, locally, and atomically computed. With each state update we index all the core service document fields plus
@@ -73,7 +73,7 @@ Note that state version tracking can be bounded per service to last N versions o
 # Decentralized design
 The decentralized framework is an active-active system. Xenon uses consistent hashing and state replication to achieve both load balancing of "work" and high availability. Depending on service options different guarantees are given to a service instance.
 
-See the [replication and leader election page for details](leaderElectionAndReplicationDesignPage).
+See the [replication and leader election page for details](./leaderElectionAndReplicationDesignPage).
 
 A brief summary of the key features:
  * High availability - If one service instance, in one node goes down, its peers will have seen the same update and indexed it locally. See ServiceOption.REPLICATION
@@ -94,18 +94,18 @@ Assuming the code for a service is present, a "seed" collection service, often p
 
 ## Service on demand load/unload
 
-Xenon implements a [pause/resume](servicePauseResume) scheme so even the small runtime overhead of a service instance (less than 500 bytes) gets serialized and indexed on disk, in the Xenon blob index. This allows Xenon to be limited by disk size, per node, not available memory.
+Xenon implements a [pause/resume](./servicePauseResume) scheme so even the small runtime overhead of a service instance (less than 500 bytes) gets serialized and indexed on disk, in the Xenon blob index. This allows Xenon to be limited by disk size, per node, not available memory.
 
 # Programming model
 
-Please  see  the  [programming  model  page](dcp-Programming-Model)  for
+Please  see  the  [programming  model  page](./Programming-Model)  for
 details on how a service is written,  how we map the REST API to service
 handlers,  and what  the asynchronous  request pattern,  direct or  with
 broadcast/forwarding looks like
 
 # Performance
 
-See [performance page (note its out of date)](service-framework-performance). Please see the [lucene document index service page](luceneDocumentIndexService) for indexing and query performance.
+See [performance page (note its out of date)](./service-framework-performance). Please see the [lucene document index service page](./luceneDocumentIndexService) for indexing and query performance.
 
 # References
 * [Netty](http://netty.io/wiki/)

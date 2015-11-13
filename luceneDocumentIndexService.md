@@ -3,9 +3,9 @@
 The lucene document index service provides document durability, indexing
 and querying,  per Xenon host instance.  It abstracts the lucene  APIs and
 exposes rich query functionality through  a "sister" service, the [query
-task](queryTaskService).
+task](./queryTaskService).
 
-There is also a "blob" index, that can be used to store binary content and queried by a primary key. See the [blob index service](luceneBlobIndexService) for details.
+There is also a "blob" index, that can be used to store binary content and queried by a primary key. See the [blob index service](./luceneBlobIndexService) for details.
 
 The document  index is a singleton  and does NOT do  replication between
 nodes. Replication  is done when  updates are sent to  service instances
@@ -28,7 +28,7 @@ allowed from remote services and clients.
 
 ## Performance
 
-Please first read the [dcp performance page](service-framework-performance) for environment setup. Tests below were run on the same environment as the Xenon framework tests. All performance tests come from the checked in tests, run with specific update count and service count parameters, plus JVM heap size limits.
+Please first read the [dcp performance page](./service-framework-performance) for environment setup. Tests below were run on the same environment as the Xenon framework tests. All performance tests come from the checked in tests, run with specific update count and service count parameters, plus JVM heap size limits.
 
 ### Write (indexing) throughput
 
