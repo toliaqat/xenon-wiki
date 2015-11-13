@@ -1,10 +1,10 @@
 # Operation Tracing
 
-[Services](dcp-Programming-Model) in DCP use a [REST API](dcp-REST-API) with asynchronous operations to interact with one another.  To aid in debugging, the Operation Tracing Index Service can be used to index each operation sent or received by a service host instance (also referred to as a node).  
+[Services](dcp-Programming-Model) in Xenon use a [REST API](dcp-REST-API) with asynchronous operations to interact with one another.  To aid in debugging, the Operation Tracing Index Service can be used to index each operation sent or received by a service host instance (also referred to as a node).  
 
 For example if a service sends an operation to another service, both the client-side operation sent and the server-side operation received by the destination service will be persisted and indexed in the Operation Tracing index.
 
-The Operation Index, like the Service Document Index used to store service state in DCP, is backed by a Lucene document store.  The same [query service](QueryTaskService.markdown) and query task semantics can be used to query all of the operations passed into and out of the system.
+The Operation Index, like the Service Document Index used to store service state in Xenon, is backed by a Lucene document store.  The same [query service](QueryTaskService.markdown) and query task semantics can be used to query all of the operations passed into and out of the system.
 
 ##  Starting and stopping the Operation Tracing Service
 
@@ -24,11 +24,11 @@ curl --request PATCH -H "Content-type: application/json" --data '{"enable": "STA
 ```
 Likewise, setting `enable` to `STOP` will disable the service.
 
-Starting the service will create a separate Lucene backed index in `dcp/8000/lucene-operation-index`.  Each operation sent via `sendRequest` or received via `handleRequest` will be indexed to the operation index.  This includes all parameters set in the operation and the body.  This should capture all(*) operations sent/received between DCP services, external services, and users.
+Starting the service will create a separate Lucene backed index in `dcp/8000/lucene-operation-index`.  Each operation sent via `sendRequest` or received via `handleRequest` will be indexed to the operation index.  This includes all parameters set in the operation and the body.  This should capture all(*) operations sent/received between Xenon services, external services, and users.
 
 **NOTE** - You should stop the operation index on all nodes after the debugging sessions is complete. Otherwise, due to periodic operations, it will use up disk space.
 
-(\*) - We maintain a blacklist of chatty services which will *not* be persisted and indexed in order to save some disk space and indexing time.  Some DCP services are very chatty by nature and are of marginal importance when debugging a standard Stateful or Stateless service.  This list currently includes all of the node group services, the UI service, and the document index service.  We'll make this list configurable in the future to add/remove services to ignore.
+(\*) - We maintain a blacklist of chatty services which will *not* be persisted and indexed in order to save some disk space and indexing time.  Some Xenon services are very chatty by nature and are of marginal importance when debugging a standard Stateful or Stateless service.  This list currently includes all of the node group services, the UI service, and the document index service.  We'll make this list configurable in the future to add/remove services to ignore.
   
 ## Example Query
 

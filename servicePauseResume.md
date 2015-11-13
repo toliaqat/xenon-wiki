@@ -1,8 +1,8 @@
 # Overview
 
-A DCP service instance consumes a small amount of memory to keep track of runtime context (operation queues, stats, subscribers, its URI entry in the host map). The total per service is about 300 bytes, so while tiny, for a fully indexed, highly available, scale out, asynchronous component, it can still potentially limit the total number of services instances (with each representing a configuration object or document in a control plane).
+A Xenon service instance consumes a small amount of memory to keep track of runtime context (operation queues, stats, subscribers, its URI entry in the host map). The total per service is about 300 bytes, so while tiny, for a fully indexed, highly available, scale out, asynchronous component, it can still potentially limit the total number of services instances (with each representing a configuration object or document in a control plane).
 
-In order to make DCP be disk-bound only, not memory bound, a on demand pause/resume exists, which periodically calculates service host memory use, and persists runtime service context on a dedicated "blob" index. The service runtime context is removed completely.
+In order to make Xenon be disk-bound only, not memory bound, a on demand pause/resume exists, which periodically calculates service host memory use, and persists runtime service context on a dedicated "blob" index. The service runtime context is removed completely.
 
 # Pause
 
@@ -37,4 +37,4 @@ A service is resumed, transparently, when an operation is received by the servic
  * The inbound operation that caused the resume is processed
 
 # Validation
-A long running test in our CI proves that a DCP service host process, limited to 64MB (or some other small number) can support millions of service instances, created at the rate of 1M per hour, and still run with over 80% of heap available. In addition, it randomly picks "paused" services and issues requests, to verify resume works
+A long running test in our CI proves that a Xenon service host process, limited to 64MB (or some other small number) can support millions of service instances, created at the rate of 1M per hour, and still run with over 80% of heap available. In addition, it randomly picks "paused" services and issues requests, to verify resume works

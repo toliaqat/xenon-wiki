@@ -1,5 +1,5 @@
 # Overview
-The node group service tracks a group of DCP nodes. It does failure detection and membership update between all nodes using an implementation of the SWIM protocol. 
+The node group service tracks a group of Xenon nodes. It does failure detection and membership update between all nodes using an implementation of the SWIM protocol. 
 
 The role of this service is described in the [design page](./dcp-Design#active-update-replication) and [replication protocol page](./leaderElectionAndReplicationDesignPage)
 
@@ -7,7 +7,7 @@ Multiple groups can co exist and run independently of each other. A service is i
 
 ## Nodes
 
-A DCP service host, regardless of its packaging and environment, is a **node**. You can have multiple service host instances, each with their own ports, within a single process, all isolated from each other, or within the same container, same VM, bare metal OS etc. For the purposes of the node group membership each one is treated as a independent node.
+A Xenon service host, regardless of its packaging and environment, is a **node**. You can have multiple service host instances, each with their own ports, within a single process, all isolated from each other, or within the same container, same VM, bare metal OS etc. For the purposes of the node group membership each one is treated as a independent node.
 
 ## Node Options
 
@@ -57,7 +57,7 @@ curl http://192.168.1.33:8000/core/node-groups/default
 
 ## POST
 
-A DCP node joins an existing group of nodes, by sending a POST to its local /core/node-groups/some-group service, with the following body:
+A Xenon node joins an existing group of nodes, by sending a POST to its local /core/node-groups/some-group service, with the following body:
 
 ```
     public static class JoinPeerRequest {

@@ -1,27 +1,27 @@
 # Programming Model
 
-The following types are the key components of the DCP framework. DCP is implemented primarily in Java, but a minimal and useful implementation of the service programming model is also available in Go, running in the go-dcp-* process.
+The following types are the key components of the Xenon framework. Xenon is implemented primarily in Java, but a minimal and useful implementation of the service programming model is also available in Go, running in the go-dcp-* process.
 
- * ServiceHost - Manages the life cycle of micro service instances and is the unit of a DCP node. Multiple hosts can co-exist within a process although production management hosts should be one per process, and one process per container. A host uses a ServiceRequestListener to receive inbound operations from the network
+ * ServiceHost - Manages the life cycle of micro service instances and is the unit of a Xenon node. Multiple hosts can co-exist within a process although production management hosts should be one per process, and one process per container. A host uses a ServiceRequestListener to receive inbound operations from the network
  * Service - The interface for a service implementation
  * StatefulService - The Java base class that handles most of the service workflow, allowing derived classes to simply override a few handlers and implement their specific validation and/or orchestration. This is the super class recommended for all service implementations
  * FactoryService - The stateless java base class that handles POST requests to create new services. It also handles GET, which is translated to a documentSelfLink prefix query, and returns all available children services
  * Operation - The container for a request / response message pattern. A service acting as a client to other services creates an operation, sets the URI, action (HTTP verb), body plus other fields, then uses the service client to send the request. A service handler is invoked when inbound operations are received from the network or other co-located services.
  * ServiceClient - The asynchronous client interface
- * HttpServiceClient - The implementation of ServiceClient for talking to other HTTP DCP services or HTTP endpoints. The caller constructs an Operation instance, using a builder pattern, and calls send() on the client
+ * HttpServiceClient - The implementation of ServiceClient for talking to other HTTP Xenon services or HTTP endpoints. The caller constructs an Operation instance, using a builder pattern, and calls send() on the client
  
 ## Design patterns
 
-The [design patterns](service-design-patterns) page offers some tips on how to think about DCP services and how to model various documents, workflows. It might be worth reading before diving into details 
+The [design patterns](service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details 
 
-## DCP Operation processing
+## Xenon Operation processing
 
 ### Service Creation (POST to Factory Service)
-![DCP-POST](./DCP-POST.jpg)
+![Xenon-POST](./Xenon-POST.jpg)
 
 ### Update handling (PUT,PATCH, DELETE to a StatefulService)
 
-![DCP-PUT](./DCP-PUT.jpg)
+![Xenon-PUT](./Xenon-PUT.jpg)
 
 
 ## Service Interface
@@ -394,10 +394,10 @@ The framework makes the handler a completely stateless method: It passes the ope
  
 ### Request Body Routing
 
-DCP can route to handler methods based on the action and the request body, if a request router is configured and set. See the [request routing](custom-request-routing) for more details.
+Xenon can route to handler methods based on the action and the request body, if a request router is configured and set. See the [request routing](custom-request-routing) for more details.
 
 ### Concurrency control
-A DCP service author should never have to:
+A Xenon service author should never have to:
 1) Use locks or synchronization primitives. Since the latest state is cloned, and associated with each request, no side effects are visible between handlers. Further, the default behavior is to only have a single update active, for a specific service instance. A queue is used to serialized updates. GET requests are processed in parallel with update
 2) Keep in memory fields. The service class should have no mutable fields that affect behavior. Services can migrate between handler invocations, be restarted, etc so all state should be in the service document associated with the service.
 
@@ -485,7 +485,7 @@ To parallelize outbound requests to even the same service host, an asynchronous 
 
 ## Subscriptions
 
-DCP supports a publication / subscription model per service instance. A HTTP client can POST to a service /subscriptions utility suffix, with a body that includes the subscribers callback URI
+Xenon supports a publication / subscription model per service instance. A HTTP client can POST to a service /subscriptions utility suffix, with a body that includes the subscribers callback URI
 ```
 
     public static class ServiceSubscriber extends ServiceDocument {
@@ -523,7 +523,7 @@ getHost().startSubscriptionService(subPost, target);
 
 ```
 
-DCP supports auto deletion of subscriptions in the following cases:
+Xenon supports auto deletion of subscriptions in the following cases:
  * the ServiceSubscriber.notificationLimit is set. The publisher service will delete the subscription after N notifications are sent
  * the ServiceSubscriber.documentExpirationMicros is set. The publisher service will delete the subscription when expiration is set
  * K consecutive attempts to publish a notification to a subscriber have failed. The publisher will delete the subscription
@@ -687,11 +687,11 @@ OperationSequence.create(op1, op2, op3) // initial joined operations to be execu
 ```
 
 ## Group Operations
-In addition, DCP provides a broadcast-with-quorum facility. Using a single operation, and a group of nodes, it will send the request to all of them, asynchronously and then the client can decide if they act on the first, fastest response, or when quorum is received (multiple responses that pass some matching criteria)
+In addition, Xenon provides a broadcast-with-quorum facility. Using a single operation, and a group of nodes, it will send the request to all of them, asynchronously and then the client can decide if they act on the first, fastest response, or when quorum is received (multiple responses that pass some matching criteria)
 
 See the **ServiceHost.broadcastRequest** method, and also the REST API available for broadcast, on **/core/groups/<group>/forwarding** URI (per node group).
 
 Broadcast operations should only be used on non replicated services.
 
 ## Peer to peer forwarding
-The forwarding functionality allows a client to send a request to DCP node, and have that node transparently forward it to the designated owner of a service, or to the node that is assigned (through consistent hashing) to a key supplied by the client. See the **ServiceHost.forwardRequest** method and also the REST API available for peer to peer forwarding, on **/core/groups/<group>/forwarding** URI (per node group)
+The forwarding functionality allows a client to send a request to Xenon node, and have that node transparently forward it to the designated owner of a service, or to the node that is assigned (through consistent hashing) to a key supplied by the client. See the **ServiceHost.forwardRequest** method and also the REST API available for peer to peer forwarding, on **/core/groups/<group>/forwarding** URI (per node group)

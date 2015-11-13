@@ -1,11 +1,11 @@
-AuthN and AuthZ is now built into DCP and helps control access to services. This feature is turned off by default at this time and can be turned on by passing in the flag —-isAuthorizationEnabled=true to the ServiceHost during startup (or invoking the method serviceHost.setAuthorizationEnabled(true) before starting the service).
+AuthN and AuthZ is now built into Xenon and helps control access to services. This feature is turned off by default at this time and can be turned on by passing in the flag —-isAuthorizationEnabled=true to the ServiceHost during startup (or invoking the method serviceHost.setAuthorizationEnabled(true) before starting the service).
 
-Once authorization is turned on, any request to a stateful DCP service will be subject to two additional checks:
+Once authorization is turned on, any request to a stateful Xenon service will be subject to two additional checks:
  
  1. Is the request on behalf of a valid user principal 
  2. Is that user authorized to perform the desired action the service.
 
-Any unauthorized access will result in a 403 (Forbidden) response from DCP.
+Any unauthorized access will result in a 403 (Forbidden) response from Xenon.
 
 Note that we do not have any authorization checks on stateless services at this time (it is in the works). Stateless services typically interact with other stateful services and that access is subject to authorization checks.
 
@@ -13,7 +13,7 @@ Also, FactoryService instances are stateless services which can be invoked by an
 
 This document is intended to be an example of how to interact with and build services when authz is enabled. Please review the [authn/authz design document](./authn-authz) for details about the model.
 
-For this document,  we need to consider the following authz related services in DCP before we get started:
+For this document,  we need to consider the following authz related services in Xenon before we get started:
 
 - UserService - Represents a valid user in the system
 - UserGroupService - Represents a group of users - backed by a query that resolves to a set of UserService instances
@@ -80,7 +80,7 @@ The code will look like this:
 
     }
 
-This is a standard DCP interaction pattern where a stateless service is issuing a POST to a FactoryService. The key thing to watch here is the line at the bottom that sets the authorization context of the operation to the system authorization context :  setAuthorizationContext(userOp, getSystemAuthorizationContext());
+This is a standard Xenon interaction pattern where a stateless service is issuing a POST to a FactoryService. The key thing to watch here is the line at the bottom that sets the authorization context of the operation to the system authorization context :  setAuthorizationContext(userOp, getSystemAuthorizationContext());
 
 This service can do this only because it has been marked as a privileged service. Invoking the POST to the UserFactoryService in the system authorization context lets us add new users to the system - essentially create new UserService instances without having to be authenticated. 
 
@@ -205,5 +205,5 @@ The next step is to login as the user. The code for that will look like this:
  
 You can alternately invoke a POST on the BasicAuthenticationService endpoint using a REST client and pass in a base64 encoded string containing the username/password as a authorization header.
 
-The BasicAuthenticationService will check the credentials passed in against the credentials it stores as AuthCredentialsService instances. If the credentials match a JWT token encoding the user principal (and claims) is created and passed back as a set-cookie response header. Any subsequent request on behalf of the user will need to have this cookie passed in as a request header. DCP will decode the cookie and create the appropriate authorization context and subject the request to the appropriate security checks.
+The BasicAuthenticationService will check the credentials passed in against the credentials it stores as AuthCredentialsService instances. If the credentials match a JWT token encoding the user principal (and claims) is created and passed back as a set-cookie response header. Any subsequent request on behalf of the user will need to have this cookie passed in as a request header. Xenon will decode the cookie and create the appropriate authorization context and subject the request to the appropriate security checks.
 

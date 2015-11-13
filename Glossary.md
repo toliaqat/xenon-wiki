@@ -1,14 +1,14 @@
-# DCP Glossary Of Terms
+# Xenon Glossary Of Terms
 
 ### Micro Service
 * A means of delivering value to customers by facilitating outcomes customers want to achieve without the ownership of specific costs and risks. 
 * A collection of components, together with the policies that control its usage, organized to accomplish a specific function or set of functions. 
 
-### DCP Service
+### Xenon Service
 * A single software component, with a HTTP URI and a document describing it state. A service can use other services to offer simplified or advanced functionality. This is the building block of decentralized control plane nodes. 
 
-#### DCP Service Instance
-A DCP Service is defined a by a class (in Java, or a set of methods in Go)
+#### Xenon Service Instance
+A Xenon Service is defined a by a class (in Java, or a set of methods in Go)
 
 * Each Service class may be instantiated one or more times.
 * Each instance is identified and located via a unique path.
@@ -18,7 +18,7 @@ A DCP Service is defined a by a class (in Java, or a set of methods in Go)
 
 The above URI paths refer to two instances of the **example** service.
 
-#### DCP Service Instance Replica
+#### Xenon Service Instance Replica
 Each instance is deployed over a group of Service Hosts (equivalently referred to as 'nodes'). One Service Host may end up hosting zero, or one replicas of the same Service Instance. At any time, a replica may be designated by the runtime as "owner". 
 
 ### Document
@@ -31,7 +31,7 @@ Each instance is deployed over a group of Service Hosts (equivalently referred t
 * For a specific Service Instance, one of the replicas may be designated as owner. The precise guarantees regarding owner consistency and operations associated with it are described in the [replication and leader election page](leaderElectionAndReplicationDesignPage)
 
 ### Runtime
-* The DCP framework code, instantiated as a ServiceHost. The framework manages requests to services, service lifecycle, concurrency, statistics, etc. 
+* The Xenon framework code, instantiated as a ServiceHost. The framework manages requests to services, service lifecycle, concurrency, statistics, etc. 
 
 ### Membership
 * A dynamic state capturing the collection of nodes at some moment in time. Implemented by the [node group service](NodeGroupService)

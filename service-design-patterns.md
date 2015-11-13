@@ -1,7 +1,7 @@
 # Overview
 
 This guide  describes a few  common guidelines and  recommendations when
-implementing  a DCP  service. It  also  describes a  few common  service
+implementing  a Xenon  service. It  also  describes a  few common  service
 patterns.
 
 ## Guidelines
@@ -28,7 +28,7 @@ on each field.
 
 ## Extensibility
 
-DCP promotes re-use  through services: If you have same  shared piece of
+Xenon promotes re-use  through services: If you have same  shared piece of
 logic  or state  create a  service to  represent it,  and then  use that
 service, through its REST API.
 

@@ -3,7 +3,7 @@
 A node selector service picks a node, among many in a node group, given a key and a set of criteria. The selection criteria are both supplied as the initial service state and are baked in the service code. The default node selector uses consistent hashing to assign a key (a document self link for example) to a set of nodes.
 
 # Load balancing
-The node selector is used by DCP hosts to forward requests to each other, effectively building a peer to peer load balancer. A client can talk to any node and the request will be forwarded as appropriate.
+The node selector is used by Xenon hosts to forward requests to each other, effectively building a peer to peer load balancer. A client can talk to any node and the request will be forwarded as appropriate.
 
 The description of the hashing algorithm can be found [here](./leaderElectionAndReplicationDesignPage#leader-owner-selection-view-progression-reconfiguration)
 
@@ -53,7 +53,7 @@ Every node selector instance must support the following helper services
 ### Forwarding service
 The forwarding service takes a set of URI arguments and forwards a request to the selected node. Since its available on any node, it acts as the REST api to the L7 load balancing and hashing logic available through the node selector.
 
-DCP essentially has a built in load balancer in every node: if you issue a request to a node selector /forwarding service, it will take it as is, and forward it to a peer or broadcast it.
+Xenon essentially has a built in load balancer in every node: if you issue a request to a node selector /forwarding service, it will take it as is, and forward it to a peer or broadcast it.
 
 In the command link examples below note the quotes surrounding the URI: **you need to wrap the URI with quotes to avoid escaping by the shell**
 
@@ -64,7 +64,7 @@ curl "http://192.168.1.27:8000/core/node-selectors/default/forwarding?path=/core
 ```
 Notice the **target=ALL** parameter
 
-If you want DCP to route your request (GET, PATCH, etc) to a node that the path/link hashes to, use target=KEY_HASH:
+If you want Xenon to route your request (GET, PATCH, etc) to a node that the path/link hashes to, use target=KEY_HASH:
 ```
 curl "http://192.168.1.27:8000/core/node-selectors/default/forwarding?path=/core/management/process-log&target=KEY_HASH"
 ```

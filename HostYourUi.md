@@ -1,14 +1,14 @@
 # Overview
-DCP provides built-in support for interacting with your services through user interface from your browser. You have the option to load and serve your factory and instance services through the default UI (the resources reside on the disk). To access the default UI point your browser at localhost:8000/selflink-to-service/ui. A different option is define your own custom UI by using the HTML_USER_INTERFACE_OPTION on the service that you want to serve with the custom resources. 
+Xenon provides built-in support for interacting with your services through user interface from your browser. You have the option to load and serve your factory and instance services through the default UI (the resources reside on the disk). To access the default UI point your browser at localhost:8000/selflink-to-service/ui. A different option is define your own custom UI by using the HTML_USER_INTERFACE_OPTION on the service that you want to serve with the custom resources. 
 
 The UI support is flexible enough to allow you to point any number or services to the default or the custom UI by sharing the custom endpoint.
 
 This section describes how:
-1. [access the default DCP UI](HostYourUi#access-the-default-ui)
+1. [access the default Xenon UI](HostYourUi#access-the-default-ui)
 2. [host the same custom UI for multiple services](HostYourUi#host-custom-ui-for-a-collection-of-micro-services)
 
 ## Access the default UI
-DCP provides a generic default user interface, and which will serve any service defined. The default UI is built with AngularJS and is served as a separate service (UiService). The main entry point to the default UI is http://localhost:8000/core/ui/default which loads a basic dashboard (it will gradually include more information as DCP matures.) This interface allows for drilling down to more details in the system (system information details on the graphs, links to available services etc.)
+Xenon provides a generic default user interface, and which will serve any service defined. The default UI is built with AngularJS and is served as a separate service (UiService). The main entry point to the default UI is http://localhost:8000/core/ui/default which loads a basic dashboard (it will gradually include more information as Xenon matures.) This interface allows for drilling down to more details in the system (system information details on the graphs, links to available services etc.)
 ![dashboard](./dashboard.png)
 
 

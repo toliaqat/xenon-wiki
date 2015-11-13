@@ -1,8 +1,8 @@
 # Overview
 
-DCP  separates  the  processes  of  node  group  maintenance,  selection
+Xenon  separates  the  processes  of  node  group  maintenance,  selection
 of  a primary  (leader,  owner)  node per  service,  and  that of  state
-update replication.  DCP allows  a service  author to  declare a  set of
+update replication.  Xenon allows  a service  author to  declare a  set of
 capabilities  on the  service, which  the framework  uses at  runtime to
 employ the proper protocol and processing.
 
@@ -15,12 +15,12 @@ through the example tutorial
  * [Glossary](Glossary)
  * [Programming model](dcp-Programming-Model)
 
-Please refer to the [design page](dcp-Design) for larger context and DCP
+Please refer to the [design page](dcp-Design) for larger context and Xenon
 motivation.
 
 ## Service Options
 
-DCP offers different guarantees to  a service instance, depending on the
+Xenon offers different guarantees to  a service instance, depending on the
 service options  declared in the  service class. Please  see programming
 model for details. This page relates to the following two options:
 
@@ -31,14 +31,14 @@ Both of the above options _require_ ServiceOption.REPLICATION
 
 ### CAP Spectrum using Service Options
 
-DCP provides three levels of consistency+availability, expressed through
+Xenon provides three levels of consistency+availability, expressed through
 the combination of Capabilities, **per service instance**.
 
 #### Level 1 ServiceOption.REPLICATION
 
 No consistency  guarantees, highest  availability. Updates to  a service
 instance are applied  on the node they are received  and then replicated
-to peers if the update is  validated and locally committed. DCP will not
+to peers if the update is  validated and locally committed. Xenon will not
 wait for peers to respond before completing request to client.
 
 #### Level 2 ServiceOption.REPLICATION + ServiceOption.OWNER_SELECTION 
@@ -85,7 +85,7 @@ requests when membership is in flux.
 
 ## Duplicate requests and Idempotent Behavior
 
-Unlike RAFT and VR we do not expect the DCP framework to track duplicate
+Unlike RAFT and VR we do not expect the Xenon framework to track duplicate
 requests.  The notion  of "duplicate"  in RAFT  is simplistic  since two
 different clients can attempt to  issue a semantically duplicate request
 (causes the same work to be done by the service). Detecting duplicate or
@@ -135,8 +135,8 @@ The approach outlined below is  most similar to view stamped replication
  * [Viewstamped Replication Revisited](http://pmg.csail.mit.edu/papers/vr-revisited.pdf)
  * [Comparison of Paxos, VR, Zookeeper Atomic Broadcast] (https://www.cs.cornell.edu/fbs/publications/viveLaDifference.pdf)
 
-Due  to  the   DCP  service-as-a-document  model,  and  our   use  of  a
-multi-version  index, the  following DCP  fields and  mechanisms map  to
+Due  to  the   Xenon  service-as-a-document  model,  and  our   use  of  a
+multi-version  index, the  following Xenon  fields and  mechanisms map  to
 concepts in VR / Raft:
 
 #### Equivalent concepts
@@ -156,7 +156,7 @@ concepts in VR / Raft:
 
 #### Differences
 
- * Need for  two service up-calls. A  DCP service is not a  simple key /
+ * Need for  two service up-calls. A  Xenon service is not a  simple key /
  value  store  or document  store.  It  has  an "agent"  representing  a
  document  and  the  handler  code can  perform  complex  operations  in
  response to  an update.  This processing should  proceed only  once the
@@ -189,9 +189,9 @@ The EAGER_CONSISTENCY option determines if a request is committed only when grou
 
 ## Leader/Owner Selection (View Progression/Reconfiguration)
 
-Each DCP node belongs to one or more node groups. Each node group is maintained by an instance of the [node group service](NodeGroupService) which implements random gossip, see [SWIM](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf).
+Each Xenon node belongs to one or more node groups. Each node group is maintained by an instance of the [node group service](NodeGroupService) which implements random gossip, see [SWIM](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf).
 
-DCP, using the default node selector service, uses consistent hashing to assign a key (for this discussion a service instance link), to a DCP node. 
+Xenon, using the default node selector service, uses consistent hashing to assign a key (for this discussion a service instance link), to a Xenon node. 
 
 ### Steady state
 The ConsistentHashingNodeSelectorService performs the following steps, per client request

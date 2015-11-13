@@ -1,10 +1,10 @@
 ## Overview
 
-WebUI front-end applications are often supposed to receive PUSH notifications from backend. In DCP this problem is solved via ability to register remote DCP services attached through WebSocket connection to a node. Such services may be invoked by any other services and they may be used as subscribers for other services updates as well.
+WebUI front-end applications are often supposed to receive PUSH notifications from backend. In Xenon this problem is solved via ability to register remote Xenon services attached through WebSocket connection to a node. Such services may be invoked by any other services and they may be used as subscribers for other services updates as well.
 
 ## WebSocket Connection
 
-DCP host provides common pure JavaScript library for establishing and managing WebSocket connections to a DCP node. This library is available at:
+Xenon host provides common pure JavaScript library for establishing and managing WebSocket connections to a Xenon node. This library is available at:
 
 ```
 /user-interface/resources/com/vmware/dcp/common/WebSocketService/ws-service-lib.js
@@ -16,11 +16,11 @@ The above library defines a `WSL` object which defines `WebSocketConnection` cla
 var connection = new WSL.WebSocketConnection("/core/ws-endpoint")
 ```
 
-## In-Browser JavaScript DCP services
+## In-Browser JavaScript Xenon services
 
-Since In-Browser JavaScript DCP services cannot have regular public URIs, an auto-generated ephemeral URIs are used to identify such services. These URIs are assigned on request by a DCP node. These URIs are only valid until WebSocket connection is alive and service is not stopped. In order to create a new JavaScript DCP service, it is necessary to provide `handleRequest(op)` method which encapsulates service implementation and may handle any type of REST request.
+Since In-Browser JavaScript Xenon services cannot have regular public URIs, an auto-generated ephemeral URIs are used to identify such services. These URIs are assigned on request by a Xenon node. These URIs are only valid until WebSocket connection is alive and service is not stopped. In order to create a new JavaScript Xenon service, it is necessary to provide `handleRequest(op)` method which encapsulates service implementation and may handle any type of REST request.
 
-Service creation involves a remote call to DCP node for an ephemeral service URI, so service creation result is only available as a callback. Here is an example of a service creation:
+Service creation involves a remote call to Xenon node for an ephemeral service URI, so service creation result is only available as a callback. Here is an example of a service creation:
 
 ```js
 connection.createService(
@@ -42,11 +42,11 @@ connection.createService(
 
 ## WebSocketService object
 
-`WebSocketService` object has `uri` field which is set to ephemeral service URI accessible from within DCP cluster. It also has `subscribe`, `unsibscribe` and `stop` methods. `stop` methods un-registers the servers. Other two methods are described below.
+`WebSocketService` object has `uri` field which is set to ephemeral service URI accessible from within Xenon cluster. It also has `subscribe`, `unsibscribe` and `stop` methods. `stop` methods un-registers the servers. Other two methods are described below.
 
 ## JavaScript observers
 
-It is possible to use `wss.uri` explicitly to subscribe JavaScript service on updates for any other observable DCP service. However in case when used closes browser page, observed service cannot know that observer has gone forever and subscription record gets stuck indefinitely in subscribers list.
+It is possible to use `wss.uri` explicitly to subscribe JavaScript service on updates for any other observable Xenon service. However in case when used closes browser page, observed service cannot know that observer has gone forever and subscription record gets stuck indefinitely in subscribers list.
 
 `WebSocketService` object `subscribe(uri)` and `unsubscribe(uri)` methods can be used to register and unregister the service as an observer for other service. `uri` argument is a URI for subscriptions sub-service. Subscriptions registered with `subscribe(uri)` method will be automatically removed when WebSocket connection is closed or service is stopped.
 
@@ -56,7 +56,7 @@ dcp-host project carries an example JavaScript service which subscribes to examp
 
 Links to all added example service documents are displayed whenever new example documents are created.
 
-Minimalistic JavaScript DCP service example is provided below:
+Minimalistic JavaScript Xenon service example is provided below:
 
 ```html
 <html>

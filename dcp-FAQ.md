@@ -1,4 +1,4 @@
-# DCP Frequently-Asked Questions
+# Xenon Frequently-Asked Questions
 
 ### 1. What languages are supported for writing services?
 
@@ -8,7 +8,7 @@ thousands of service instances -- they are about 360-byte of working set
 each, with state kept on index caches and disk, transparently.
 
 A basic  Go implementation of  the service host runtime  is implemented,
-and multiple go  DCP services exist, and a  Node.js implementation might
+and multiple go  Xenon services exist, and a  Node.js implementation might
 be desirable in the future.
 
 ### 2. Do services have descriptions or schema?
@@ -33,34 +33,34 @@ appears like any other provisioning service.
 
 Service  framework   instances  are   processes  that  can   run  inside
 containers, VMs or native OSes.  The recommended setup is the following:
-each tenant has its own process,  and an independent group of DCP nodes,
+each tenant has its own process,  and an independent group of Xenon nodes,
 which will give strong isolation in  terms of resources on disk, network
 and  cpu. The  per-tenant node  group can  still be  part of  a provider
 level node  group, monitored  by a  provider set  of service  hosts (its
 recursive!). An alternative  is to use a single  management group, where
-DCP node  run service instances  across tenants. The  RBAC authorization
+Xenon node  run service instances  across tenants. The  RBAC authorization
 model  ensure isolation  between tenants  by giving  access to  specific
 users and resources.
-In additional the DCP authorization model gives you runtime scoping on
+In additional the Xenon authorization model gives you runtime scoping on
 all queries and requests to services using a query specification. If you
 use fields common to documents to express tenancy, you can sandbox services,
 per tenant this way. Please see the authorization page for more details
 
 ### 5. Is lucene exposed as a distributed, replicated store?
 
-Lucene is  a library hidden behind a core DCP service, to locally  to index
+Lucene is  a library hidden behind a core Xenon service, to locally  to index
 and store  updates. It is  not a  distributed store. All  replication is
-done through DCP mechanisms, entirely  independent of lucene. The Lucene
+done through Xenon mechanisms, entirely  independent of lucene. The Lucene
 semantics are  hidden from  service implementation and  clients. Clients
 always  send  updates  to  the  services, never  to  the  store  service
 directly. Of  course, queries can be  sent to the document  store, which
 will use Lucene underneath to satisfy complex, cross-document relational
 queries. Both  persistence and  replication are implemented  as separate
-services, transparently  working under  the covers  to make  DCP service
+services, transparently  working under  the covers  to make  Xenon service
 documents durable and replicated across nodes -- but the Lucene document
 store is not aware of any of this and is used as a local indexed store.
 
-### 6. Does DCP expose a key/value store? 
+### 6. Does Xenon expose a key/value store? 
 
 Among other things,  it does; but we  feel it is much more  than that: a
 distributed, fully indexed, multi-versioned and composable collection of
@@ -94,18 +94,18 @@ make sure the majority of the nodes  agree on each state update. See the
 ### 9. How do I view the data with out running my application?
 
 The analogy comes from 3 tier applications where a database allows users 
-to read/modify data with out the web server running.DCP allows us to query 
+to read/modify data with out the web server running.Xenon allows us to query 
 the documents via “/core/query-tasks” with out the actual Service running.
 
 ### 10. How should I communicate to remote REST API?
 
-There is no difference in communicating to a service, written in DCP or 
+There is no difference in communicating to a service, written in Xenon or 
 otherwise. One can use the same programming constructs like Operation, 
 sendRequest to achieve this.
 
 ### 11. How do I debug my application? 
 
-DCP offers several mechanisms to debug your application in development or 
+Xenon offers several mechanisms to debug your application in development or 
 production environments. Note that the multi version document store allows 
 you to see per service state evolution. See the 
 [Debugging and Troubleshooting page](dcp-Debugging-and-Troubleshooting).

@@ -14,7 +14,7 @@
 
 ### Users
 
-User identity is captured by email address. The identity does not need to maintained in DCP; an external identity provider can be used. However, the user must have at least a single document that represents it, so that it can be returned as part of a user group query. The kind of document does not matter, as long the backing document has an "email" field equal to the user's email address.
+User identity is captured by email address. The identity does not need to maintained in Xenon; an external identity provider can be used. However, the user must have at least a single document that represents it, so that it can be returned as part of a user group query. The kind of document does not matter, as long the backing document has an "email" field equal to the user's email address.
 
 For example, you can have users represented by their credentials alone (through the `AuthCredentialService`, which has an "email" field), by a special `LDAPUserService` which keeps in sync with an upstream LDAP service, or by something else. In the case an external identity provider is used, a document representing the user can be created on demand.
 
@@ -26,7 +26,7 @@ User groups are expressed as queries over users. This means it is possible to ha
 
 ### Resource groups
 
-Similar to user groups. Resource groups are expressed as queries over resources. In the initial implementation of authz in DCP, it is only possible to specify resources by their URI path prefix (allowing or denying access to an path hierarchy).
+Similar to user groups. Resource groups are expressed as queries over resources. In the initial implementation of authz in Xenon, it is only possible to specify resources by their URI path prefix (allowing or denying access to an path hierarchy).
 
 * ResourceGroupService -- `/core/authz/resource-groups`
 
@@ -46,11 +46,11 @@ One or more roles apply to a specific user if that user is contained in the user
 
 ### Authentication
 
-Multiple authentication backends can be in use at the same time. One set of users may be using a keypair, while another set uses a hashed password which is checked against an LDAP backend, while yet another uses OAuth2 with some external identity provider. Every one of these authentication services has their own interaction pattern. For example: in order to use the keypair, the server asks poses the user with a challenge, or in order to use OAuth2, the user might be redirected to an external URL. Whatever the interaction, the net result is that the user is given a token it can use in future interaction with DCP. This token is passed as a cookie, which means that any HTTP client that has support for a cookie jar is supported out of the box.
+Multiple authentication backends can be in use at the same time. One set of users may be using a keypair, while another set uses a hashed password which is checked against an LDAP backend, while yet another uses OAuth2 with some external identity provider. Every one of these authentication services has their own interaction pattern. For example: in order to use the keypair, the server asks poses the user with a challenge, or in order to use OAuth2, the user might be redirected to an external URL. Whatever the interaction, the net result is that the user is given a token it can use in future interaction with Xenon. This token is passed as a cookie, which means that any HTTP client that has support for a cookie jar is supported out of the box.
 
 ### Authorization
 
-Every subsequent request after authenticating will carry the token and will be subject to authorization. A request is identified by the user who made the request, the HTTP verb, and the URI path for the request. This 3-tuple is used as input to the authorization service, which will return a simple true or false, to either allow or deny the request to be handled. The authorization service is run on every DCP instance and talks to the local index. User and role information is expected to be available on all nodes in the default node group. The authorization service retrieves the state associated with the requested URI and tests it against the query specification in every applicable role.
+Every subsequent request after authenticating will carry the token and will be subject to authorization. A request is identified by the user who made the request, the HTTP verb, and the URI path for the request. This 3-tuple is used as input to the authorization service, which will return a simple true or false, to either allow or deny the request to be handled. The authorization service is run on every Xenon instance and talks to the local index. User and role information is expected to be available on all nodes in the default node group. The authorization service retrieves the state associated with the requested URI and tests it against the query specification in every applicable role.
 
 This means the runtime cost of the authorization service is equal to lookup of the state for the requested service and N resource group checks against the applicable roles (before applying any optimization over the query specification that is the composite of the queries in the roles, which is equivalent to the resource group query specification in all roles in disjunctive normal form).
 

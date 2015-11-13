@@ -59,7 +59,7 @@ Using the constrained JVM heap size and Runtime.getRuntime().totalMemory / freeM
 ### Service Footprint
  * ~ 300 bytes / service instance
 
-Note DCP will pause services to disk and remove all runtime cost, when a service is not in use. So its only limited by access patterns and disk size, not memory size.
+Note Xenon will pause services to disk and remove all runtime cost, when a service is not in use. So its only limited by access patterns and disk size, not memory size.
 
 ## Update Operation Throughput
 

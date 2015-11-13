@@ -1,14 +1,14 @@
 # Finite State Machine
 
-A DCP stateful service moves from one state to another, often based on client input. The service implementation needs to validate the input, taking the current state into account, and update the state. In that regard, you can think of a stateful service as a FSM (Finite State Machine).
+A Xenon stateful service moves from one state to another, often based on client input. The service implementation needs to validate the input, taking the current state into account, and update the state. In that regard, you can think of a stateful service as a FSM (Finite State Machine).
 
-DCP provides a common abstraction for a FSM to facilitate capturing a service' set of states and transitions among states:
+Xenon provides a common abstraction for a FSM to facilitate capturing a service' set of states and transitions among states:
 * FSM - a interface for a finite state machine. State type and transition type are interface parameters.
 * FSMTracker - a class that implements the FSM interface
 * TaskFSM and TaskFSMTracker - an interface and a class that extend FSM and FSMTracker respectively and specialize them for TaskState/TaskStage.
 * FsmTaskService (and corresponding FsmTaskFactoryService) - a sample for illustrating usage of TaskFSM and TaskFSMTracker.
 
-DCP also comes with unit tests for FSMTracker and TaskFSMTracker that help in understanding their usage.
+Xenon also comes with unit tests for FSMTracker and TaskFSMTracker that help in understanding their usage.
 
 ## FSMTracker
 

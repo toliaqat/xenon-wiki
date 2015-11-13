@@ -12,16 +12,16 @@ Please also review the [service design patterns](service-design-patterns).
 
 Review    the     [verb    semantics     section    in     the    design
 page](./dcp-Programming-Model#verb-semantics-and-associated-actions)  on
-how  DCP maps  the well  known HTTP  verbs to  service state  update and
+how  Xenon maps  the well  known HTTP  verbs to  service state  update and
 lifecycle actions.
 
 ## Utility services, per instance
 
-DCP starts a utility service  for every service instance.  The utility
+Xenon starts a utility service  for every service instance.  The utility
 service  listens on  a  set of  suffix paths  that  provide per  service
 instance functionality:
 
- *  /stats -  Various stats  reported by  DCP runtime  (see below),  per
+ *  /stats -  Various stats  reported by  Xenon runtime  (see below),  per
  service and  custom stats reported  through the setStat  and adjustStat
  Service methods.
 
@@ -41,7 +41,7 @@ instance functionality:
 
 Enable  the Capability.INSTRUMENTED  for  a service  and  then have  the
 service  add stats  through out  its operation  handling and  lifecycle.
-DCP  provides all  stats through  the `/some-service/stats`  suffix. For
+Xenon  provides all  stats through  the `/some-service/stats`  suffix. For
 example, the node group service, that tracks node membership, uses stats
 to indicate Serf RPC status.
 
@@ -215,11 +215,11 @@ audit trails.
  * expirationTimeMicros - optional expiration time. Document and service will be deleted if expiration passes
  * contentSignature - optional SHA256 signature of serialized content 
  * kind - a structured identifier that names the PODO type
- * owner - the node id of the node assigned to work on this document. Set by DCP if ServiceOption.OWNER_SELECTION is enabled
+ * owner - the node id of the node assigned to work on this document. Set by Xenon if ServiceOption.OWNER_SELECTION is enabled
  * sourceLink - Optional link to a document acting as the source for this document. Used when creating a new service through a POST to a factory that supports cloning
 
 A service state document should be about data only, no behavior. In Java
-and any language implementing the DCP  programming model, it should be a
+and any language implementing the Xenon  programming model, it should be a
 PLAIN-OLD-DATA_TYPE (only data fields, no methods)
 
 ```
@@ -260,7 +260,7 @@ implementation.
 
 ### ServiceOption.OWNER_SELECTION
 
-The DCP service host can automatically assign a DCP node as the owner of
+The Xenon service host can automatically assign a Xenon node as the owner of
 a new  service instance.  Given N  service instances  for child  item A,
 across N nodes, only one of those instances will be routed updates, GETs
 and will  have its handlers  invoked. The other replicas  simply persist

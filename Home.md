@@ -1,9 +1,9 @@
-# DCP
+# Xenon
 
-Here are few starting pointers for DCP:
+Here are few starting pointers for Xenon:
 
-* [DCP Design Documentation](dcp-Design) - a starting point for learning about DCP core design and implementation
-* [DCP Glossary](Glossary) - commonly used DCP terms and their definitions
-* [DCP Roadmap](roadmap) - Roadmap for DCP development
+* [Xenon Design Documentation](dcp-Design) - a starting point for learning about Xenon core design and implementation
+* [Xenon Glossary](Glossary) - commonly used Xenon terms and their definitions
+* [Xenon Roadmap](roadmap) - Roadmap for Xenon development
 * [Developer guide](dcp-DeveloperGuide) - everything you need to get started and make a contribution
-* [DCP FAQ](dcp-FAQ) - frequently asked questions and answers
+* [Xenon FAQ](dcp-FAQ) - frequently asked questions and answers

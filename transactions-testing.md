@@ -1,7 +1,7 @@
 # Overview
 > **Note: THIS PAGE DESCRIBES A WORK-IN-PROGRESS**
 
-This page discusses our plan for building a test suite to test the coming **transactions** feature in DCP.
+This page discusses our plan for building a test suite to test the coming **transactions** feature in Xenon.
 
 # Services/Documents
 I suggest the following services/documents to be used by the tests:

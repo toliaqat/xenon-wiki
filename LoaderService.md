@@ -1,5 +1,5 @@
 ## Overview
-The LoaderService is an extension to DCP native service hosting model, allowing to dynamically add new services to a running DCP host without restarting. Dynamic service loading is implemented using a custom service host which starts the LoaderService factory and the default instance. The default instance loads services from a predefined "services" directory under the host storage directory, using UrlClassLoader and reflection.
+The LoaderService is an extension to Xenon native service hosting model, allowing to dynamically add new services to a running Xenon host without restarting. Dynamic service loading is implemented using a custom service host which starts the LoaderService factory and the default instance. The default instance loads services from a predefined "services" directory under the host storage directory, using UrlClassLoader and reflection.
 The model allows creation of new loader service instances to load services from other locations, including file system, online repository (TBD), etc. 
 
 ## Project 

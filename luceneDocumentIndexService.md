@@ -1,7 +1,7 @@
 # Overview
 
 The lucene document index service provides document durability, indexing
-and querying,  per DCP host instance.  It abstracts the lucene  APIs and
+and querying,  per Xenon host instance.  It abstracts the lucene  APIs and
 exposes rich query functionality through  a "sister" service, the [query
 task](queryTaskService).
 
@@ -28,7 +28,7 @@ allowed from remote services and clients.
 
 ## Performance
 
-Please first read the [dcp performance page](service-framework-performance) for environment setup. Tests below were run on the same environment as the DCP framework tests. All performance tests come from the checked in tests, run with specific update count and service count parameters, plus JVM heap size limits.
+Please first read the [dcp performance page](service-framework-performance) for environment setup. Tests below were run on the same environment as the Xenon framework tests. All performance tests come from the checked in tests, run with specific update count and service count parameters, plus JVM heap size limits.
 
 ### Write (indexing) throughput
 

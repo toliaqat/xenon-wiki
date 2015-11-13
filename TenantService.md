@@ -1,6 +1,6 @@
 # Overview
 
-The tenant service exposes a REST API to manage tenants in DCP. Tenants can also be nested by specifying a parentLink so that a "super" tenant can manage multiple tenants.
+The tenant service exposes a REST API to manage tenants in Xenon. Tenants can also be nested by specifying a parentLink so that a "super" tenant can manage multiple tenants.
 
 ## Authorization
 

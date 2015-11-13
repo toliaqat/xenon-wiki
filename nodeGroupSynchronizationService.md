@@ -58,7 +58,7 @@ A synchronization request is associated with one service link. Synchronization r
 
 The synchronization logic is triggered whenever a node joins a group (regardless if its new or has been running for a while), or a node notices that all its peers became unavailable, then available at some later time.
 
-The DCP synchronization logic can automatically resolve the following cases, after the network partition is restored:
+The Xenon synchronization logic can automatically resolve the following cases, after the network partition is restored:
 
  * Regardless of node, any service with higher version than its peers, or only present on one node, will eithe rbe recreated on the remaining nodes, or its state will be synchronized across all instances
  * If a service is deleted on some nodes, but is (re)created or updated on some other nodes, with a resulting higher version and timestamp, the service will be recreated

@@ -1,8 +1,8 @@
 # Overview
 
-Debugging a micro service, or a collection of micro services requires a certain approach. The DCP system is 100% asynchronous and a micro service, when deployed, can be handling hundreds of thousands of operations. In addition, its state is indexed in the document store, has multiple version, and might not be cached in memory. Micro services run symmetrically across multiple nodes (service hosts) which creates further obstacles.
+Debugging a micro service, or a collection of micro services requires a certain approach. The Xenon system is 100% asynchronous and a micro service, when deployed, can be handling hundreds of thousands of operations. In addition, its state is indexed in the document store, has multiple version, and might not be cached in memory. Micro services run symmetrically across multiple nodes (service hosts) which creates further obstacles.
 
-To address all of the above the DCP system has been engineered to enable effective troubleshooting through the following mechanisms, some of them baked in the design itself.
+To address all of the above the Xenon system has been engineered to enable effective troubleshooting through the following mechanisms, some of them baked in the design itself.
 
 In summary use the following mechanisms:
  * Interact with your service using HTTP clients and all the rich debugging support they offer (Browsers, curl, etc)
@@ -10,13 +10,13 @@ In summary use the following mechanisms:
  * Take advantage of per service <strong>stats</strong>! Add stats dynamically, within the service and then do GET on the /stats utility service, which listens on all INSTRUMENTED service instances
  * take advantage of the /core/management/process-log service, to see the logs, through HTTP
  * Use standard java logging through the JavaService.logXXXX() methods, or insert logs on one of the logging services so you can query any log event
- * Always have tests that run within a single machine, but using mocks and multiple instances of service hosts, simulate multi machine deployments. Take advantage of the fact DCP can run 100s of hosts in one machine, with many services (millions each), all independent of each other.
+ * Always have tests that run within a single machine, but using mocks and multiple instances of service hosts, simulate multi machine deployments. Take advantage of the fact Xenon can run 100s of hosts in one machine, with many services (millions each), all independent of each other.
 
 
 ## Clients
-DCP uses JSON and HTTP which means the web browser and curl are useful tools to interact with running services.
+Xenon uses JSON and HTTP which means the web browser and curl are useful tools to interact with running services.
 
-## Starting a DCP host
+## Starting a Xenon host
 
 The default host can be started as follows.
 Navigate to the dcp-host directory
@@ -36,7 +36,7 @@ java -jar dcp-host/target/dcp-host-*-with-dependencies.jar --bindAddress=192.168
 
 Replace ***192.168.1.170*** with a valid IP address on your node.
 
-If you plan to join a peer node group do not use "localhost" as the address since DCP currently only binds to one interface so it can deterministically advertise its public IP to peers.
+If you plan to join a peer node group do not use "localhost" as the address since Xenon currently only binds to one interface so it can deterministically advertise its public IP to peers.
 
 You should see the following log messages in your terminal:
 ```
@@ -88,7 +88,7 @@ To interact with the default host, use a browser, curl, etc. For example, a GET 
     curl http://localhost:8000/core/management
 ```
 
-to get the entire process log for a remote DCP host, do:
+to get the entire process log for a remote Xenon host, do:
 
 ```
     curl http://192.168.1.19:8000/core/management/process-log
@@ -105,7 +105,7 @@ dcpc get /core/management/go-dcp-process-log | jq -r .items[]
 Please see the node selector [forwarding REST API section](./NodeSelectorService#forwarding-service)
 
 ## Operation Tracing
-To get a view of operations as they are passed throughout the system, DCP supports [Operation Tracing](OperationTracing).  The operation tracing service will index all inbound and outbound operations, so once again lucene can be used to build a complete timeline of all operations on the service host.
+To get a view of operations as they are passed throughout the system, Xenon supports [Operation Tracing](OperationTracing).  The operation tracing service will index all inbound and outbound operations, so once again lucene can be used to build a complete timeline of all operations on the service host.
 
 in summary:
  * enable operation tracing by sending a PATCH to /core/management
@@ -166,7 +166,7 @@ GET /core/operation-index?documentSelfLink=*&expand=documentLinks
 
 
 ## Querying the index
-the document index service listens under /core/document-index and is used implicitly by the DCP framework to manage indexed, durable state. It can be targeted with rich queries by creating a query task through the [query Task Service](queryTaskService). You can also use it directly for simple prefix queries on document links, to find what services are started, essentially "walking" the URI tree.
+the document index service listens under /core/document-index and is used implicitly by the Xenon framework to manage indexed, durable state. It can be targeted with rich queries by creating a query task through the [query Task Service](queryTaskService). You can also use it directly for simple prefix queries on document links, to find what services are started, essentially "walking" the URI tree.
 
 The query below returns all services with a path starting with "4":
 ```
@@ -202,13 +202,13 @@ url http://192.168.1.35:8000/core/document-index?documentSelfLink=/core/examples
 ```
 
 ## State history
-Durable micro services have their entire state evolution indexed. This means you can issue a query to document store micro service, using the service selflink as the "key" and retrieve all versions of a service state. This gives the developer a discrete time event history, which can be used to create a timeline of changes and a causal chain. With every state change DCP also indexes the client URI/IP address and the authorization user.
+Durable micro services have their entire state evolution indexed. This means you can issue a query to document store micro service, using the service selflink as the "key" and retrieve all versions of a service state. This gives the developer a discrete time event history, which can be used to create a timeline of changes and a causal chain. With every state change Xenon also indexes the client URI/IP address and the authorization user.
 
 ### Index viewer (Lucene Luke)
 Lucene comes with a nice index viewing tool that allows the developer to view what is in the index. The developer should download Luke and point it at the local file directory for the service host
 
 # Logging
-DCP provides formatted logs that get included in the service host process log files under /var/log. If debugging a host locally, call the <strong>host.toggleDebugMode(true);</strong> method which will enable fine level logging for the host and all services, and delay operation expiration and maintenance.
+Xenon provides formatted logs that get included in the service host process log files under /var/log. If debugging a host locally, call the <strong>host.toggleDebugMode(true);</strong> method which will enable fine level logging for the host and all services, and delay operation expiration and maintenance.
 
 Process logs are also available through the [log capture service](ServiceHostLogServiceDocumentation) listening at /core/management/process-log
 
@@ -227,9 +227,9 @@ tcpdump -i lo -s 0 -A port 8000 or port 8082
 Please refer to the [REST API page](./dcp-REST-API#per-service-stats)
 
 # Single machine development and debugging
-DCP service host and the micro service test framework enables, and requires, that all logic can be run on a single machine, using multiple service hosts. This allows the developer to test and debug decentralized, scale-out scenarios but with out requiring test VM or container provisioning. It also allows the developer to use a single IDE instance to debug any one of the service host processes that act as a standalone DCP node.
+Xenon service host and the micro service test framework enables, and requires, that all logic can be run on a single machine, using multiple service hosts. This allows the developer to test and debug decentralized, scale-out scenarios but with out requiring test VM or container provisioning. It also allows the developer to use a single IDE instance to debug any one of the service host processes that act as a standalone Xenon node.
 
-The same code that runs across multiple hosts on machine should always run, un modified, across machines. DCP is tolerant of latencies, unless the developer explicitly sets tight expirations per operation.
+The same code that runs across multiple hosts on machine should always run, un modified, across machines. Xenon is tolerant of latencies, unless the developer explicitly sets tight expirations per operation.
 
 ## Source code debugging
 A modern IDE is recommended and test-driven approach should be used to develop code. Create a JUnit functional test that starts a service host (see multiple existing examples under testsrc/) and start one or more micro services. Use the IDE source code debugger and call host.toggleDebuggingMode(true) when developing your service. Make sure debugging mode is not enabled during regular test runs
@@ -238,7 +238,7 @@ A modern IDE is recommended and test-driven approach should be used to develop c
 The eclipse standalone (no need to use or install eclipse) [memory analyzer tool](http://www.eclipse.org/mat/downloads.php) can acquire heap data from a running process or analyze a heap binary exported through jmap. Use the Histogram feature, and limit the objects using the regex row at the top of the object column
 
 # Mocking
-DCP services are HTTP endpoints. This means that complex third party services or other micro services can be mocked, and started as part of the test environment. This allows a functional test to be written without being deployed in a complex production-like environment.
+Xenon services are HTTP endpoints. This means that complex third party services or other micro services can be mocked, and started as part of the test environment. This allows a functional test to be written without being deployed in a complex production-like environment.
 
 The provisioning services use mock services to test esx and bare metal deployment workflow end to end essentially running a full integration and functional test in micro seconds, with the provisioning state machine fully exercised. Please the [provisioning description](dcp-Provisioning-Model) and the ***TestProvisionComputeHostTaskService.java*** file.
 
