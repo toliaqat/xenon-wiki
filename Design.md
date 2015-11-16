@@ -4,7 +4,7 @@ Xenon addresses the need to build decentralized control and management plane com
 
 The framework also address developer productivity and developer composition: developers can leverage common features that abstract complex third party technologies behind a consistent HTTP/REST API, and can leverage each others work without forcing dependencies (using HTTP mock services).
 
-Quality third party technology or research is used to satisfy some of the key requirements below. Lucene for the indexed fabrix, [scalable gossip](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf) for node failure detection and membership tracking, Kryo for efficient runtime data isolation. In each case, third party dependencies are abstracted behind a REST API.
+Quality third party technology or research is used to satisfy some of the key requirements below. Lucene for the indexed fabrix, [scalable gossip](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf) for node failure detection and membership tracking, Kryo for efficient runtime data isolation, [netty](https://github.com/netty/netty) for non blocking HTTP/HTTPS processing. In each case, third party dependencies are abstracted behind a API and do not leak into the framework.
 
 It should be noted that the Xenon framework abstracts the choice of replication, durability and cluster management allowing us to choose the right tool, at the right time and for the right job. We are starting with Lucene, because we have experience with it, but we could move to other document stores (in non replicated mode).
 
