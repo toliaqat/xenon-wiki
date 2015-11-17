@@ -3,13 +3,15 @@ This simple tutorial describes a very simple service, and its factory (they way 
 
 # Prerequisites
 
-Please refer to the [programming model page](./Programming-Model) for an overview of the Xenon API surface and model.
+ * [programming model](./Programming-Model) for an overview of the Xenon API surface and model.
 
-Please refer to the [debugging and interaction page](./Debugging-and-Troubleshooting#starting-a-dcp-host) for more details on starting Xenon, including starting multiple, replicated hosts.
+ * [debugging and troubleshooting](./Debugging-and-Troubleshooting#starting-a-dcp-host) for more details on starting Xenon, including starting multiple, replicated hosts.
 
-Please refer to the [custom host and service creation page](./Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
+ * [custom host and service creation page](./Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
 
-Please refer to the [developer guide](./DeveloperGuide) for instructions on how to build, pre reqs, etc
+ * [custom UI per service](./HostYourUi)
+
+ * [developer guide](./DeveloperGuide) for instructions on how to build, pre reqs, etc
 
 # Starting a Xenon host
 
