@@ -194,7 +194,7 @@ Synchronization occurs when new nodes are added to a node group, or existing nod
 
 The steady state protocol outlined below will also trigger a per service resynchronization if it notices disagreement on epoch, owner or version.
 
-Please see  the  [synchronization page](./nodeGroupSynchronizationService).
+Please see  the  [synchronization page](./NodeSelectorService#synchronization).
 
 
 ## Replication protocol
@@ -222,5 +222,4 @@ Please see  the  [synchronization page](./nodeGroupSynchronizationService).
    * Owner completes forwarded request from entry point node
   * Decide (commit): If no more requests are pending, owner node sends the current (committed) state to all peers, serving as "commit" to all the pending proposals at the peers. We do this only when the owner queue is empty to minimize additional messaging cost.
  * Entry point node (which forwarded to owner), completes request to client
-
 
