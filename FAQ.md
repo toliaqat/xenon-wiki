@@ -111,3 +111,17 @@ Xenon offers several mechanisms to debug your application in development or
 production environments. Note that the multi version document store allows 
 you to see per service state evolution. See the 
 [Debugging and Troubleshooting page](./Debugging-and-Troubleshooting).
+
+### 12. Is there load balancing / forwarding mechanism? How about DNS?
+
+Xenon has a built in scale out and peer forwarding scheme that allows
+clients to target any node in a node group, and have the runtime forward
+the request to the currently assigned "owner" node for the specific service
+URI. The service must enable the OWNER_SELECTION option.
+The client can be a regular thin client (curl, a browser, etc) and Xenon
+will implicitly forward requests as appropriate.
+There is a DNS Xenon service that can be configured to respond to DNS queries
+using queries on the Xenon index. Deeper integration of DNS and virtual IP
+(where a single IP address can be used to represent any Xenon Node) is in the
+works. Until then, a dedicated node (a edge load balancer for example) should be used
+to front the Xenon nodes and randomly select nodes based on incoming client requests
