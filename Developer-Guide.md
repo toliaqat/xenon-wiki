@@ -1,5 +1,3 @@
-# Overview
-
 This guide  describes a few  common guidelines and  recommendations when
 implementing a micro service and development in the Xenon framework (i.e.,
 contributing  code).
