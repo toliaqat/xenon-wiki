@@ -1,5 +1,3 @@
-# Finite State Machine
-
 A Xenon stateful service moves from one state to another, often based on client input. The service implementation needs to validate the input, taking the current state into account, and update the state. In that regard, you can think of a stateful service as a FSM (Finite State Machine).
 
 Xenon provides a common abstraction for a FSM to facilitate capturing a service' set of states and transitions among states:
