@@ -1,4 +1,3 @@
-# Multiservice Transactions
 > This is a work in progress -- feedback is welcome!
 
 The active document for describing transactions is [here](https://docs.google.com/document/d/1A4PE97CosbTcEFb4xyKs-bsI8EkyYzvdgzN5Ft8ahxY/edit#heading=h.7vr5rrx28pab)
