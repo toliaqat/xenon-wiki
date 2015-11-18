@@ -91,7 +91,6 @@ orchestration, which  means it  can do  the work in  the context  of the
 client request and reply when the orchestration is complete.
 
 * _Is this service managing a collection of documents/services?_ Then it should be split into two: 
-
-  a. A factory service that creates new service instances for each document
-  b. A "child" service representing each item.
+  1. A factory service that creates new service instances for each document
+  2. A "child" service representing each item.
    
