@@ -71,3 +71,10 @@ The TestSimpleTransactionService class contains a number of unit tests that demo
         this.host.send(patch);
         this.host.testWait();
     }
+
+# Implementation
+The implementation is captured in SimpleTransactionService, which has two parts:
+* A service which acts as a transaction coordinator for a given transaction id.
+* An OperationProcessingChain filter, which is injected into each service participating in the transaction.
+
+The filter intercepts each transactional operation and enrolls the service with the transaction coordinator. It is also responsible for detecting and handling transactional operations' conflicts. The coordinator maintains the set of enrolled services. At the end of the transaction, the coordinator sends a ClearTransactionRequest to the enrolled services, which is handled by the filter.
