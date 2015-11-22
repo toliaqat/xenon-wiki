@@ -6,9 +6,35 @@ To perform transactional operations using the Simple Transaction Service, a clie
 * Issues a POST to the Simple Transaction Factory Service with a body that optionally contains a transaction id (txid) UUID in the POST body's documentSelfLink (otherwise a random UUID will be allocated automatically)
 * Sets the transactionId property on each operation it wants to invoke in the context of the transaction by calling Operation.setTransactionId(txid).
 * Sends the operation
-* If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; otherwise, sends an Abort request to the coordinator.
+* If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; if some operation failed (e.g. an IllegalStateException due to a transactional conflict), sends an Abort request to the coordinator. 
 
-The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage:
+The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage. A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (both in its factory and service classes).
+    
+    public static class BankAccountFactoryService extends FactoryService {
+
+        public static final String SELF_LINK = ServiceUriPaths.SAMPLES + "/bank-accounts";
+
+        public BankAccountFactoryService() {
+            super(BankAccountService.BankAccountServiceState.class);
+        }
+
+        @Override
+        public Service createServiceInstance() throws Throwable {
+            return new BankAccountService();
+        }
+
+        @Override
+        public OperationProcessingChain getOperationProcessingChain() {
+            if (super.getOperationProcessingChain() != null) {
+                return super.getOperationProcessingChain();
+            }
+
+            OperationProcessingChain opProcessingChain = new OperationProcessingChain(this);
+            opProcessingChain.add(new TransactionalRequestFilter(this));
+            setOperationProcessingChain(opProcessingChain);
+            return opProcessingChain;
+        }
+    }
 
     private String newTransaction() throws Throwable {
         String txid = UUID.randomUUID().toString();
