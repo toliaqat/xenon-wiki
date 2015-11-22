@@ -9,6 +9,7 @@ To perform transactional operations using the Simple Transaction Service, a clie
 * If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; otherwise, sends an Abort request to the coordinator.
 
 The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage:
+
     private String newTransaction() throws Throwable {
         String txid = UUID.randomUUID().toString();
 
