@@ -98,6 +98,11 @@ The TestSimpleTransactionService class contains a number of unit tests that demo
         this.host.testWait();
     }
 
+# Conflicts
+Operations invoked on services participating in a transaction can conflict. The Simple Transaction Service conflict detection and handling is simple: if a service is enrolled in a transaction, operations outside the context of the transaction (including both transactional operations in the context of a different transaction and non-transactional operations) fail with an IllegalStateException.
+
+In the future we might provide finer control over the isolation level, for example: the ability to perform non-transactional read on a service enrolled in a transaction.
+
 # Implementation
 The implementation is captured in SimpleTransactionService, which has two parts:
 * A service which acts as a transaction coordinator for a given transaction id.
