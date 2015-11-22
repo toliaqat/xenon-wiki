@@ -103,6 +103,9 @@ Operations invoked on services participating in a transaction can conflict. The 
 
 In the future we might provide finer control over the isolation level, for example: the ability to perform non-transactional read on a service enrolled in a transaction.
 
+# Queries
+Queries currently do not take into account transactions automatically, but the client can use the transactionId field in queries (e.g. to include only documents that participate in a specific transaction, or to include only documents that participate in no transaction). Therefore, queries do not raise conflicts, however performing a GET on a document returned by a query raises an exception in case of a transactional conflict.
+
 # Implementation
 The implementation is captured in SimpleTransactionService, which has two parts:
 * A service which acts as a transaction coordinator for a given transaction id.
