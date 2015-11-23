@@ -1,5 +1,5 @@
 # Overview
-The Simple Transaction Service is a simple, lightweight transaction coordinator for Xenon services/documents that supports the ACID properties.
+The Simple Transaction Service is a simple, lightweight transaction coordinator for Xenon services/documents that supports the ACID properties. It is one of the two transaction protocols supported in Xenon and is 100% external to the DCP core runtime as it is implemented as an OperationProcessingChain filter (see "Implementation" below).
 
 # Usage
 To perform transactional operations using the Simple Transaction Service, a client typically:
