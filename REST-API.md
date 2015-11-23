@@ -147,7 +147,7 @@ The stats response:
     }
   },
   "documentVersion": 0,
-  "documentKind": "com:vmware:dcp:common:ServiceStats",
+  "documentKind": "com:vmware:xenon:common:ServiceStats",
   "documentSelfLink": "/core/examples/97d9c342-b4ba-4b5f-b6e7-3f951e612b4d/stats",
   "documentUpdateTimeMicros": 0,
   "documentExpirationTimeMicros": 0
