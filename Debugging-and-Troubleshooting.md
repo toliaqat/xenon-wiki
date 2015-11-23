@@ -16,7 +16,7 @@ In summary use the following mechanisms:
 ## Clients
 Xenon uses JSON and HTTP which means the web browser and curl are useful tools to interact with running services.
 
-## Starting a Xenon host
+## Starting a host
 
 The default host can be started as follows.
 Navigate to the xenon-host directory
