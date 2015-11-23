@@ -5,7 +5,7 @@ This simple tutorial describes a very simple service, and its factory (they way 
 
  * [programming model](./Programming-Model) for an overview of the Xenon API surface and model.
 
- * [debugging and troubleshooting](./Debugging-and-Troubleshooting#starting-a-dcp-host) for more details on starting Xenon, including starting multiple, replicated hosts.
+ * [debugging and troubleshooting](./Debugging-and-Troubleshooting#starting-a-host) for more details on starting Xenon, including starting multiple, replicated hosts.
 
  * [custom host and service creation page](./Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
 
@@ -15,14 +15,14 @@ This simple tutorial describes a very simple service, and its factory (they way 
 
 # Starting a Xenon host
 
-Start the example host, which listens on port 8000 (in the dcp-host directory):
+Start the example host, which listens on port 8000 (in the xenon-host directory):
 ```sh
-$ java -jar dcp-host/target/dcp-host-*-with-dependencies.jar
+$ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar
 ```
 
 ## Xenon Container
 
-Note that Xenon is packaged also a **[container](./DeveloperGuide#docker-images)** (about 70MB, which includes JR8), that starts the default dcp-host.jar. Load it (replace the **XXYZ** with a build number, like 1780):
+Note that Xenon is packaged also a **[container](./DeveloperGuide#docker-images)** (about 70MB, which includes JR8), that starts the default xenon-host.jar. Load it (replace the **XXYZ** with a build number, like 1780):
 ```sh
 $ curl <Xenon JOB URL>/dcp-jenkins:XXYZ.tgz | gzip -d | docker load
 ```
@@ -112,7 +112,7 @@ The example factory will respond with the initial state of the new service:
   "name": "n",
   "documentVersion": 0,
   "documentEpoch": 0,
-  "documentKind": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
   "documentSelfLink": "/core/examples/niki",
   "documentSignature": "fdaccd2541efc842e42fb9693be00dbc731dea07",
   "documentUpdateTimeMicros": 1432745225186007,
@@ -296,7 +296,7 @@ Service responds with:
   "keyValues": {},
   "name": "george",
   "documentVersion": 1,
-  "documentKind": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
   "documentSelfLink": "/core/examples/755c582b-eef4-4e96-8450-09e7227355af",
   "documentUpdateTimeMicros": 1411077167181000
 }
