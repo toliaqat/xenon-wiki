@@ -2,7 +2,7 @@
 
 The Xenon framework comes with a set of core services but it is meant as general hosting framework, where authors create a set of services, package them in a JAR, then start them using either a custom host, invoked from the command line, or through dynamic loading.
 
-Please first take a look at the [example service tutorial](./dcp-Example-Service-Tutorial) to get an idea on how to build and interact with Xenon services.
+Please first take a look at the [example service tutorial](./Example-Service-Tutorial) to get an idea on how to build and interact with Xenon services.
 
 # Creating a custom host JAR
 
@@ -18,7 +18,7 @@ To start your host invoke it using the java 8 jvm:
 
 java --jar <custom-host-name>.jar --port <portnumber>
 
-More details on starting one or more Xenon hosts, see the [debugging page](./Debugging-and-Troubleshooting#starting-a-dcp-host)
+More details on starting one or more Xenon hosts, see the [debugging page](./Debugging-and-Troubleshooting#starting-a-host)
 
 ## Derived Host example
 
