@@ -1,7 +1,5 @@
 > This is a work in progress -- feedback is welcome!
 
-The active document for describing transactions is [here](https://docs.google.com/document/d/1A4PE97CosbTcEFb4xyKs-bsI8EkyYzvdgzN5Ft8ahxY/edit#heading=h.7vr5rrx28pab)
-
 ## Overview
 
 In  this page,  we  describe the  design of  transactions  for Xenon.  The
@@ -37,3 +35,7 @@ which is issued by the client when all reads and updates that are part of the tr
 to run a validation stage, that has visibility into the transaction operations, *after* the client has
 issued a commit but before it receives the commit response. This allows for referential integrity on
 complex data models
+
+We have two transaction protocols:
+* [Optimistic](https://docs.google.com/document/d/1A4PE97CosbTcEFb4xyKs-bsI8EkyYzvdgzN5Ft8ahxY/edit#heading=h.7vr5rrx28pab)
+* [Simple](https://github.com/vmware/xenon/wiki/simple-transactions)
