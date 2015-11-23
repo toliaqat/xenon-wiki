@@ -54,22 +54,6 @@ Maven is used to build and test the project.
 * Run `mvn test` to run the tests.
  * Run `mvn -Dtest={test-name} test` to run a single test (http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html)
 
-## Cloning the repository
-
-Create an account on https://review.ec.eng.vmware.com/ (use VMware credentials).
-
-Go to your account settings and add your public key. Go to Username->Settings->SSH Public Keys, click on "Add Key" and you will find the "> How to Generate an SSH Key" which gives you the necessary instructions. 
-
-Download [this script](https://gist.githubusercontent.com/pietern/cc78ec1d2200535c5a26/raw/gerrit) and place it somewhere in your `PATH` (e.g. `/usr/local/bin`, or `$HOME/bin`). Don't forget to `chmod +x` it!
-
-Change into your development directory, and run:
-
-```
-gerrit clone ssh://<username>@review.ec.eng.vmware.com:29418/xenon
-cd xenon
-mvn test
-```
-
 ## Contributing
 
 After you have made your changes, added the relevant test cases, and made sure they pass, it is time to commit!
