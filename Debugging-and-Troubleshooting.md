@@ -19,18 +19,24 @@ Xenon uses JSON and HTTP which means the web browser and curl are useful tools t
 ## Starting a Xenon host
 
 The default host can be started as follows.
-Navigate to the dcp-host directory
+Navigate to the xenon-host directory
 
 To start a host with default parameters, listening on port 8000:
 
 ```
-java -jar dcp-host/target/dcp-host-*-with-dependencies.jar
+java -jar xenon-host/target/xenon-host-*-with-dependencies.jar
 ```
 
 To start a host listening on a particular interface address (useful for multi node) :
 
 ```
-java -jar dcp-host/target/dcp-host-*-with-dependencies.jar --bindAddress=192.168.1.170
+java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170
+```
+
+To start a host with a specific identifier (helps with multi-node debugging):
+
+```
+java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --id=host-one
 ```
 
 
@@ -40,10 +46,9 @@ If you plan to join a peer node group do not use "localhost" as the address sinc
 
 You should see the following log messages in your terminal:
 ```
-$ java -jar dcp-host/target/dcp-host-*-with-dependencies.jar --bindAddress=192.168.1.170
-Dec 25, 2014 9:57:19 AM com.vmware.dcp.common.CommandLineArgumentParser bindPairs
-INFO: Found field for argument bindAddress:192.168.1.170
-[1][I][1419530239289][ServiceHost:8000][loadState][loading previous state from /var/folders/ds/0173d2vj4zx9ty7vcdpg6bd80000gn/T/dcp/8000/serviceHostState.json]
+$ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170
+
+[1][I][1419530239289][ServiceHost:8000][loadState][loading previous state from /var/folders/ds/0173d2vj4zx9ty7vcdpg6bd80000gn/T/xenon/8000/serviceHostState.json]
 [3][I][1419530239504][ServiceHost:8000][start][Listening on 192.168.1.170:8000]
 [4][I][1419530239544][ServiceHost:8000][allocateExecutor][New executor for service /core/document-index]
 ```
@@ -51,34 +56,19 @@ INFO: Found field for argument bindAddress:192.168.1.170
 If you want to experiment with replication, on the same node, in a different terminal, start a second host:
 
 ```
-java -jar dcp-host/target/dcp-host-*-with-dependencies.jar --bindAddress=192.168.1.170 --port=8001 --peerNodes=http://192.168.1.170:8000
+java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170 --port=8001 --peerNodes=http://192.168.1.170:8000
 ```
 
 When the second host starts you should see join messages:
 
 ```
-$ java -jar dcp-host/target/dcp-host-*-with-dependencies.jar --bindAddress=192.168.1.170 --port=8001 --peerNodes=http://192.168.1.170:8000
-Dec 25, 2014 10:01:06 AM com.vmware.dcp.common.CommandLineArgumentParser bindPairs
-INFO: Found field for argument port:8001
-Dec 25, 2014 10:01:06 AM com.vmware.dcp.common.CommandLineArgumentParser bindPairs
-INFO: Found field for argument peerNodes:http://192.168.1.170:8000
-Dec 25, 2014 10:01:06 AM com.vmware.dcp.common.CommandLineArgumentParser bindPairs
-INFO: Found field for argument bindAddress:192.168.1.170
+$ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170 --port=8001 --peerNodes=http://192.168.1.170:8000
+
 [3][I][1419530466530][ServiceHost:8001][getSystemInfo][Address fe80:0:0:0:4483:50ff:fe61:556a%awdl0 is unreachable, ignoring]
 [4][I][1419530466663][ServiceHost:8001][start][Listening on 192.168.1.170:8001]
 [5][I][1419530466717][ServiceHost:8001][allocateExecutor][New executor for service /core/document-index]
 [8][I][1419530467026][ServiceHost:8001][lambda$2][Joined peer http://192.168.1.170:8000/core/node-groups/default]
-[9][I][1419530467062][8001/provisioning/dhcp-host-configuration][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[10][I][1419530467062][8001/provisioning/dhcp-subnets][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[11][I][1419530467070][8001/core/auth/credentials][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[12][I][1419530467070][8001/resources/pools][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[13][I][1419530467070][8001/resources/compute-hosts][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[14][I][1419530467071][8001/provisioning/dhcp-leases][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[15][I][1419530467073][8001/provisioning/resource-removal-tasks][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[16][I][1419530467074][8001/provisioning/resource-allocation-tasks][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[17][I][1419530467079][8001/resources/compute-host-descriptions][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[18][I][1419530467081][8001/resources/disks][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
-[19][I][1419530467102][8001/core/examples][lambda$1][Got 1 peer responses, restarting 0 child services, ignored 0 self links]
+
 ```
 
 ## Client side tips
@@ -135,7 +125,7 @@ GET /core/operation-index?documentSelfLink=*&expand=documentLinks
       "statusCode": 0,
       "options": [],
       "documentVersion": 0,
-      "documentKind": "com:vmware:dcp:common:Operation:SerializedOperation",
+      "documentKind": "com:vmware:xenon:common:Operation:SerializedOperation",
       "documentSelfLink": "1440614086306028",
       "documentUpdateTimeMicros": 1440614086306028,
       "documentExpirationTimeMicros": 1440700486306027
@@ -151,7 +141,7 @@ GET /core/operation-index?documentSelfLink=*&expand=documentLinks
       "statusCode": 0,
       "options": [],
       "documentVersion": 0,
-      "documentKind": "com:vmware:dcp:common:Operation:SerializedOperation",
+      "documentKind": "com:vmware:xenon:common:Operation:SerializedOperation",
       "documentSelfLink": "1440614086329026",
       "documentUpdateTimeMicros": 1440614086329026,
       "documentExpirationTimeMicros": 1440700486329025
@@ -273,8 +263,7 @@ class MockHostManipulationService extends JavaBasicService {
 
         if (this.isFailureExpected) {
             taskState.taskInfo.stage = TaskStage.FAILED;
-            taskState.taskInfo.failure = com.vmware.dcp.common.Utils
-                    .toServiceErrorResponse(new IllegalStateException("Simulated failure"));
+            taskState.taskInfo.failure = Utils.toServiceErrorResponse(new IllegalStateException("Simulated failure"));
         } else {
             taskState.taskInfo.stage = TaskStage.FINISHED;
         }
@@ -290,8 +279,7 @@ class MockHostManipulationService extends JavaBasicService {
                         if (e != null) {
                             logSevere(e);
                             taskState.taskInfo.stage = TaskStage.FAILED;
-                            taskState.taskInfo.failure = com.vmware.dcp.common.Utils
-                                    .toServiceErrorResponse(e);
+                            taskState.taskInfo.failure = Utils.toServiceErrorResponse(e);
                         }
                         patchProvisioningTask(patchBody, taskState);
                     });
