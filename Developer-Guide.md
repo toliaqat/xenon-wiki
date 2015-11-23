@@ -64,10 +64,10 @@ See the [Gerrit workflow](Gerrit-workflow) document for a more comprehensive gui
 
 ## Packaging a fat jar
 
-Resulting JAR goes to `dcp-host/target/dcp-host-*-with-dependencies.jar`.
+Resulting JAR goes to `xenon-host/target/xenon-host-*-with-dependencies.jar`.
 
 * `mvn clean package -DskipTests` (packages without running tests)
-*  To start the default service host and poke it with a HTTP client see [this debugging page section](dcp-Debugging-and-Troubleshooting#starting-a-dcp-host)
+*  To start the default service host and poke it with a HTTP client see [this debugging page section](Debugging-and-Troubleshooting#starting-a-host)
 
 ## Maven tips
 
@@ -79,10 +79,10 @@ mvn help:describe -Dcmd=compile
 
 # Debugging
 
-Please refer to the [debugging page](dcp-Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
+Please refer to the [debugging page](Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
 
 # Building a service
 
-After reading more on the [programming model](dcp-Programming-Model) and how a service works, please refer to the [example service tutorial](dcp-Example-Service-Tutorial) to learn about a simple service that is already started as part of the production service host, and enables you to interact with the system. In addition you can follow the guide for [serving your service with a default or custom user interface](HostYourUi).
+After reading more on the [programming model](Programming-Model) and how a service works, please refer to the [example service tutorial](Example-Service-Tutorial) to learn about a simple service that is already started as part of the production service host, and enables you to interact with the system. In addition you can follow the guide for [serving your service with a default or custom user interface](HostYourUi).
 
 To create a new service host, that starts custom services, in its own jar, please see the [custom service hosting tutorial](Hosting-Custom-Services-On-Xenon)
