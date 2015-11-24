@@ -16,9 +16,9 @@
 ### Marking a release
 
 * Make sure the CHANGELOG is up to date
-* Run `mvn versions:set -DnewVersion=0.3.0` (insert the new version here)
+* Run `mvn versions:set -DnewVersion=0.3.0` (insert new version)
 * Commit `Mark 0.3.0 release`
-* Run `mvn versions:set -DnewVersion=0.3.1-SNAPSHOT`
+* Run `mvn versions:set -DnewVersion=0.3.1-SNAPSHOT` (insert new snapshot version)
 * Commit `Mark 0.3.1-SNAPSHOT for development`
 * Push commits to Gerrit
 * Wait for +1/+2 for **both** commits
