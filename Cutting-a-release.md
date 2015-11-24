@@ -74,4 +74,6 @@ Perform the release:
 $ mvn clean deploy -P release
 ```
 
+Release the deployment to maven central by following [these instructions](http://central.sonatype.org/pages/releasing-the-deployment.html).
+
 Done!
