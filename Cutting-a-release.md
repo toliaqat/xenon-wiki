@@ -57,8 +57,8 @@ Make sure Maven can find credentials to Sonatype OSSRH (see `~/.m2/settings.xml`
 Double check you don't have a dirty tree:
 
 ```
-$ ( [ -z "$(git status --porcelain)" ] && echo "Good to go!" ) || echo "Dirty tree..."
-Good to go!
+$ ( [ -z "$(git status --porcelain)" ] && echo "OK" ) || echo "Dirty..."
+OK
 ```
 
 Double check you're actually releasing `0.3.0`:
