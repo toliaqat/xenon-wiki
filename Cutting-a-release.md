@@ -1,4 +1,4 @@
-* ### Prerequisites
+### Prerequisites
 
 * Several of these steps are only available to VMware employees.
 * Create a key pair, publish it to a key server (see [working with PGP signatures][working-with-pgp-signatures])
@@ -82,6 +82,11 @@ Perform the release:
 $ mvn clean deploy -P release
 ```
 
-Release the deployment to maven central by following [these instructions](http://central.sonatype.org/pages/releasing-the-deployment.html). You will do two steps: Closing the Staging repositories, and making the release public.
+Release the deployment to maven central by following [these instructions](http://central.sonatype.org/pages/releasing-the-deployment.html). You will do two steps: Closing the Staging repositories, and making the release public. Useful links for this process: 
+* [Manage Sonatype Staging Repositories via Web UI](https://oss.sonatype.org/#stagingRepositories)
+* [Deploy snapshot artifacts into repository](https://oss.sonatype.org/content/repositories/snapshots)
+* [Download snapshot, release and staged artifacts from staging group](https://oss.sonatype.org/content/groups/staging)
+* [Download snapshot and release artifacts from group](https://oss.sonatype.org/content/groups/public)
+* [See the released artifacts on Maven Central](https://repo1.maven.org/maven2/com/vmware/xenon/)
 
 Done!
