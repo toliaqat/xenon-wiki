@@ -4,7 +4,7 @@
 * Get credentials to Sonatype OSS Repository Hosting
 * Observe [Semantic Versioning][semver]
 
-[working-with-pgp-signatures]: https://central.sonatype.org/pages/working-with-pgp-signatures.html
+[working-with-pgp-signatures]: http://central.sonatype.org/pages/working-with-pgp-signatures.html
 [semver]: http://semver.org/
 
 #### Notes
