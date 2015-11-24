@@ -31,13 +31,13 @@
 Checkout a new branch for the `0.3.0` release:
 
 ```
-git checkout -b v0.3.0 <commit sha1>
+$ git checkout -b v0.3.0 <commit sha1>
 ```
 
 Make sure you have the GPG agent running so you don't have to repeatedly enter your key's passphrase:
 
 ```
-eval $(gpg-agent)
+$ eval $(gpg-agent)
 ```
 
 Make sure Maven can find credentials to Sonatype OSSRH (see `~/.m2/settings.xml`):
@@ -71,7 +71,7 @@ $ git show --oneline HEAD | head -1
 Perform the release:
 
 ```
-mvn clean deploy -P release
+$ mvn clean deploy -P release
 ```
 
 Done!
