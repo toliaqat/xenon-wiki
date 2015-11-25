@@ -16,12 +16,21 @@ The [design patterns](./service-design-patterns) page offers some tips on how to
 
 ## Xenon Operation processing
 
+### IO Pipeline
+
+![io-pipeline](./io-pipeline.jpg)
+
 ### Service Creation (POST to Factory Service)
+
 ![Xenon-POST](./Xenon-POST.jpg)
 
 ### Update handling (PUT,PATCH, DELETE to a StatefulService)
 
 ![Xenon-PUT](./Xenon-PUT.jpg)
+
+### Service Lifecycle
+
+![service-lifecycle](./service-lifecycle.jpg)
 
 
 ## Service Interface
