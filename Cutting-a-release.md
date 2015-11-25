@@ -34,7 +34,7 @@
 
 **After** both commits have been merged you know the bits you're about to release won't change.
 
-* Create a new branch in Gerrit, v0.3.0, using the hash from the corresponding commit for the release.
+* Create a new branch in Gerrit, v0.3.0, using the hash from the corresponding commit for the release (**note**: the commit may be different if Gerrit rebased it upon submitting, so always fetch new changes after submitting the commits!)
 * Checkout the new branch: 
 
 ```
