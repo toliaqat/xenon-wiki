@@ -11,7 +11,7 @@ This simple tutorial describes a very simple service, and its factory (they way 
 
  * [custom UI per service](./HostYourUi)
 
- * [developer guide](./DeveloperGuide) for instructions on how to build, pre reqs, etc
+ * [developer guide](./Developer-Guide) for instructions on how to build, pre reqs, etc
 
 # Starting a Xenon host
 
