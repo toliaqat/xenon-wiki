@@ -53,27 +53,23 @@ Note Xenon will pause services to disk and remove all runtime cost, when a servi
 The build verification tests used during maven build and test phases can also be used for performance analysis, by supplying various properties that modify service, request and other counts.
 
 `
-MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryServicePut -Ddcp.requestCount=500000
+MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryServicePut -Dxenon.requestCount=500000
 `
 ## Update Operation Throughput
 
 ### Single node
 Using a payload that serializes to 524 bytes (JSON). For the durable service tests, throughput includes indexing cost, and commit to disk which occurs every 5 seconds.
 
- * In memory service, in process (no socket I/O) (2G limit): 1,000,000 ops/sec
+ * In memory service, in process (no socket I/O) (4G limit): 1,000,000 ops/sec
  * In memory service, in process (no socket I/O) (64MB limit): 500,000 ops/sec
  * In memory service, local sockets: 30,000 ops/sec
- * Durable service, in process (no socket I/O) (512MB limit): 190,000 ops/sec
+ * Durable service, in process (no socket I/O) (4G limit): 250,000 ops/sec
  * Durable service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
- * Durable service, local sockets: 30,000 ops/sec
+ * Durable service, local sockets: 60,000 ops/sec
 
 The [lucene document index service](./luceneDocumentIndexService#performance) has more details on indexing and query throughput.
 
 ### Multiple nodes
- * Durable, replicated service, 5 nodes (2GB limit): 2,000 ops/sec
- 
- GET / read throughput is higher for all permutations (for example, for durable services its about 4X write perf, on machine tested, since GETs execute in parallel from the multi version store)
+ * Durable, replicated service, 3 nodes (4GB limit): 7,000 ops/sec
 
 Detailed throughput numbers are available in the continuous integration tests in Jenkins.
-
-These are early numbers, we plan to optimize several parts of the I/O path, but as it stands, this is a usable system.
