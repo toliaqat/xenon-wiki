@@ -83,6 +83,7 @@ Note that state version tracking can be bounded per service to last N versions o
 The decentralized framework is an active-active system. Xenon uses consistent hashing and state replication to achieve both load balancing of "work" and high availability. Depending on service options different guarantees are given to a service instance.
 
 See the [replication and leader election page for details](./leaderElectionAndReplicationDesignPage).
+See also the [clustering slide deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx).
 
 A brief summary of the key features:
  * High availability - If one service instance, in one node goes down, its peers will have seen the same update and indexed it locally. See ServiceOption.REPLICATION
