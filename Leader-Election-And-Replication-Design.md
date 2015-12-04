@@ -17,6 +17,7 @@ through the example tutorial
 
 Please refer to the [design page](./Design) for larger context and Xenon
 motivation.
+See also [clustering deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx) for an overview of Xenon multi-node mechanisms.
 
 ## Service Options
 
@@ -222,4 +223,3 @@ Please see  the  [synchronization page](./NodeSelectorService#synchronization).
    * Owner completes forwarded request from entry point node
   * Decide (commit): If no more requests are pending, owner node sends the current (committed) state to all peers, serving as "commit" to all the pending proposals at the peers. We do this only when the owner queue is empty to minimize additional messaging cost.
  * Entry point node (which forwarded to owner), completes request to client
-
