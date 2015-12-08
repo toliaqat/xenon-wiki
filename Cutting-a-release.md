@@ -76,6 +76,13 @@ $ git show --oneline HEAD | head -1
 6bb595a Mark 0.3.0 release
 ```
 
+Tell git about the release: (It will show up as a release on github, but it takes a little while):
+
+```
+git tag -am "Tagging v.0.3.0" v0.3.0-release
+git push origin v0.3.0-release HEAD:refs/heads/v0.3.0
+```
+
 Perform the release:
 
 ```
