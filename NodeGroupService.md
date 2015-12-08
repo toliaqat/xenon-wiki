@@ -31,7 +31,7 @@ curl http://192.168.1.33:8000/core/node-groups/default
 {
   "documents": {
     "/core/node-groups/default/130fad85-70fa-4e9a-848d-78b3c025a425": {
-      "groupReference": "http://192.168.1.64:8000/core/node-groups/default",
+      "groupReference": "http://192.168.1.33:8000/core/node-groups/default",
       "status": "AVAILABLE",
       "options": "PEER, SYNCHRONIZE_ON_JOIN",
       "id": "130fad85-70fa-4e9a-848d-78b3c025a425",
