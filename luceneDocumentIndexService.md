@@ -10,7 +10,7 @@ There is also a "blob" index, that can be used to store binary content and queri
 The document  index is a singleton  and does NOT do  replication between
 nodes. Replication  is done when  updates are sent to  service instances
 that are  marked DURABLE and  REPLICATED. The document index  service is
-not  available to  external clients.  It is  only used  within each  dcp
+not  available to  external clients.  It is  only used  within each  Xenon
 process, as part of the service operation  work flow. It is not meant to
 be used directly as a document store.
 
@@ -28,7 +28,7 @@ allowed from remote services and clients.
 
 ## Performance
 
-Please first read the [dcp performance page](./service-framework-performance) for environment setup. Tests below were run on the same environment as the Xenon framework tests. All performance tests come from the checked in tests, run with specific update count and service count parameters, plus JVM heap size limits.
+Please first read the [Xenon performance page](./service-framework-performance) for environment setup. Tests below were run on the same environment as the Xenon framework tests. All performance tests come from the checked in tests, run with specific update count and service count parameters, plus JVM heap size limits.
 
 ### Write (indexing) throughput
 
@@ -52,8 +52,8 @@ The  service   tracks  detailed   stats  (available  at   runtime  under
 indexed, fields indexed, latency, etc
 
 Query throughput numbers can be determined on a host by simply running
-- TestQueryTaskService simpleDocumentIndexingThroughput test with -Ddcp.isStressTest=true
-- TestQueryTaskService complexDocumentIndexingAndQueryThroughput test with -Ddcp.isStressTest=true
+- TestQueryTaskService simpleDocumentIndexingThroughput test with -Dxenon.isStressTest=true
+- TestQueryTaskService complexDocumentIndexingAndQueryThroughput test with -Dxenon.isStressTest=true
 
 ### Single field, single result match 
 Sample run from the complex document indexing test, 19 fields per document, 100,000 service documents indexed:
@@ -106,7 +106,7 @@ Sample result on same machine, running a boolean query against 200K documents, s
       "occurance": "MUST_OCCUR",
       "term": {
         "propertyName": "documentKind",
-        "matchValue": "com:vmware:dcp:services:common:QueryValidationTestService:QueryValidationServiceState"
+        "matchValue": "com:vmware:xenon:services:common:QueryValidationTestService:QueryValidationServiceState"
       }
     },
     {
@@ -357,7 +357,7 @@ Does an orderly shutdown of the service
     }
   },
   "documentVersion": 0,
-  "documentKind": "com:vmware:dcp:common:ServiceStats",
+  "documentKind": "com:vmware:xenon:common:ServiceStats",
   "documentSelfLink": "/core/document-index/stats",
   "documentUpdateTimeMicros": 0,
   "documentExpirationTimeMicros": 0
