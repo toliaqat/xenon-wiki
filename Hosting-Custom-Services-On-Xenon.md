@@ -68,4 +68,4 @@ The following are needed:
 The custom host jar can include service classes or services can be packaged in their own jar so they can be re-used by other projects.
 
 # Automatic service enumeration and loading
-In the future, Xenon might simply enumerate and load services found in its container sandbox, so no custom host classes should be required. 
+See the xenon-loader package, it provides a service for finding and loading xenon services from jar files, dynamically.
