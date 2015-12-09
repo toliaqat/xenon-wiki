@@ -58,18 +58,18 @@ MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryService
 ## Update Operation Throughput
 
 ### Single node
-Using a payload that serializes to 524 bytes (JSON). For the durable service tests, throughput includes indexing cost, and commit to disk which occurs every 5 seconds.
+Using a payload that serializes to 636 bytes (JSON). For the durable service tests, throughput includes indexing cost, and commit to disk which occurs every 5 seconds.
+
+The parameters supplied to the tests are serviceCount=128, and updateCount over 100,000 for in memory tests and over 10,000 for socket tests.
 
  * In memory service, in process (no socket I/O) (4G limit): 1,000,000 ops/sec
  * In memory service, in process (no socket I/O) (64MB limit): 500,000 ops/sec
- * In memory service, local sockets: 30,000 ops/sec
+ * In memory service, local sockets: 20,000 ops/sec
  * Durable service, in process (no socket I/O) (4G limit): 250,000 ops/sec
  * Durable service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
- * Durable service, local sockets: 60,000 ops/sec
-
 The [lucene document index service](./luceneDocumentIndexService#performance) has more details on indexing and query throughput.
 
-### Multiple nodes
- * Durable, replicated service, 3 nodes (4GB limit): 7,000 ops/sec
+### Multiple node
+ * Durable, replicated service, 3 nodes (4GB limit): 7,000 PUT ops/sec
 
 Detailed throughput numbers are available in the continuous integration tests in Jenkins.
