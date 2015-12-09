@@ -612,7 +612,7 @@ sendRequest(op1.joinWith(op2).joinWith(op3).setCompletion(ch));
                 return;
             }
             
-            for(Operation op : exc.values()) {
+            for(Operation op : ops.values()) {
                 // collect bodies across operations do something. 
                 NetworkState ns = op.getBody(NetworkState.class);
             }
