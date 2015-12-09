@@ -202,7 +202,7 @@ PHRASE).
       "booleanClauses": [
         {
           "term": {
-            "matchValue": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+            "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
             "propertyName": "documentKind"
           },
           "occurance": "MUST_OCCUR"
@@ -257,7 +257,7 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
   "documentExpirationTimeMicros": 1413223137730000,
   "documentUpdateTimeMicros": 1413223107740000,
   "documentSelfLink": "/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e006806",
-  "documentKind": "com:vmware:dcp:services:common:QueryTask",
+  "documentKind": "com:vmware:xenon:services:common:QueryTask",
   "documentVersion": 2,
   "includeDeletedDocuments": false,
   "results": {
@@ -274,7 +274,7 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
       "booleanClauses": [
         {
           "term": {
-            "matchValue": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+            "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
             "propertyName": "documentKind"
           },
           "occurance": "MUST_OCCUR"
@@ -310,7 +310,7 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
       "booleanClauses": [
         {
           "term": {
-            "matchValue": "com:vmware:dcp:services:common:QueryValidationTestService:QueryValidationServiceState",
+            "matchValue": "com:vmware:xenon:services:common:QueryValidationTestService:QueryValidationServiceState",
             "propertyName": "documentKind"
           },
           "occurance": "MUST_OCCUR"
@@ -339,7 +339,7 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
           "booleanClauses": [
             {
               "term": {
-                "matchValue": "com:vmware:dcp:services:common:QueryValidationTestService:QueryValidationServiceState",
+                "matchValue": "com:vmware:xenon:services:common:QueryValidationTestService:QueryValidationServiceState",
                 "propertyName": "documentKind"
               },
               "occurance": "MUST_OCCUR"
@@ -358,7 +358,7 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
           "booleanClauses": [
             {
               "term": {
-                "matchValue": "com:vmware:dcp:services:common:QueryValidationTestService:QueryValidationServiceState",
+                "matchValue": "com:vmware:xenon:services:common:QueryValidationTestService:QueryValidationServiceState",
                 "propertyName": "documentKind"
               },
               "occurance": "MUST_OCCUR"
@@ -449,7 +449,7 @@ The following query sorts the documents of kind ExampleServiceState based on the
         "query": {
             "term": {
                 "matchType": "TERM",
-                "matchValue": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+                "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
                 "propertyName": "documentKind"
             }
         }
@@ -540,7 +540,7 @@ results.
 ### Document Kinds
 
 The   `documentKind`  is   the   same  as   when   creating  the   task:
-`com:vmware:dcp:services:common:QueryTask`.  In   the  case  of   a  GET
+`com:vmware:xenon:services:common:QueryTask`.  In   the  case  of   a  GET
 response, the `taskInfo.stage` will either  be FINISHED or FAILED, there
 is  no  need to  poll  even  if  `isDirect`  was `false`  when  creating
 the  query  task.  A  `nextPageLink`  field  will  be  included  in  GET
@@ -577,7 +577,7 @@ body:
         - occurance: MUST_OCCUR
           term:
             propertyName: documentKind
-            matchValue: com:vmware:dcp:services:common:ExampleService:ExampleServiceState
+            matchValue: com:vmware:xenon:services:common:ExampleService:ExampleServiceState
         - occurance: MUST_OCCUR
           term:
             propertyName: name
@@ -603,7 +603,7 @@ the URI of the first page:
           "occurance": "MUST_OCCUR",
           "term": {
             "propertyName": "documentKind",
-            "matchValue": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+            "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
             "matchType": "TERM"
           }
         },
@@ -633,7 +633,7 @@ the URI of the first page:
   "indexLink": "/core/document-index",
   "documentVersion": 0,
   "documentEpoch": 0,
-  "documentKind": "com:vmware:dcp:services:common:QueryTask",
+  "documentKind": "com:vmware:xenon:services:common:QueryTask",
   "documentSelfLink": "/core/query-tasks/166cd49e-05d8-4e81-ac86-dbca73cc5ad4",
   "documentUpdateTimeMicros": 1432747351265007,
   "documentExpirationTimeMicros": 1432747951265019,
@@ -676,7 +676,7 @@ The response will have 100 *documentLinks* and *nextPageLink* set to the URI of 
         "name": "doc-13",
         "documentVersion": 0,
         "documentEpoch": 0,
-        "documentKind": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+        "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
         "documentSelfLink": "/core/examples/a67c4d98-793b-4cd6-b77b-6bc657e228fa",
         "documentSignature": "5e522c487980b647896b6502d8dcaef21e3b6c92",
         "documentUpdateTimeMicros": 1432746726377012,
@@ -688,7 +688,7 @@ The response will have 100 *documentLinks* and *nextPageLink* set to the URI of 
         "name": "doc-69",
         "documentVersion": 0,
         "documentEpoch": 0,
-        "documentKind": "com:vmware:dcp:services:common:ExampleService:ExampleServiceState",
+        "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
         "documentSelfLink": "/core/examples/001fcebe-d669-49a8-9685-88b5c3b644cf",
         "documentSignature": "f62ca3a6baadddf8ee0d05c8aaac142f51b2ae33",
         "documentUpdateTimeMicros": 1432746727319012,
@@ -707,7 +707,7 @@ The response will have 100 *documentLinks* and *nextPageLink* set to the URI of 
   },
   "indexLink": "/core/document-index",
   "documentVersion": 0,
-  "documentKind": "com:vmware:dcp:services:common:QueryTask",
+  "documentKind": "com:vmware:xenon:services:common:QueryTask",
   "documentSelfLink": "/277da2e8-f2e4-4ad5-9a8a-ae173f47d853",
   "documentUpdateTimeMicros": 0,
   "documentExpirationTimeMicros": 1432748187234995
