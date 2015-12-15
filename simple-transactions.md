@@ -8,7 +8,7 @@ To perform transactional operations using the Simple Transaction Service, a clie
 * Sends the operation
 * If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; if some operation failed (e.g. an IllegalStateException due to a transactional conflict), sends an Abort request to the coordinator. 
 
-The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage. A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (both in its factory and service classes).
+The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage. A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**).
     
     public static class BankAccountFactoryService extends FactoryService {
 
