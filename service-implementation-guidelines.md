@@ -1,6 +1,6 @@
 # Overview
 
-The xenon service model enables lightweight services that can umber in the millions, and handle very large message loads. It is important however to follow certain guidelines to avoid excessive CPU usage or wasting memory. In addition, serious correctness errors will occur if the developer side steps the service lifecycle and state management model.
+The xenon service model enables lightweight services that can number in the millions, and handle very large message loads. It is important however to follow certain guidelines to avoid excessive CPU usage or wasting memory. In addition, serious correctness errors will occur if the developer side steps the service lifecycle and state management model.
 
 ## State Management
 
