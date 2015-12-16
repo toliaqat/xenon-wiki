@@ -14,6 +14,10 @@ The following types are the key components of the Xenon framework. Xenon is impl
 
 The [design patterns](./service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details 
 
+## Implementation Guidelines
+
+The [guidelines](./service-implementation-guidelines) page contains important implementation and performance guidelines. Please read before embarking on scale testing.
+
 ## Xenon Operation processing
 
 ### IO Pipeline
