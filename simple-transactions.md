@@ -8,8 +8,23 @@ To perform transactional operations using the Simple Transaction Service, a clie
 * Sends the operation
 * If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; if some operation failed (e.g. an IllegalStateException due to a transactional conflict), sends an Abort request to the coordinator. 
 
-The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage. A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**).
+The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage:
+The host sets the core transaction service to null and starts the Simple Transaction Factory. 
+A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**).
     
+    @Before
+    public void setUp() throws Exception {
+        try {
+            this.host.setTransactionService(null);
+            if (this.host.getServiceStage(SimpleTransactionFactoryService.SELF_LINK) == null) {
+                this.host.startServiceAndWait(SimpleTransactionFactoryService.class,
+                        SimpleTransactionFactoryService.SELF_LINK);
+            }
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static class BankAccountFactoryService extends FactoryService {
 
         public static final String SELF_LINK = ServiceUriPaths.SAMPLES + "/bank-accounts";
