@@ -269,6 +269,8 @@ You can even see all the documents in the index:
 ```
 
 # 6.0 Query Tasks
+
+## 6.1 Query tasks: the client view
 As nice as the above queries are, they are limited. You may need to do full boolean queries, such as "as example documents owned by user-1@example.com". For this, you need query tasks. 
 
 Here is one example of a simple query task. All query tasks are done a a POST. A _direct_ query will return the results in response to the POST. If you do not specify that it is a direct query, the results can be queried later; this is useful when the query may take a long time to execute or is a continuous query. 
@@ -397,4 +399,155 @@ Using the query (output trimmed for simplicity):
 }
 ```
 
+## 6.2 Query Tasks in Java
+Let's look at an example of using Query Tasks in Java within Xenon. Our goal is to find out if there are any users with the email address of user1@example.com. To do this, we need to do a query for all user service documents with an email field of "user1@example.com". This is a boolean AND query. Let's first look at it in the command-line:
+
+_File:_ query-user-1.body
+```
+{
+  "taskInfo": {
+    "isDirect": true
+  },
+  "querySpec": {
+    "query": {
+      "booleanClauses": [
+         {
+           "occurance": "MUST_OCCUR",
+           "term": {
+             "propertyName": "documentKind",
+             "matchValue": "com:vmware:xenon:services:common:UserService:UserState",
+             "matchType": "TERM"
+           }
+         },
+         {
+           "occurance": "MUST_OCCUR",
+           "term": {
+             "propertyName": "email",
+             "matchValue": "user1@example.com",
+             "matchType": "TERM"
+           }
+         }
+      ]
+    }
+  },
+  "indexLink": "/core/document-index"
+}
+```
+
+Note that this query has "booleanClauses" instead of "term", and each element in the booleanClauses is a single term. Each term could itself be booleanClause instead. 
+
+Let's try the query out:
+```
+% curl -s -X POST -d@query-user-1.body http://localhost:8000/core/query-tasks -H "Content-Type: application/json" | jq . 
+{
+  "taskInfo": {
+    "stage": "FINISHED",
+    "isDirect": true,
+    "durationMicros": 992
+  },
+  "querySpec": {
+    "query": {
+      "occurance": "MUST_OCCUR",
+      "booleanClauses": [
+        {
+          "occurance": "MUST_OCCUR",
+          "term": {
+            "propertyName": "documentKind",
+            "matchValue": "com:vmware:xenon:services:common:UserService:UserState",
+            "matchType": "TERM"
+          }
+        },
+        {
+          "occurance": "MUST_OCCUR",
+          "term": {
+            "propertyName": "email",
+            "matchValue": "user1@example.com",
+            "matchType": "TERM"
+          }
+        }
+      ]
+    },
+    "resultLimit": 2147483647,
+    "options": []
+  },
+  "results": {
+    "documentLinks": [
+      "/core/authz/users/47f7449f-0c38-4d18-a2a2-96f4378d492a"
+    ],
+    "documentCount": 1,
+    "queryTimeMicros": 992,
+    "documentVersion": 0,
+    "documentUpdateTimeMicros": 0,
+    "documentExpirationTimeMicros": 0,
+    "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+  },
+  "indexLink": "/core/document-index",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:QueryTask",
+  "documentSelfLink": "/core/query-tasks/c965541a-e8b4-4cd9-a3a9-fbc9a6760372",
+  "documentUpdateTimeMicros": 1452028225092002,
+  "documentExpirationTimeMicros": 1452028825092005,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa",
+  "documentAuthPrincipalLink": "/core/authz/guest-user"
+}
+```
+
+Excellent: we got exactly the one service document that has the user we are looking for. 
+
+Now let's try it in Java. This query is taken from [https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/AuthorizationSetupHelper.java](AuthorizationSetupHelper.java). That code is doing a query to see if a user exists before it attempts to create the user. Let's look at the Java code, annotated with a few extra comments to explain the code
+
+```
+    private void queryUser() {
+        // This is the query that will correspond to the "query" portion of query-user-1.body, 
+        // above. Note that we don't specify MUST_OCCUR because it's the default
+        Query userQuery = Query.Builder.create()
+                // This is the first of the boolean clauses, to match all user service documents
+                .addFieldClause(ServiceDocument.FIELD_NAME_KIND, Utils.buildKind(UserState.class))
+
+                // This is the second of the boolean clauses, to match just the email address
+                .addFieldClause(UserState.FIELD_NAME_EMAIL, this.userEmail)
+                .build();
+
+        // This will correspond to the entire query-user-1.body, above. It just embeds the 
+        // query we created above.
+        QueryTask queryTask = QueryTask.Builder.createDirectTask()
+                .setQuery(userQuery)
+                .build();
+
+        URI queryTaskUri = UriUtils.buildUri(this.host, ServiceUriPaths.CORE_QUERY_TASKS);
+
+        // This will create the POST that corresponds to the query-user-1.post, above
+        Operation postQuery = Operation.createPost(queryTaskUri)
+                .setBody(queryTask)
+                .setReferer(this.referer)
+                .setCompletion((op, ex) -> {
+                    if (ex != null) {
+                        this.failureMessage = String.format("Could not query user %s: %s",
+                                this.userEmail, ex);
+                        this.currentStep = UserCreationStep.FAILURE;
+                        setupUser();
+                        return;
+                    }
+
+                    // This examines the response from the Query Task Service
+                    // In our case, we decide a user exists if there's at least
+                    // one user in the response.
+                    QueryTask queryResponse = op.getBody(QueryTask.class);
+                    if (queryResponse.results.documentLinks != null
+                            && queryResponse.results.documentLinks.isEmpty()) {
+                        this.currentStep = UserCreationStep.MAKE_USER;
+                        setupUser();
+                        return;
+                    }
+                    this.host.log(Level.INFO, "User %s already exists, skipping setup of user",
+                            this.userEmail);
+                });
+
+        // This sends the request
+        this.host.sendRequest(postQuery);
+    }
+```
+
+## 6.3 Learn more about Query Tasks
 To learn more about query tasks, including how to use them from Java, please see the [./QueryTaskService](Query Task Service Tutorial).
