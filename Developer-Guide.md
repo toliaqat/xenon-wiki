@@ -18,15 +18,9 @@ cover open source based work flow, vs the vmware internal details still mentione
  
 ## Docker images
 
-The Xenon base image (containing a trimmed down version of the Java 8 runtime) is available on [TODO](where is it). Pre-built Xenon images are available for every build, see the [TODO](where is it).
+The Xenon base image (containing a trimmed down version of the Java 8 runtime) can be built and run. This documentation will be updated soon to describe how to build the container and load it into docker.
 
-To load it into Docker running locally:
-
-```sh
-curl <Xenon JOB URL>/dcp-jenkins:XYZ.tgz | gzip -d | docker load
-```
-
-To run it:
+To run the container:
 
 ```sh
 docker run -t -i --net=host dcp:jenkins-4222 bin/run.sh --bindAddress=0.0.0.0
@@ -50,9 +44,11 @@ $ curl -s localhost:8000/core/management | jq .codeProperties
 Maven is used to build and test the project.
 
 * Install Maven with your system's package manager (e.g. _apt_ on Ubuntu/Debian, _homebrew_ on OSX, ...).
-* Set your `JAVA_HOME` environment variable to be the home of the Java 8 JDK. On OSX, this lands in `/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/`.
+* Set your `JAVA_HOME` environment variable to be the home of the Java 8 JDK. On OSX, this lands in `/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home/`.
 * Run `mvn test` to run the tests.
- * Run `mvn -Dtest={test-name} test` to run a single test (http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html)
+  * Run `mvn -Dtest={test-name} test` to run a single test (http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html)
+* Run `mvn package` to build and package Xenon
+* Run `mvn -DskipTests package` to package everything and skip running the tests. (Not recommended.)
 
 ## Contributing
 
