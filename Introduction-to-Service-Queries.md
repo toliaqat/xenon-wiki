@@ -436,7 +436,7 @@ _File:_ query-user-1.body
 
 Note that this query has "booleanClauses" instead of "term", and each element in the booleanClauses is a single term. Each term could itself be booleanClause instead. 
 
-Let's try the query out:
+Let's try the query out (output trimmed for simplicity):
 ```
 % curl -s -X POST -d@query-user-1.body http://localhost:8000/core/query-tasks -H "Content-Type: application/json" | jq . 
 {
@@ -448,24 +448,7 @@ Let's try the query out:
   "querySpec": {
     "query": {
       "occurance": "MUST_OCCUR",
-      "booleanClauses": [
-        {
-          "occurance": "MUST_OCCUR",
-          "term": {
-            "propertyName": "documentKind",
-            "matchValue": "com:vmware:xenon:services:common:UserService:UserState",
-            "matchType": "TERM"
-          }
-        },
-        {
-          "occurance": "MUST_OCCUR",
-          "term": {
-            "propertyName": "email",
-            "matchValue": "user1@example.com",
-            "matchType": "TERM"
-          }
-        }
-      ]
+      ... output trimmed ... 
     },
     "resultLimit": 2147483647,
     "options": []
@@ -474,22 +457,10 @@ Let's try the query out:
     "documentLinks": [
       "/core/authz/users/47f7449f-0c38-4d18-a2a2-96f4378d492a"
     ],
-    "documentCount": 1,
-    "queryTimeMicros": 992,
-    "documentVersion": 0,
-    "documentUpdateTimeMicros": 0,
-    "documentExpirationTimeMicros": 0,
-    "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+   ... output trimmed ... 
   },
   "indexLink": "/core/document-index",
-  "documentVersion": 0,
-  "documentEpoch": 0,
-  "documentKind": "com:vmware:xenon:services:common:QueryTask",
-  "documentSelfLink": "/core/query-tasks/c965541a-e8b4-4cd9-a3a9-fbc9a6760372",
-  "documentUpdateTimeMicros": 1452028225092002,
-  "documentExpirationTimeMicros": 1452028825092005,
-  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa",
-  "documentAuthPrincipalLink": "/core/authz/guest-user"
+   ... output trimmed ... 
 }
 ```
 
@@ -503,6 +474,7 @@ Now let's try it in Java. This query is taken from [https://github.com/vmware/xe
         // above. Note that we don't specify MUST_OCCUR because it's the default
         Query userQuery = Query.Builder.create()
                 // This is the first of the boolean clauses, to match all user service documents
+                // addFieldClause will always populate the booleanClauses field, not the term field
                 .addFieldClause(ServiceDocument.FIELD_NAME_KIND, Utils.buildKind(UserState.class))
 
                 // This is the second of the boolean clauses, to match just the email address
