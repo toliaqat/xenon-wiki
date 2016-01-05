@@ -341,3 +341,5 @@ Here is how we use the query. _Please note:_ We are using the [jq tool](https://
   "documentAuthPrincipalLink": "/core/authz/guest-user"
 }
 ```
+
+To learn more about query tasks, including how to use them from Java, please see the [./QueryTaskService](Query Task Service Tutorial).
