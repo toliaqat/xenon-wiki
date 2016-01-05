@@ -390,12 +390,7 @@ Using the query (output trimmed for simplicity):
       "/core/authz/users/47f7449f-0c38-4d18-a2a2-96f4378d492a",
       "/core/authz/users/e948c9e2-8812-4469-af01-580b2579930e"
     ],
-    "documentCount": 2,
-    "queryTimeMicros": 1,
-    "documentVersion": 0,
-    "documentUpdateTimeMicros": 0,
-    "documentExpirationTimeMicros": 0,
-    "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+  ... output trimmed ...
   },
   "indexLink": "/core/document-index",
   ... output trimmed ...
