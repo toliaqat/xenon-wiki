@@ -342,4 +342,64 @@ Here is how we use the query. _Please note:_ We are using the [jq tool](https://
 }
 ```
 
+Here is one more example, to query all users:
+
+_File:_ query-users.body
+```
+{
+  "taskInfo": {
+    "isDirect": true
+  },
+  "querySpec": {
+    "query": {
+      "term": {
+        "propertyName": "documentKind",
+        "matchValue": "com:vmware:xenon:services:common:UserService:UserState",
+        "matchType": "TERM"
+      }
+    }
+  },
+  "indexLink": "/core/document-index"
+}
+```
+
+Using the query (output trimmed for simplicity):
+
+```
+% curl -s -X POST -d@query-users.body http://localhost:8000/core/query-tasks -H "Content-Type: application/json" | jq . 
+{
+  "taskInfo": {
+    "stage": "FINISHED",
+    "isDirect": true,
+    "durationMicros": 1
+  },
+  "querySpec": {
+    "query": {
+      "occurance": "MUST_OCCUR",
+      "term": {
+        "propertyName": "documentKind",
+        "matchValue": "com:vmware:xenon:services:common:UserService:UserState",
+        "matchType": "TERM"
+      }
+    },
+    "resultLimit": 2147483647,
+    "options": []
+  },
+  "results": {
+    "documentLinks": [
+      "/core/authz/users/47f7449f-0c38-4d18-a2a2-96f4378d492a",
+      "/core/authz/users/e948c9e2-8812-4469-af01-580b2579930e"
+    ],
+    "documentCount": 2,
+    "queryTimeMicros": 1,
+    "documentVersion": 0,
+    "documentUpdateTimeMicros": 0,
+    "documentExpirationTimeMicros": 0,
+    "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+  },
+  "indexLink": "/core/document-index",
+  ... output trimmed ...
+}
+```
+
 To learn more about query tasks, including how to use them from Java, please see the [./QueryTaskService](Query Task Service Tutorial).
