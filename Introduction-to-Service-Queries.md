@@ -142,3 +142,202 @@ You may prefer to see the complete documents. You can do this with the _expand_ 
   "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
 }
 ```
+
+You can also query the individual documents directly:
+
+```sh
+% curl http://localhost:8000/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c
+{
+  "keyValues": {},
+  "counter": 1,
+  "name": "example-1",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+  "documentSelfLink": "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c",
+  "documentUpdateTimeMicros": 1452022286429000,
+  "documentUpdateAction": "POST",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa",
+  "documentAuthPrincipalLink": "/core/authz/guest-user",
+  "documentTransactionId": ""
+}
+```
+
+# 5.0 Querying the Document Index
+Internally, all service documents are stored in Lucene and are managed by the Lucene index service. When you query a factory service, it simply translates that to a query to the Lucene index service. Although you would probably never directly query the Lucene index directly, it's instructive to do so. 
+
+If you directly query the Lucene query, it will complain:
+
+```sh
+% curl http://localhost:8000/core/document-index
+{
+  "message": "documentSelfLink query parameter is required",
+  "statusCode": 400,
+  "documentKind": "com:vmware:xenon:common:ServiceErrorResponse"
+}
+```
+
+If you give it a link to a service, it will return the document: 
+
+```sh
+% curl 'http://localhost:8000/core/document-index?documentSelfLink=/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c'
+{
+  "keyValues": {},
+  "counter": 1,
+  "name": "example-1",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+  "documentSelfLink": "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c",
+  "documentUpdateTimeMicros": 1452022286429000,
+  "documentUpdateAction": "POST",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa",
+  "documentAuthPrincipalLink": "/core/authz/guest-user",
+  "documentTransactionId": ""
+}
+```
+
+You can include wildcards in your link. This will return all example service documents: 
+
+```sh
+% curl 'http://localhost:8000/core/document-index?documentSelfLink=/core/examples/*'
+{
+  "documentLinks": [
+    "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c",
+    "/core/examples/bc1a0009-e7bc-4efa-b823-57ada40c02d4"
+  ],
+  "documentCount": 2,
+  "queryTimeMicros": 1998,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+}
+```
+
+You can expand them to see the full documents. Note that we've trimmed the output for simplicity, but the full documents are returned.
+```sh
+% curl 'http://localhost:8000/core/document-index?documentSelfLink=/core/examples/*&expand=documentLinks'
+{
+  "documentLinks": [
+    "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c",
+    "/core/examples/bc1a0009-e7bc-4efa-b823-57ada40c02d4"
+  ],
+  "documents": {
+    "/core/examples/bc1a0009-e7bc-4efa-b823-57ada40c02d4": {
+      "keyValues": {},
+      "counter": 2,
+      "name": "example-2",
+      ... output trimmed ...
+    },
+    "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c": {
+      "keyValues": {},
+      "counter": 1,
+      "name": "example-1",
+      ... output trimmed ...
+    }
+  },
+  "documentCount": 2,
+  "queryTimeMicros": 999,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+}
+```
+
+You can even see all the documents in the index:
+
+```sh
+% curl 'http://localhost:8000/core/document-index?documentSelfLink=/*'
+{
+  "documentLinks": [
+    "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c",
+    "/core/authz/users/47f7449f-0c38-4d18-a2a2-96f4378d492a",
+    "/core/authz/users/e948c9e2-8812-4469-af01-580b2579930e",
+    "/core/examples/bc1a0009-e7bc-4efa-b823-57ada40c02d4"
+  ],
+  "documentCount": 4,
+  "queryTimeMicros": 998,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+}
+```
+
+# 6.0 Query Tasks
+As nice as the above queries are, they are limited. You may need to do full boolean queries, such as "as example documents owned by user-1@example.com". For this, you need query tasks. 
+
+Here is one example of a simple query task. All query tasks are done a a POST. A _direct_ query will return the results in response to the POST. If you do not specify that it is a direct query, the results can be queried later; this is useful when the query may take a long time to execute or is a continuous query. 
+
+For this query, we specify the query in a separate file:
+
+_File:_ query-all.body
+```javascript
+{
+  "taskInfo": {
+    "isDirect": true
+  },
+  "querySpec": {
+    "query": {
+      "term": {
+        "propertyName": "documentKind",
+        "matchValue": "*",
+        "matchType": "WILDCARD"
+      }
+    }
+  },
+  "indexLink": "/core/document-index"
+}
+```
+
+Here is how we use the query. _Please note:_ We are using the [jq tool](https://stedolan.github.io/jq/) in order to format the output. If you do not have this tool, remove it's use and you'll see an unformatted response.
+
+```sh
+% curl -s -X POST -d@query-all.body http://localhost:8000/core/query-tasks -H "Content-Type: application/json" | jq .
+{
+  "taskInfo": {
+    "stage": "FINISHED",
+    "isDirect": true,
+    "durationMicros": 1
+  },
+  "querySpec": {
+    "query": {
+      "occurance": "MUST_OCCUR",
+      "term": {
+        "propertyName": "documentKind",
+        "matchValue": "*",
+        "matchType": "WILDCARD"
+      }
+    },
+    "resultLimit": 2147483647,
+    "options": []
+  },
+  "results": {
+    "documentLinks": [
+      "/core/examples/a94a1f1c-acdf-4b18-97f4-35850f48eb0c",
+      "/core/authz/users/47f7449f-0c38-4d18-a2a2-96f4378d492a",
+      "/core/authz/users/e948c9e2-8812-4469-af01-580b2579930e",
+      "/core/examples/bc1a0009-e7bc-4efa-b823-57ada40c02d4"
+    ],
+    "documentCount": 4,
+    "queryTimeMicros": 1,
+    "documentVersion": 0,
+    "documentUpdateTimeMicros": 0,
+    "documentExpirationTimeMicros": 0,
+    "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa"
+  },
+  "indexLink": "/core/document-index",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:QueryTask",
+  "documentSelfLink": "/core/query-tasks/f490f4a3-3292-4400-88e8-5fb750af4de6",
+  "documentUpdateTimeMicros": 1452023742326002,
+  "documentExpirationTimeMicros": 1452024342326005,
+  "documentOwner": "c0c8e4ac-638d-4ad9-810a-b1c5250275aa",
+  "documentAuthPrincipalLink": "/core/authz/guest-user"
+}
+```
