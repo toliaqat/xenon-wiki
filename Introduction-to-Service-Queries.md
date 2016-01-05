@@ -468,57 +468,57 @@ Excellent: we got exactly the one service document that has the user we are look
 
 Now let's try it in Java. This query is taken from [https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/AuthorizationSetupHelper.java](AuthorizationSetupHelper.java). That code is doing a query to see if a user exists before it attempts to create the user. Let's look at the Java code, annotated with a few extra comments to explain the code
 
-```
-    private void queryUser() {
-        // This is the query that will correspond to the "query" portion of query-user-1.body, 
-        // above. Note that we don't specify MUST_OCCUR because it's the default
-        Query userQuery = Query.Builder.create()
-                // This is the first of the boolean clauses, to match all user service documents
-                // addFieldClause will always populate the booleanClauses field, not the term field
-                .addFieldClause(ServiceDocument.FIELD_NAME_KIND, Utils.buildKind(UserState.class))
+```java
+private void queryUser() {
+    // This is the query that will correspond to the "query" portion of query-user-1.body, 
+    // above. Note that we don't specify MUST_OCCUR because it's the default
+    Query userQuery = Query.Builder.create()
+            // This is the first of the boolean clauses, to match all user service documents
+            // addFieldClause will always populate the booleanClauses field, not the term field
+            .addFieldClause(ServiceDocument.FIELD_NAME_KIND, Utils.buildKind(UserState.class))
 
-                // This is the second of the boolean clauses, to match just the email address
-                .addFieldClause(UserState.FIELD_NAME_EMAIL, this.userEmail)
-                .build();
+            // This is the second of the boolean clauses, to match just the email address
+            .addFieldClause(UserState.FIELD_NAME_EMAIL, this.userEmail)
+            .build();
 
-        // This will correspond to the entire query-user-1.body, above. It just embeds the 
-        // query we created above.
-        QueryTask queryTask = QueryTask.Builder.createDirectTask()
-                .setQuery(userQuery)
-                .build();
+    // This will correspond to the entire query-user-1.body, above. It just embeds the 
+    // query we created above.
+    QueryTask queryTask = QueryTask.Builder.createDirectTask()
+            .setQuery(userQuery)
+            .build();
 
-        URI queryTaskUri = UriUtils.buildUri(this.host, ServiceUriPaths.CORE_QUERY_TASKS);
+    URI queryTaskUri = UriUtils.buildUri(this.host, ServiceUriPaths.CORE_QUERY_TASKS);
 
-        // This will create the POST that corresponds to the query-user-1.post, above
-        Operation postQuery = Operation.createPost(queryTaskUri)
-                .setBody(queryTask)
-                .setReferer(this.referer)
-                .setCompletion((op, ex) -> {
-                    if (ex != null) {
-                        this.failureMessage = String.format("Could not query user %s: %s",
-                                this.userEmail, ex);
-                        this.currentStep = UserCreationStep.FAILURE;
-                        setupUser();
-                        return;
-                    }
+    // This will create the POST that corresponds to the query-user-1.post, above
+    Operation postQuery = Operation.createPost(queryTaskUri)
+            .setBody(queryTask)
+            .setReferer(this.referer)
+            .setCompletion((op, ex) -> {
+                if (ex != null) {
+                    this.failureMessage = String.format("Could not query user %s: %s",
+                            this.userEmail, ex);
+                    this.currentStep = UserCreationStep.FAILURE;
+                    setupUser();
+                    return;
+                }
 
-                    // This examines the response from the Query Task Service
-                    // In our case, we decide a user exists if there's at least
-                    // one user in the response.
-                    QueryTask queryResponse = op.getBody(QueryTask.class);
-                    if (queryResponse.results.documentLinks != null
-                            && queryResponse.results.documentLinks.isEmpty()) {
-                        this.currentStep = UserCreationStep.MAKE_USER;
-                        setupUser();
-                        return;
-                    }
-                    this.host.log(Level.INFO, "User %s already exists, skipping setup of user",
-                            this.userEmail);
-                });
+                // This examines the response from the Query Task Service
+                // In our case, we decide a user exists if there's at least
+                // one user in the response.
+                QueryTask queryResponse = op.getBody(QueryTask.class);
+                if (queryResponse.results.documentLinks != null
+                        && queryResponse.results.documentLinks.isEmpty()) {
+                    this.currentStep = UserCreationStep.MAKE_USER;
+                    setupUser();
+                    return;
+                }
+                this.host.log(Level.INFO, "User %s already exists, skipping setup of user",
+                        this.userEmail);
+            });
 
-        // This sends the request
-        this.host.sendRequest(postQuery);
-    }
+    // This sends the request
+    this.host.sendRequest(postQuery);
+}
 ```
 
 ## 6.3 Learn more about Query Tasks
