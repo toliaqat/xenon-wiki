@@ -522,4 +522,4 @@ private void queryUser() {
 ```
 
 ## 6.3 Learn more about Query Tasks
-To learn more about query tasks, including how to use them from Java, please see the [./QueryTaskService](Query Task Service Tutorial).
+To learn more about query tasks please see the [./QueryTaskService](Query Task Service Tutorial).
