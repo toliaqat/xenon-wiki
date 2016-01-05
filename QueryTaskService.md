@@ -11,6 +11,8 @@ a good introduction  on the types of queries. We  also support all kinds
 of  non string  queries  (e.g., numerical,  geospatial data  structures,
 fuzzy searches)
 
+Lucene uses MUST, MUST_NOT, SHOULD, and SHOULD_NOT as operators. [This blog post](https://lucidworks.com/blog/2011/12/28/why-not-and-or-and-not/) gives some good background on understanding those operators.
+
 # REST API
 
 ## URI Path
