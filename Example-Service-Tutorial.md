@@ -22,16 +22,9 @@ $ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar
 
 ## Xenon Container
 
-Note that Xenon is packaged also a **[container](./DeveloperGuide#docker-images)** (about 70MB, which includes JR8), that starts the default xenon-host.jar. Load it (replace the **XXYZ** with a build number, like 1780):
-```sh
-$ curl <Xenon JOB URL>/dcp-jenkins:XXYZ.tgz | gzip -d | docker load
-```
+Note that Xenon is packaged also a **[container](./Developer-Guide#docker-images)** 
 
-Run it:
-
-```sh
-$ docker run -t -i --net=host dcp:jenkins-XXYZ bin/run.sh --bindAddress=0.0.0.0
-```
+Building and using Xenon containers will be documented soon. 
 
 # The service factory
 A client can create new instances of a micro service through another service, the service factory. A service factory mostly relies on framework for doing all the work and has the following properties:
