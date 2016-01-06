@@ -5,6 +5,8 @@ This tutorial assumes that you have gone through the introductory [Example Servi
 
 This tutorial assumes you have installed Xenon and can run it from the command-line. It also assumes you have installed the "curl" command-line tool. If you don't want to use curl, the examples should be easily converted to use another tool, such as Postman. It also assumes you have installed the [jq tool](https://stedolan.github.io/jq/), which we use for formatting JSON responses from Xenon. If you do not have it installed, you can simply remove it from the commands below. 
 
+If you are interested, you can also read the [./Authentication-and-Authorization-Design](Authentication and Authorization Design)
+
 # 2.0 Starting the Xenon host
 
 We are going to start the Xenon host differently than the previous tutorials:
@@ -594,3 +596,6 @@ No: authentication and authorization go hand-in-hand. Note that you create users
 
 ## Can non-authenticated and non-authorized users access core services?
 No. See the examples above.
+
+# 6.0 More Information
+* [./Authentication-and-Authorization-Design](Authentication and Authorization Design)
