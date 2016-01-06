@@ -8,5 +8,6 @@
   * [Example Service Tutorial](./Example-Service-Tutorial) - A simple service walk through
   * [Introduction to Service Queries](./Introduction-to-Service-Queries)
   * [Query Task Service Tutorial](./QueryTaskService) - An in-depth tutorial on query tasks
+  * [Authorization and Authentication Tutorial](./Authorization-and-Authentication-Tutorial)
 * [Developer guide](./Developer-Guide) - How to build, test, contribute
 * [Glossary](./Glossary) - commonly used terms and their definitions
