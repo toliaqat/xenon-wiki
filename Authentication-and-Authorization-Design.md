@@ -1,209 +1,102 @@
-AuthN and AuthZ is now built into Xenon and helps control access to services. This feature is turned off by default at this time and can be turned on by passing in the flag —-isAuthorizationEnabled=true to the ServiceHost during startup (or invoking the method serviceHost.setAuthorizationEnabled(true) before starting the service).
+# 1 Overview
+Authentication and authorization is built into Xenon and controls access to services. 
 
-Once authorization is turned on, any request to a stateful Xenon service will be subject to two additional checks:
+When authentication and authorization are enabled, all request to a stateful Xenon service will be subject to two additional checks:
  
- 1. Is the request on behalf of a valid user principal 
- 2. Is that user authorized to perform the desired action the service.
+ 1. Is the request on behalf of a valid user?
+ 2. Is that user authorized to perform the desired action the service?
 
 Any unauthorized access will result in a 403 (Forbidden) response from Xenon.
 
 Note that we do not have any authorization checks on stateless services at this time (it is in the works). Stateless services typically interact with other stateful services and that access is subject to authorization checks.
 
-Also, FactoryService instances are stateless services which can be invoked by any user. POSTs to factories result in a stateful service instance being created and that operation will complete successfully only if the user who invoked the factory service has the right privileges on the resulting stateful service.
+Also, FactoryService instances are stateless services which can be invoked by any user. POSTs to factories result in a stateful service instance being created and that operation will complete successfully only if the user who invoked the factory service has the right privileges on the resulting stateful service. Any user can query a factory service, but the the response will only include services they are authorized to access. 
 
-This document is intended to be an example of how to interact with and build services when authz is enabled. Please review the [authn/authz design document](./authn-authz) for details about the model.
+# 2 Authentication and Authorization Concepts
 
-For this document,  we need to consider the following authz related services in Xenon before we get started:
+## 2.1 Entity modeling
 
-- UserService - Represents a valid user in the system
-- UserGroupService - Represents a group of users - backed by a query that resolves to a set of UserService instances
-- ResourceGroupService - Represents a group of resources - backed by a query that resolves to a set of services
-- RoleService - Associates a UserGroupService with a ResourceGroupService and lets us control what level of visibility a UserGroupService instance can have on a ResourceGroupService instance.
+* Authentication is done for _users_.
+* Authorization is done through _roles_.
+* _Roles_ belong to _users_ through _user groups_.
+* _Roles_ apply to _resources_ through _resource groups_.
+* _Roles_ allow/deny HTTP verbs to be executed by _users_ against _resources_.
+* A _user group_ is expressed as a query over users.
+* A _resource group_ is expressed as a query over resources.
 
-Before we jump into examples of seeing authz in action, we need to know about one other key concept - privileged services. These are services(typically stateless)that can execute operations in a ’system context’. When running in the system context we bypass the regular security checks and allow access to all services - think of running in the system context as running as root on unix and a privileged service as a process with the setuid bit set. 
+## 2.2 Users
 
-We obviously need to control what services can run as privileged and this is enforced by marking a service privileged explicitly before it is started. For example if we need to start the ‘UserInitializationService’ as privileged, we would invoke the following sequence in ServiceHost:
+User identity is captured by email address. The identity does not need to maintained in Xenon; an external identity provider can be used. However, the user must have at least a single document that represents it, so that it can be returned as part of a user group query. The kind of document does not matter, as long the backing document has an "email" field equal to the user's email address.
 
-      	 host.addPrivilegedService(UserInitializationService.class);
-         host.startService(
-                Operation.createPost(UriUtils.buildUri(host,
-                        UserInitializationService.class)),
-                new UserInitializationService()); 
+For example, you can have users represented by their credentials alone (through the `AuthCredentialService`, which has an "email" field), by a special `LDAPUserService` which keeps in sync with an upstream LDAP service, or by something else. In the case an external identity provider is used, a document representing the user can be created on demand.
 
+* UserService -- `/core/authz/users`
 
-addPrivilegedService() is a protected method and hence can be invoked only by the ServiceHost instance, giving application builders control on what can be deemed privileged.
+## 2.3 User group
 
-With that background, let us now look at example of authz in action - when authz is turned on we need to make sure we have a process to setup the various user groups, resource groups and roles governing access. 
+User groups are expressed as queries over users. This means it is possible to have groups for "users named Jane" or "users who were active in the last week". As long as a property (native or mirrored from an upstream identity provider) is modeled in the user service, it can be queried for, and used to create a group. This also means it is possible to mirror external groups, as long as that external group membership is modeled as property of the user state (such that it can be queried for).
 
-The UserInitializationService aims to be such a service. It does the following:
+* UserGroupService -- `/core/authz/user-groups`
 
-- Sets up a UserService instance and a UserGroupService with just that user
-- Creates a AuthCredentialsService instance for the user - this is required for identity assertion using the BasicAuthenticationService. Moving forward we will have integration with external authentication providers
-- Creates a ResourceGroupService that will contain all services whose documentAuthPrinicipalLink is set to the user. documentAuthPrinicipalLink is a field in every ServiceDocument that is automatically set to the user who is creating or updating the service. The assignment happens automatically and cannot be explicitly set by users. ResourceGroupService instances can obviously be constructed in other ways based on how the application wants to control access to resources
-- Creates a RoleService that ties the UserGroupService to the ResourceGroupService
+## 2.4 Resource groups
 
-Let us look at snippets of code which create the various services
+Similar to user groups. Resource groups are expressed as queries over resources. In the initial implementation of authz in Xenon, it is only possible to specify resources by their URI path prefix (allowing or denying access to an path hierarchy).
 
-### Creation of a UserService instance: 
+* ResourceGroupService -- `/core/authz/resource-groups`
 
-Users will be able POST to the UseerInitializationService without any authentication. The POST body is a PODO(UserInitializationData) that has a user email(the identity of the user in this case) and a password(for authentication). 
+## 2.5 Roles
 
-The code will look like this:
+Roles bind user groups to resource groups. Roles have the following attributes:
 
-    private void handlePost(Operation op) {
-        if (!op.hasBody()) {
-            op.fail(new IllegalStateException("No body specified"));
-            return;
-        }
-        UserInitializationData userData = op.getBody(UserInitializationData.class);
-        UserState userState = new UserState();
-        userState.email = userData.email;
-        userState.documentSelfLink = userData.email;
+* User group link
+* Resource group link
+* Policy: set of HTTP verbs the user can use with this role
 
-        Operation userOp = Operation.
-                createPost(UriUtils.buildUri(getHost(), UserFactoryService.SELF_LINK)).
-                setBody(userState).
-                setCompletion((o, e) -> {
-                    // if the user already exits, return the appropriate error to the user
-                        if (o.getStatusCode() == Operation.STATUS_CODE_CONFLICT) {
-                            op.fail(Operation.STATUS_CODE_CONFLICT);
-                            return;
-                        }
-                        if (e != null) {
-                            op.fail(e);
-                            return;
-                        }
-                        createAuthServicesForUser(op);
-                    });
-        setAuthorizationContext(userOp, getSystemAuthorizationContext());
-        sendRequest(userOp);
+One or more roles apply to a specific user if that user is contained in the user groups specified by those roles.
 
-    }
+* RoleService -- `/core/authz/roles`
 
-This is a standard Xenon interaction pattern where a stateless service is issuing a POST to a FactoryService. The key thing to watch here is the line at the bottom that sets the authorization context of the operation to the system authorization context :  setAuthorizationContext(userOp, getSystemAuthorizationContext());
+# 3 Service interaction
 
-This service can do this only because it has been marked as a privileged service. Invoking the POST to the UserFactoryService in the system authorization context lets us add new users to the system - essentially create new UserService instances without having to be authenticated. 
+## 3.1 Authentication
 
+Multiple authentication backends can be in use at the same time. One set of users may be using a keypair, while another set uses a hashed password which is checked against an LDAP backend, while yet another uses OAuth2 with some external identity provider. Every one of these authentication services has their own interaction pattern. For example: in order to use the keypair, the server asks poses the user with a challenge, or in order to use OAuth2, the user might be redirected to an external URL. Whatever the interaction, the net result is that the user is given a token it can use in future interaction with Xenon. This token is passed as a cookie, which means that any HTTP client that has support for a cookie jar is supported out of the box.
 
-Once we have the UserService instance in place we call createAuthServicesForUser() in the completion handler and that kicks off a chain of other services that need to be created.
+## 3.2 Authorization
 
-### Creation of a UserGroupService, ResourceGroupService, RoleService instances: 
+Every subsequent request after authenticating will carry the token and will be subject to authorization. A request is identified by the user who made the request, the HTTP verb, and the URI path for the request. This 3-tuple is used as input to the authorization service, which will return a simple true or false, to either allow or deny the request to be handled. The authorization service is run on every Xenon instance and talks to the local index. User and role information is expected to be available on all nodes in the default node group. The authorization service retrieves the state associated with the requested URI and tests it against the query specification in every applicable role.
 
-   private void createAuthServicesForUser(Operation op) {
-        UserInitializationData userData = op.getBody(UserInitializationData.class);
+This means the runtime cost of the authorization service is equal to lookup of the state for the requested service and N resource group checks against the applicable roles (before applying any optimization over the query specification that is the composite of the queries in the roles, which is equivalent to the resource group query specification in all roles in disjunctive normal form).
 
-        // completion handler to be invoked when any of the operation below complete
-        // when all operations are complete, we mark the parent op as having completed
-        int expectedNumberOfTasks = 4;
-        AtomicInteger notificationCount = new AtomicInteger(0);
-        CompletionHandler creationCompletion = (o, ex) -> {
-            if (ex != null) {
-                op.fail(ex);
-                return;
-            }
-            if (notificationCount.incrementAndGet() == expectedNumberOfTasks) {
-                // mark the parent task as complete
-                op.complete();
-                return;
-            }
-        };
+The authorization service performs caching where possible to amortize any query cost.
 
-        // create an auth credentials service for user - used for identify assertion
-        AuthCredentialsServiceState auth = new AuthCredentialsServiceState();
-        auth.userEmail = userData.email;
-        auth.privateKey = userData.password;
-        Operation authOp = Operation.
-                createPost(UriUtils.buildUri(getHost(), AuthCredentialsFactoryService.SELF_LINK)).
-                setBody(auth).
-                setCompletion(creationCompletion);
-        setAuthorizationContext(authOp, getSystemAuthorizationContext());
-        sendRequest(authOp);
+## 3.3 Tenancy
 
-        // create a user group for user - this is a group of 1 at this time
-        UserGroupState userGroupState = new UserGroupState();
-        userGroupState.documentSelfLink = userData.email;
-        userGroupState.query = new Query();
-        userGroupState.query.setTermPropertyName(UserState.FIELD_NAME_EMAIL);
-        userGroupState.query.setTermMatchType(MatchType.TERM);
-        userGroupState.query.setTermMatchValue(userData.email);
+It is possible to implement tenancy on top of the entities and interactions described in this document. Every tenant will have its own set of roles, that allow users who belong to that tenant (through the user group specific to that tenant) access to resources that belong to that same tenant. This can be expressed by adding query terms to the queries for the user group and resource group.
 
-        Operation userGroupOp = Operation.
-                createPost(UriUtils.buildUri(this.getHost(), UserGroupFactoryService.SELF_LINK)).
-                setBody(userGroupState).
-                setCompletion(creationCompletion);
-        setAuthorizationContext(userGroupOp, getSystemAuthorizationContext());
-        sendRequest(userGroupOp);
+# 4 Privileged Services
+Privileged services are services that can execute operations in a 'system context'. When running in the system context we bypass the regular security checks and allow access to all services. Think of running in the system context as running as root on unix and a privileged service as a process with the setuid bit set. 
 
-        // create a resource group for all docs that belong to this user
-        String userResourceGroupSelfLink = userData.email;
-        String userResourceGroupPropertyName = ServiceDocument.FIELD_NAME_AUTH_PRINCIPAL_LINK;
-        String userResourceGroupPropertyValue = UriUtils.buildUriPath(
-                UserFactoryService.SELF_LINK, userData.email);
-        ResourceGroupState userResourceGroupState = new ResourceGroupState();
-        userResourceGroupState.documentSelfLink = userResourceGroupSelfLink;
-        userResourceGroupState.query = new Query();
+In order to control what services can run as privileged, it must be explicitly marked as privileged before it is started by the host. For example if we need to start the ‘UserInitializationService’ as privileged, we would do the following in ServiceHost:
 
-        userResourceGroupState.query.setTermPropertyName(userResourceGroupPropertyName);
-        userResourceGroupState.query.setTermMatchValue(userResourceGroupPropertyValue);
-        userResourceGroupState.query.setTermMatchType(MatchType.TERM);
-        Operation userResourceGroupOp = Operation.
-                createPost(UriUtils.buildUri(getHost(), ResourceGroupFactoryService.SELF_LINK)).
-                setBody(userResourceGroupState).
-                setCompletion(creationCompletion);
-        setAuthorizationContext(userResourceGroupOp, getSystemAuthorizationContext());
-        sendRequest(userResourceGroupOp);
+```java
+host.addPrivilegedService(UserInitializationService.class);
+host.startService(Operation.createPost(UriUtils.buildUri(host, UserInitializationService.class)),
+                  new UserInitializationService()); 
+```
 
+`addPrivilegedService` is a protected method and hence can be invoked only by the ServiceHost instance (or its subclasses). 
 
-        // create role for the user
-        String userGroupLink = UriUtils.buildUriPath(UserGroupFactoryService.SELF_LINK,
-                userGroupState.documentSelfLink);
-        String userResourceGroupLink = UriUtils.buildUriPath(ResourceGroupFactoryService.SELF_LINK,
-                userResourceGroupSelfLink);
-        RoleState roleState = new RoleState();
-        roleState.userGroupLink = userGroupLink;
-        roleState.resourceGroupLink = userResourceGroupLink;
-        // give complete access - control can obviously be limited
-        roleState.verbs = new HashSet<>();
-        roleState.verbs.add(Action.GET);
-        roleState.verbs.add(Action.POST);
-        roleState.verbs.add(Action.DELETE);
-        roleState.verbs.add(Action.PUT);
-        roleState.verbs.add(Action.PATCH);
-        roleState.policy = Policy.ALLOW;
+# 5 Notes
 
-        Operation roleOp = (Operation.
-                createPost(UriUtils.buildUri(getHost(), RoleFactoryService.SELF_LINK)).
-                setBody(roleState).
-                setCompletion(creationCompletion));
-        setAuthorizationContext(roleOp, getSystemAuthorizationContext());
-        sendRequest(roleOp);
+* Forwarding logic is to be executed **before** authorization logic (resources in the resource group may not be present on the entry node)
 
-    }
+* Authentication and authorization are turned off by default at this time and can be turned on by passing in the flag —-isAuthorizationEnabled=true to the ServiceHost (or it's subclasses) during startup. If you subclass ServiceHost, you can enable it with the ServiceHost.setAuthorizationEnabled method. 
 
+* The [ExampleServiceHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleServiceHost.java) has an example of creating users so you can use them "out of the box"
 
-Once the above sequence of operations are complete we have created a UserGroupService(with one user) a ResourceGroupService(backed by a query that resolves to all documents created by the user) and a role that gives the user complete access to those services. Note that that role dictates what verbs the user group can invoke.
+* Today, only the BasicAuthorizationService has been implemented. This can authenticate local users using password. In the future, other authentication services will be implemented, including services that can interact with external authentication systems such as ActiveDiredtory. 
 
+# 6 More Information
 
-The next step is to login as the user. The code for that will look like this:
-
-       String userPassStr = new String(Base64.getEncoder().encode(
-                new StringBuffer(userName).append(":").append(password)
-                        .toString().getBytes()));
-        String headerVal = new StringBuffer("Basic ").append(userPassStr).toString();
-        sendRequest(Operation
-                .createPost(UriUtils.buildUri(getHost(), BasicAuthenticationService.SELF_LINK))
-                .setBody(new Object())
-                .addRequestHeader(BasicAuthenticationService.AUTHORIZATION_HEADER_NAME, headerVal)
-                .setCompletion(
-                        (o, e) -> {
-                            if (o.getStatusCode() != Operation.STATUS_CODE_OK) {
-                                // error logging in
-                                return;
-                            }
-                            // at this point the user is logged in and the response has a set-cookie header containing a JWT token
-                        }));
- 
-You can alternately invoke a POST on the BasicAuthenticationService endpoint using a REST client and pass in a base64 encoded string containing the username/password as a authorization header.
-
-The BasicAuthenticationService will check the credentials passed in against the credentials it stores as AuthCredentialsService instances. If the credentials match a JWT token encoding the user principal (and claims) is created and passed back as a set-cookie response header. Any subsequent request on behalf of the user will need to have this cookie passed in as a request header. Xenon will decode the cookie and create the appropriate authorization context and subject the request to the appropriate security checks.
-
+The [./Authentication-and-Authorization-Tutorial](Authentication and Authorization Tutorial) has examples that walk you through using authentication and service from the command-line as well as examples of creating users, user groups, resource groups and roles in Java. 
