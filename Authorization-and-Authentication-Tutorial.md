@@ -258,3 +258,116 @@ Here you can see two user groups, and each one is a query that will return exact
 ```
 
 ### 3.3.3 Resource Groups
+Resource groups are similar to user groups in that they are defined by a query. So far, our users have been defined similarly: they have similar definitions for the user and user group. Our resource groups are different. Let's take a look: (The output has been trimmed again to focus on the essentials.)
+
+```sh
+% curl 'http://localhost:8000/core/authz/resource-groups?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
+{
+  "documentLinks": [
+    "/core/authz/resource-groups/d7eea0b5-d814-4d63-8e29-68b32dbb6995",
+    "/core/authz/resource-groups/406c1eae-54ad-4313-b0ff-a7a3075c905a"
+  ],
+  "documents": {
+    "/core/authz/resource-groups/d7eea0b5-d814-4d63-8e29-68b32dbb6995": {
+      "query": {
+        "occurance": "MUST_OCCUR",
+        "booleanClauses": [
+          {
+            "occurance": "MUST_OCCUR",
+            "term": {
+              "propertyName": "documentAuthPrincipalLink",
+              "matchValue": "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0",
+              "matchType": "TERM"
+            }
+          },
+          {
+            "occurance": "MUST_OCCUR",
+            "term": {
+              "propertyName": "documentKind",
+              "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+              "matchType": "TERM"
+            }
+          }
+        ]
+      },
+    ... output trimmed ...
+    },
+    "/core/authz/resource-groups/406c1eae-54ad-4313-b0ff-a7a3075c905a": {
+      "query": {
+        "occurance": "MUST_OCCUR",
+        "term": {
+          "propertyName": "documentSelfLink",
+          "matchValue": "*",
+          "matchType": "WILDCARD"
+        }
+      },
+    ... output trimmed ...
+    }
+  },
+  ... output trimmed ...
+}
+```
+
+The first resource group in the list (d7eea0b5...) is defined by a query with two clauses. Rephrasing them, they will find the services for which the following are true:
+1. The `documentAuthPrincipalLink` is `/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0`. That happens to be our example user.
+2. The `documentKind` is `com:vmware:xenon:services:common:ExampleService:ExampleServiceState`. These will be example service documents, at /core/examples.
+
+The second user group in the list (406c1eae...) is defined by a simpler query with one clause. Rephrasing it, they will find the services for which the following is true:
+1. There is a `documentSelfLink`
+
+That will be all services, so this resource group will be used for the admin user. 
+
+### 3.3.4 Roles
+A role says: A user group X may do some set of operations (e.g. GET, POST, PATCCH) on the resources defined by a resource group. Let's look at the resource groups we have: 
+
+```sh
+% curl 'http://localhost:8000/core/authz/roles?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
+{
+  "documentLinks": [
+    "/core/authz/roles/db12ffe9-9245-4314-98b0-93de5fd6d068",
+    "/core/authz/roles/7ce7c6d7-6d40-41da-842c-6af40fd67d32"
+  ],
+  "documents": {
+    "/core/authz/roles/db12ffe9-9245-4314-98b0-93de5fd6d068": {
+      "userGroupLink": "/core/authz/user-groups/86b928df-261a-48ff-9d56-eff01c4e75eb",
+      "resourceGroupLink": "/core/authz/resource-groups/406c1eae-54ad-4313-b0ff-a7a3075c905a",
+      "verbs": [
+        "POST",
+        "DELETE",
+        "GET",
+        "PATCH",
+        "PUT",
+        "OPTIONS"
+      ],
+      "policy": "ALLOW",
+      "priority": 0,
+      ... output trimmed ...
+    },
+    "/core/authz/roles/7ce7c6d7-6d40-41da-842c-6af40fd67d32": {
+      "userGroupLink": "/core/authz/user-groups/ef9c5dea-ced1-4375-9ce3-6b5c0216ac12",
+      "resourceGroupLink": "/core/authz/resource-groups/d7eea0b5-d814-4d63-8e29-68b32dbb6995",
+      "verbs": [
+        "POST",
+        "DELETE",
+        "GET",
+        "PATCH",
+        "PUT",
+        "OPTIONS"
+      ],
+      "policy": "ALLOW",
+      "priority": 0,
+      ... output trimmed ...
+    }
+  },
+  ... output trimmed ...
+}
+```
+
+These two groups look pretty similar but they are connecting different user groups and resources. The first role (db12ffe9...) is for the admin user: it connects the admin's user group with the resource group that specifies all resources. The other role is for the example user. 
+
+### 3.3.5 Recap
+
+To recap: Xenon defines authorization via roles. A role will grant permission to do a set of operations (GET, POST, etc) on a set of resources (a resource group) to a set of users (a user group). Resource groups and user groups are defined by queries. 
+
+At first look, defining resource and user groups as queries may seem more complicated than as simple lists. However, it can allow for flexible and simple statements about access to services in Xenon. 
+
