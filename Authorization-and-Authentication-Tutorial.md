@@ -309,10 +309,12 @@ Resource groups are similar to user groups in that they are defined by a query. 
 ```
 
 The first resource group in the list (d7eea0b5...) is defined by a query with two clauses. Rephrasing them, they will find the services for which the following are true:
+
 1. The `documentAuthPrincipalLink` is `/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0`. That happens to be our example user.
-2. The `documentKind` is `com:vmware:xenon:services:common:ExampleService:ExampleServiceState`. These will be example service documents, at /core/examples.
+1. The `documentKind` is `com:vmware:xenon:services:common:ExampleService:ExampleServiceState`. These will be example service documents, at /core/examples.
 
 The second user group in the list (406c1eae...) is defined by a simpler query with one clause. Rephrasing it, they will find the services for which the following is true:
+
 1. There is a `documentSelfLink`
 
 That will be all services, so this resource group will be used for the admin user. 
