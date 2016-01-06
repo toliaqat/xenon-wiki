@@ -313,11 +313,15 @@ The first resource group in the list (d7eea0b5...) is defined by a query with tw
 1. The `documentAuthPrincipalLink` is `/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0`. That happens to be our example user.
 1. The `documentKind` is `com:vmware:xenon:services:common:ExampleService:ExampleServiceState`. These will be example service documents, at /core/examples.
 
-The second user group in the list (406c1eae...) is defined by a simpler query with one clause. Rephrasing it, they will find the services for which the following is true:
+That is, example services owned by the example user. 
+
+The second resource group in the list (406c1eae...) is defined by a simpler query with one clause. Rephrasing it, they will find the services for which the following is true:
 
 1. There is a `documentSelfLink`
 
-That will be all services, so this resource group will be used for the admin user. 
+All services have a documentSelfLink, so this resource group will specify all resources. That will be all services, so this resource group will be used for the admin user. 
+
+_Aside:_ You might think that Xenon will evaluate this query (Find all services) then match see if the desired service is in that list. In fact, the query is used as a filter and is efficient. 
 
 ### 3.3.4 Roles
 A role says: A user group X may do some set of operations (e.g. GET, POST, PATCCH) on the resources defined by a resource group. Let's look at the resource groups we have: 
@@ -372,4 +376,19 @@ These two groups look pretty similar but they are connecting different user grou
 To recap: Xenon defines authorization via roles. A role will grant permission to do a set of operations (GET, POST, etc) on a set of resources (a resource group) to a set of users (a user group). Resource groups and user groups are defined by queries. 
 
 At first look, defining resource and user groups as queries may seem more complicated than as simple lists. However, it can allow for flexible and simple statements about access to services in Xenon. 
+
+# 4 Authentication and Authorization in Java
+
+The example Java code below is from [AuthorizationSetupHelper.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/AuthorizationSetupHelper.java), which is used by the [ExampleServiceHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleServiceHost.java) to create the admin and example user we showed above. 
+
+If you're browsing the source code, the following table will help you find the right services. 
+
+Service | URI | Java code
+--------|-----|-----------
+Users | /core/authz/users | [UserService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/UserService.java)
+User Groups | /core/authz/user-groups | [UserGroupService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/UserGroupService.java)
+Resource Groups | /core/authz/resource-groups | [ResourceGroupService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ResourceGroupService.java)
+Roles | /core/authz/roles | [RoleService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/RoleService.java)
+Basic Auth | /core/authn/basic | [BasicAuthenticationService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/authn/BasicAuthenticationService.java)
+
 
