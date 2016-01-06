@@ -435,7 +435,7 @@ private void makeCredentials() {
     auth.userEmail = this.userEmail;
     auth.privateKey = this.userPassword;
 
-    // 
+    // POST the credentials to the basic authentication service
     URI credentialFactoryUri = UriUtils.buildUri(this.host, ServiceUriPaths.CORE_CREDENTIALS);
     Operation postCreds = Operation.createPost(credentialFactoryUri)
             .setBody(auth)
@@ -452,5 +452,133 @@ private void makeCredentials() {
                 setupUser();
         });
     this.host.sendRequest(postCreds);
+}
+```
+
+## 4.3 Create a user group
+
+``` java
+private void makeUserGroup() {
+    // Make a query that will return exactly one user, the one we created
+    Query userQuery = Query.Builder.create()
+            .setTerm(ServiceDocument.FIELD_NAME_SELF_LINK, this.userSelfLink)
+            .build();
+
+    // Create a user group that uses that query
+    UserGroupState group = new UserGroupState();
+    group.query = userQuery;
+
+    // POST the user group to the user group service
+    URI userGroupFactoryUri = UriUtils.buildUri(this.host,
+            ServiceUriPaths.CORE_AUTHZ_USER_GROUPS);
+    Operation postGroup = Operation.createPost(userGroupFactoryUri)
+            .setBody(group)
+            .setReferer(this.referer)
+            .setCompletion((op, ex) -> {
+                if (ex != null) {
+                    this.failureMessage = String.format("Could not make user group for user %s: %s",
+                            this.userEmail, ex);
+                    this.currentStep = UserCreationStep.FAILURE;
+                    setupUser();
+                    return;
+                }
+                // Extract the user group self link to use when we make the role
+                UserGroupState groupResponse = op.getBody(UserGroupState.class);
+                this.userGroupSelfLink = groupResponse.documentSelfLink;
+                this.currentStep = UserCreationStep.MAKE_RESOURCE_GROUP;
+                setupUser();
+            });
+    this.host.sendRequest(postGroup);
+}
+```
+
+## 4.4 Create a resource group
+
+This code is a bit more complicated because it can create two kinds of resource groups, based on whether we're making an admin user or the example user. 
+
+```java
+private void makeResourceGroup() {
+    Query resourceQuery;
+     if (this.isAdmin) {
+        // Make a query that matches all services.
+        // The query is "selfLink == *", where * is the wildcard
+        resourceQuery = Query.Builder.create()
+                .setTerm(ServiceDocument.FIELD_NAME_SELF_LINK, UriUtils.URI_WILDCARD_CHAR,
+                        QueryTerm.MatchType.WILDCARD)
+                .build();
+    } else {
+        // Make a query that matches all services of one type (example services in this tutorial)
+        // owned by one user (example user in this tutorial)
+        resourceQuery = Query.Builder.create()
+                .addFieldClause(ServiceDocument.FIELD_NAME_AUTH_PRINCIPAL_LINK,
+                        this.userSelfLink)
+                .addFieldClause(ServiceDocument.FIELD_NAME_KIND, this.documentKind)
+                .build();
+    }
+    ResourceGroupState group = new ResourceGroupState();
+    group.query = resourceQuery;
+     URI resourceGroupFactoryUri = UriUtils.buildUri(this.host,
+	    ServiceUriPaths.CORE_AUTHZ_RESOURCE_GROUPS);
+    Operation postGroup = Operation.createPost(resourceGroupFactoryUri)
+	    .setBody(group)
+	    .setReferer(this.referer)
+	    .setCompletion((op, ex) -> {
+                if (ex != null) {
+		    this.failureMessage = String.format("Could not make resource group for user %s: %s",
+			    this.userEmail, ex);
+		    this.currentStep = UserCreationStep.FAILURE;
+		    setupUser();
+		    return;
+                }
+
+                // Extract the resource group self link so we can use it to make the role
+                ResourceGroupState groupResponse = op.getBody(ResourceGroupState.class);
+                this.resourceGroupSelfLink = groupResponse.documentSelfLink;
+                this.currentStep = UserCreationStep.MAKE_ROLE;
+                setupUser();
+	    });
+    this.host.sendRequest(postGroup);
+}
+```
+
+## 4.5 Make the role
+
+Finally, we make the role. The role will refer to the user group and resource group that were created above:
+
+```java
+private void makeRole() {
+    // Define the set of operations (GET, POST, etc). We'll use "all operations"
+    Set<Action> verbs = new HashSet<>();                                                                             
+    for (Action action : Action.values()) {
+        verbs.add(action);                                                                                           
+    }
+
+    // Define the role using the user and resource group previously created
+    RoleState role = new RoleState();                                                                                
+    role.userGroupLink = this.userGroupSelfLink;                                                                     
+    role.resourceGroupLink = this.resourceGroupSelfLink;                                                             
+    role.verbs = verbs;                                                                                              
+    role.policy = Policy.ALLOW;                                                                                      
+     URI resourceGroupFactoryUri = UriUtils.buildUri(this.host,
+	    ServiceUriPaths.CORE_AUTHZ_ROLES);                                                                       
+    Operation postGroup = Operation.createPost(resourceGroupFactoryUri)
+	    .setBody(role)
+	    .setReferer(this.referer)
+	    .setCompletion((op, ex) -> {
+                if (ex != null) {
+		    this.failureMessage = String.format("Could not make role for user %s: %s",
+			    this.userEmail, ex);                                                                     
+		    this.currentStep = UserCreationStep.FAILURE;                                                     
+		    setupUser();                                                                                     
+		    return;                                                                                          
+                }
+
+                // Extract the self link so we can report it in the log
+                RoleState roleResponse = op.getBody(RoleState.class);                                                
+                this.roleSelfLink = roleResponse.documentSelfLink;                                                   
+                this.currentStep = UserCreationStep.SUCCESS;                                                         
+                setupUser();                                                                                         
+	    });                                                                                                      
+    this.host.sendRequest(postGroup);                                                                                
 }
 ```
