@@ -582,3 +582,11 @@ private void makeRole() {
     this.host.sendRequest(postGroup);                                                                                
 }
 ```
+
+# 5.0 Commonly asked questions
+
+## Is it possible to have authentication without authorization?
+No: authentication and authorization go hand-in-hand. Note that you create users with full access to all services, as we did above.
+
+## Can non-authenticated and non-authorized users be able to access core services?
+No. See the examples above
