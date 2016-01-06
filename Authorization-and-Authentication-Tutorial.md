@@ -74,7 +74,7 @@ Alternatively, clients can use cookies: the auth token is embedded in the `xenon
 
 Here is an example of getting the auth token. A post with curl looks like:
 
-```sh
+```
 % curl -s -u admin@localhost:changeme -v -X POST -d'{"requestType":"LOGIN"}' http://localhost:8000/core/authn/basic -H "Content-Type: application/json"
 *   Trying 127.0.0.1...
 * Connected to localhost (127.0.0.1) port 8000 (#0)
@@ -103,7 +103,7 @@ The output is a bit complicated: look for the "x-xenon-auth-token" header above.
 
 If you don't mind using command-line tools to extract the cookie, you can do something like this:
 
-```sh
+```
 % curl -s --stderr -  -u admin@localhost:changeme -v -X POST -d'{"requestType":"LOGIN"}' http://localhost:8000/core/authn/basic -H "Content-Type: application/json" | grep x-xenon-auth-token | awk '{print $3}'
 
 eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkY3AiLCJzdWIiOiIvY29yZS9hdXRoei91c2Vycy9hOTk2ODIyYi1iMmRmLTRhM2QtYTk2Yi1mNTYwY2RmOWYxMzQiLCJleHAiOjE0NTIwNDI0ODExNzkwMDF9.NrEHGi49id5f9FyYzZqLFl_54WG5OuFX2BsrxkFU3cg
@@ -131,7 +131,7 @@ If you try this command, you will need to substitute your own auth token. Note t
 
 The token makes the command rather long, so we'll simplify commands below by replacing the auth token with the text AUTH-TOKEN. Just replace AUTH-TOKEN with whatever token you received. For example:
 
-```javascript
+```
 % curl http://localhost:8000/core/authz/users -H "x-xenon-auth-token: AUTH-TOKEN"
 {
   "documentLinks": [
@@ -147,7 +147,7 @@ The token makes the command rather long, so we'll simplify commands below by rep
 }
 ```
 
-Today, auth tokens are time-limited to one hour. That expiration time will be configurable in the future. 
+Today, auth tokens are time-limited to one hour. That expiration time will be configurable in the future. If a token is expired, it will not work. You can request new tokens as needed: you do not need to wait until your current token expires. 
 
 ## 3.3 Authorization: How does authorization work?
 How does Xenon know if a user can access a service? The answer is a combination of users, user groups, resource groups, and roles. Let's define these, then look at them. 
@@ -160,9 +160,9 @@ How does Xenon know if a user can access a service? The answer is a combination 
 That might sound a little abstract, so let's look at these services for the environment we just set up with the ExampleServiceHost. 
 
 ### 3.3.1 Users
-Here are the users we made. We have one for admin@localhost and one for example@localhost. Other than the standard fields (documentVersion, documentKind, etc), the users only have one unique field: email. 
+Here are two users we have made: admin@localhost and example@localhost. Other than the standard fields (documentVersion, documentKind, etc), the users only have one unique field: email. 
 
-```sh
+```
 % curl 'http://localhost:8000/core/authz/users?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
 {
   "documentLinks": [
@@ -209,7 +209,7 @@ Here are the users we made. We have one for admin@localhost and one for example@
 ### 3.3.2 User Groups
 We've defined two user groups. Each group is defined by a query, but the query is targeted at a single user. We've removed the standard fields from the document to focus on the essential portions of the user group:
 
-```sh
+```
 % curl 'http://localhost:8000/core/authz/user-groups?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
 {
   "documentLinks": [
@@ -246,7 +246,7 @@ We've defined two user groups. Each group is defined by a query, but the query i
 
 Here you can see two user groups, and each one is a query that will return exactly one user. If you wanted a query that included all users, you could use a query similar to this:
 
-```javascript
+```
 "query": {
   "occurance": "MUST_OCCUR",
   "term": {
@@ -260,7 +260,7 @@ Here you can see two user groups, and each one is a query that will return exact
 ### 3.3.3 Resource Groups
 Resource groups are similar to user groups in that they are defined by a query. So far, our users have been defined similarly: they have similar definitions for the user and user group. Our resource groups are different. Let's take a look: (The output has been trimmed again to focus on the essentials.)
 
-```sh
+```
 % curl 'http://localhost:8000/core/authz/resource-groups?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
 {
   "documentLinks": [
@@ -310,23 +310,23 @@ Resource groups are similar to user groups in that they are defined by a query. 
 
 The first resource group in the list (d7eea0b5...) is defined by a query with two clauses. Rephrasing them, they will find the services for which the following are true:
 
-1. The `documentAuthPrincipalLink` is `/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0`. That happens to be our example user.
+1. The `documentAuthPrincipalLink` is `/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0`. That is our example user.
 1. The `documentKind` is `com:vmware:xenon:services:common:ExampleService:ExampleServiceState`. These will be example service documents, at /core/examples.
 
-That is, example services owned by the example user. 
+That is, this resource groups is "all example services owned by the example user".
 
 The second resource group in the list (406c1eae...) is defined by a simpler query with one clause. Rephrasing it, they will find the services for which the following is true:
 
 1. There is a `documentSelfLink`
 
-All services have a documentSelfLink, so this resource group will specify all resources. That will be all services, so this resource group will be used for the admin user. 
+All services have a documentSelfLink, so this resource group will specify all services. TThis resource group will be used for the admin user to provide access to all services.
 
-_Aside:_ You might think that Xenon will evaluate this query (Find all services) then match see if the desired service is in that list. In fact, the query is used as a filter and is efficient. 
+_Aside:_ You might think that Xenon will evaluate this query ("find all services") then match see if the desired service is in that list. In fact, the query is used as a filter and is efficient. 
 
 ### 3.3.4 Roles
 A role says: A user group X may do some set of operations (e.g. GET, POST, PATCCH) on the resources defined by a resource group. Let's look at the resource groups we have: 
 
-```sh
+```
 % curl 'http://localhost:8000/core/authz/roles?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
 {
   "documentLinks": [
@@ -369,7 +369,7 @@ A role says: A user group X may do some set of operations (e.g. GET, POST, PATCC
 }
 ```
 
-These two groups look pretty similar but they are connecting different user groups and resources. The first role (db12ffe9...) is for the admin user: it connects the admin's user group with the resource group that specifies all resources. The other role is for the example user. 
+These two groups look similar but they are connecting different user groups and resources. The first role (db12ffe9...) is for the admin user: it connects the admin's user group with the resource group that specifies all resources. The other role is for the example user. 
 
 ### 3.3.5 Recap
 
@@ -391,9 +391,11 @@ Resource Groups | /core/authz/resource-groups | [ResourceGroupService.java](http
 Roles | /core/authz/roles | [RoleService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/RoleService.java)
 Basic Auth | /core/authn/basic | [BasicAuthenticationService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/authn/BasicAuthenticationService.java)
 
-All of the example code below has been extended with extra comments to explain it
+All of the example code below has been extended with extra comments to help explain it in detail.
 
 ## 4.1 Creating a user
+
+This code creates a user. It a simple POST to the user service factory. The body of the POST describes the user with just one field, the email address.
 
 ```java
 private void makeUser() {
@@ -426,7 +428,7 @@ private void makeUser() {
 
 # 4.2 Creating user credentials
 
-User credentials are made for the basic authentication service. In the future when integration with ActiveDirectory and other authentication services are provided, this will not be done through Xenon. 
+User credentials are POST'ed to the basic authentication service. In the future when integration with ActiveDirectory and other authentication services are provided, this will not be done through Xenon. 
 
 ```java
 private void makeCredentials() {
@@ -456,6 +458,8 @@ private void makeCredentials() {
 ```
 
 ## 4.3 Create a user group
+
+This creates a user group by making a POST to the user group factory. The body of the POST has just one field, the query that specifies the user group.
 
 ``` java
 private void makeUserGroup() {
@@ -494,7 +498,7 @@ private void makeUserGroup() {
 
 ## 4.4 Create a resource group
 
-This code is a bit more complicated because it can create two kinds of resource groups, based on whether we're making an admin user or the example user. 
+This code is a bit more complicated because it can create two kinds of resource groups, based on whether we're making an admin user or the example user. In each case, the resource group is made with a POST to the resource group factory service and the body of the POST contains just the query used to specify the group.
 
 ```java
 private void makeResourceGroup() {
@@ -543,7 +547,7 @@ private void makeResourceGroup() {
 
 ## 4.5 Make the role
 
-Finally, we make the role. The role will refer to the user group and resource group that were created above:
+Finally, we make the role by making a POST to the role factory service. The body of the role has the self links of the user and resource groups.
 
 ```java
 private void makeRole() {
@@ -588,5 +592,5 @@ private void makeRole() {
 ## Is it possible to have authentication without authorization?
 No: authentication and authorization go hand-in-hand. Note that you create users with full access to all services, as we did above.
 
-## Can non-authenticated and non-authorized users be able to access core services?
-No. See the examples above
+## Can non-authenticated and non-authorized users access core services?
+No. See the examples above.
