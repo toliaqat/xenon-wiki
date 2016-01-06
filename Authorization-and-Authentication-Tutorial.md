@@ -63,7 +63,7 @@ If an unauthorized user tries to modify data, they are forbidden: (output trimme
 }
 ```
 
-## 3.2 Getting an auth token
+## 3.2 Authentication: Getting an auth token
 All API operations require an auth token. The API workflow is:
 
 * POST user credentials to an authentication service. Currently this is /core/authn/basic, which authenticates local users based on password, but other authentication services (e.g. ActiveDirectory) will be added in the future. 
@@ -127,9 +127,9 @@ You'll provide the the token as a header on future operations, like this:
 }
 ```
 
-If you try this command, you will need to substitute your own auth token.
+If you try this command, you will need to substitute your own auth token. Note that if you try this command with a token for the other user, example@localhost, it will act in the same way as an unauthenticated user: the documentLinks list will be empty. 
 
-That's rather long, so we'll simplify commands below by replacing the auth token with the text AUTH-TOKEN. Just replace AUTH-TOKEN with whatever token you received. For example:
+The token makes the command rather long, so we'll simplify commands below by replacing the auth token with the text AUTH-TOKEN. Just replace AUTH-TOKEN with whatever token you received. For example:
 
 ```sh
 % curl http://localhost:8000/core/authz/users -H "x-xenon-auth-token: AUTH-TOKEN"
@@ -148,3 +148,113 @@ That's rather long, so we'll simplify commands below by replacing the auth token
 ```
 
 Today, auth tokens are time-limited to one hour. That expiration time will be configurable in the future. 
+
+## 3.3 Authorization: How does authorization work?
+How does Xenon know if a user can access a service? The answer is a combination of users, user groups, resource groups, and roles. Let's define these, then look at them. 
+
+* __User:__ A user is a service. In the service document, a user is identified by their email.
+* __User Group:__ A user group is a set of users. Access to services will be granted to user groups, not users. A user group is defined by a query. If you haven't read the [Introduction to Service Queries](./Introduction-to-Service-Queries), you'll want to do that now. 
+* __Resource Group:__ A resource group is a set of service. Like user groups, resource groups are defined by queries.
+* __Role:__ A role give permissions (a policy) to a single user group for a single resource group.
+
+That might sound a little abstract, so let's look at these services for the environment we just set up with the ExampleServiceHost. 
+
+### 3.3.1 Users
+Here are the users we made. We have one for admin@localhost and one for example@localhost. Other than the standard fields (documentVersion, documentKind, etc), the users only have one unique field: email. 
+
+```sh
+% curl 'http://localhost:8000/core/authz/users?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
+{
+  "documentLinks": [
+    "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0",
+    "/core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134"
+  ],
+  "documents": {
+    "/core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134": {
+      "email": "admin@localhost",
+      "documentVersion": 0,
+      "documentEpoch": 0,
+      "documentKind": "com:vmware:xenon:services:common:UserService:UserState",
+      "documentSelfLink": "/core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134",
+      "documentUpdateTimeMicros": 1452037260503005,
+      "documentUpdateAction": "POST",
+      "documentExpirationTimeMicros": 0,
+      "documentOwner": "6682ac24-fac5-4ff3-b9ae-66db2eb3fa3f",
+      "documentAuthPrincipalLink": "/core/authz/system-user",
+      "documentTransactionId": ""
+    },
+    "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0": {
+      "email": "example@localhost",
+      "documentVersion": 0,
+      "documentEpoch": 0,
+      "documentKind": "com:vmware:xenon:services:common:UserService:UserState",
+      "documentSelfLink": "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0",
+      "documentUpdateTimeMicros": 1452037260503004,
+      "documentUpdateAction": "POST",
+      "documentExpirationTimeMicros": 0,
+      "documentOwner": "6682ac24-fac5-4ff3-b9ae-66db2eb3fa3f",
+      "documentAuthPrincipalLink": "/core/authz/system-user",
+      "documentTransactionId": ""
+    }
+  },
+  "documentCount": 2,
+  "queryTimeMicros": 997,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "6682ac24-fac5-4ff3-b9ae-66db2eb3fa3f"
+}
+```
+
+### 3.3.2 User Groups
+We've defined two user groups. Each group is defined by a query, but the query is targeted at a single user. We've removed the standard fields from the document to focus on the essential portions of the user group:
+
+```sh
+% curl 'http://localhost:8000/core/authz/user-groups?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
+{
+  "documentLinks": [
+    "/core/authz/user-groups/ef9c5dea-ced1-4375-9ce3-6b5c0216ac12",
+    "/core/authz/user-groups/86b928df-261a-48ff-9d56-eff01c4e75eb"
+  ],
+  "documents": {
+    "/core/authz/user-groups/ef9c5dea-ced1-4375-9ce3-6b5c0216ac12": {
+      "query": {
+        "occurance": "MUST_OCCUR",
+        "term": {
+          "propertyName": "documentSelfLink",
+          "matchValue": "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0",
+          "matchType": "TERM"
+        }
+      },
+    ... output trimmed ...
+    },
+    "/core/authz/user-groups/86b928df-261a-48ff-9d56-eff01c4e75eb": {
+      "query": {
+        "occurance": "MUST_OCCUR",
+        "term": {
+          "propertyName": "documentSelfLink",
+          "matchValue": "/core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134",
+          "matchType": "TERM"
+        }
+      },
+    ... output trimmed ...
+    }
+  },
+  ... output trimmed ...
+}
+```
+
+Here you can see two user groups, and each one is a query that will return exactly one user. If you wanted a query that included all users, you could use a query similar to this:
+
+```javascript
+"query": {
+  "occurance": "MUST_OCCUR",
+  "term": {
+    "propertyName": "documentSelfLink",
+    "matchValue": "/core/authz/users/*",
+    "matchType": "WILDCARD"
+  }
+}
+```
+
+### 3.3.3 Resource Groups
