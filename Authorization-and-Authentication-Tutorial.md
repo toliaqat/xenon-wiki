@@ -391,4 +391,66 @@ Resource Groups | /core/authz/resource-groups | [ResourceGroupService.java](http
 Roles | /core/authz/roles | [RoleService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/RoleService.java)
 Basic Auth | /core/authn/basic | [BasicAuthenticationService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/authn/BasicAuthenticationService.java)
 
+All of the example code below has been extended with extra comments to explain it
 
+## 4.1 Creating a user
+
+```java
+private void makeUser() {
+    // Describe the user: just an email address
+    UserState user = new UserState();
+    user.email = this.userEmail;
+
+    // Make a POST to the user factory service
+    URI userFactoryUri = UriUtils.buildUri(this.host, ServiceUriPaths.CORE_AUTHZ_USERS);
+    Operation postUser = Operation.createPost(userFactoryUri)
+            .setBody(user)
+            .setReferer(this.referer)
+            .setCompletion((op, ex) -> {
+                if (ex != null) {
+                    this.failureMessage = String.format("Could not make user %s: %s",
+                            this.userEmail, ex);
+                    this.currentStep = UserCreationStep.FAILURE;
+                    setupUser();
+                    return;
+                }
+                // Extract the self link made by the user service
+                UserState userResponse = op.getBody(UserState.class);
+                this.userSelfLink = userResponse.documentSelfLink;
+                this.currentStep = UserCreationStep.MAKE_CREDENTIALS;
+                setupUser();
+            });
+    this.host.sendRequest(postUser);
+}
+```
+
+# 4.2 Creating user credentials
+
+User credentials are made for the basic authentication service. In the future when integration with ActiveDirectory and other authentication services are provided, this will not be done through Xenon. 
+
+```java
+private void makeCredentials() {
+    // Describe the credentials for the basic authentication service
+    AuthCredentialsServiceState auth = new AuthCredentialsServiceState();
+    auth.userEmail = this.userEmail;
+    auth.privateKey = this.userPassword;
+
+    // 
+    URI credentialFactoryUri = UriUtils.buildUri(this.host, ServiceUriPaths.CORE_CREDENTIALS);
+    Operation postCreds = Operation.createPost(credentialFactoryUri)
+            .setBody(auth)
+            .setReferer(this.referer)
+            .setCompletion((op, ex) -> {
+                if (ex != null) {
+                    this.failureMessage = String.format("Could not make credentials for user %s: %s",
+                            this.userEmail, ex);
+                    this.currentStep = UserCreationStep.FAILURE;
+                    setupUser();
+                    return;
+                }
+                this.currentStep = UserCreationStep.MAKE_USER_GROUP;
+                setupUser();
+        });
+    this.host.sendRequest(postCreds);
+}
+```
