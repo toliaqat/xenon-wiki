@@ -62,3 +62,89 @@ If an unauthorized user tries to modify data, they are forbidden: (output trimme
   "documentKind": "com:vmware:xenon:common:ServiceErrorResponse"
 }
 ```
+
+## 3.2 Getting an auth token
+All API operations require an auth token. The API workflow is:
+
+* POST user credentials to an authentication service. Currently this is /core/authn/basic, which authenticates local users based on password, but other authentication services (e.g. ActiveDirectory) will be added in the future. 
+* If the credentials are correct, the user will receive an _auth token_
+* Future API calls should provide the auth token as a header named "x-xenon-auth-token"
+
+Alternatively, clients can use cookies: the auth token is embedded in the xenon-auth-cookie. The auth token header is the preferred approach, but both are acceptable. 
+
+Here is an example of getting the auth token. A post with curl looks like:
+
+```sh
+% curl -s -u admin@localhost:changeme -v -X POST -d'{"requestType":"LOGIN"}' http://localhost:8000/core/authn/basic -H "Content-Type: application/json"
+*   Trying 127.0.0.1...
+* Connected to localhost (127.0.0.1) port 8000 (#0)
+* Server auth using Basic with user 'admin@localhost'
+> POST /core/authn/basic HTTP/1.1
+> Host: localhost:8000
+> Authorization: Basic YWRtaW5AbG9jYWxob3N0OmNoYW5nZW1l
+> User-Agent: curl/7.43.0
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 23
+> 
+* upload completely sent off: 23 out of 23 bytes
+< HTTP/1.1 200 OK
+< content-type: application/json
+< content-length: 23
+< x-xenon-auth-token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkY3AiLCJzdWIiOiIvY29yZS9hdXRoei91c2Vycy9hOTk2ODIyYi1iMmRmLTRhM2QtYTk2Yi1mNTYwY2RmOWYxMzQiLCJleHAiOjE0NTIwNDIzNjk0MjYwMDB9.VACf4Xw3fbBtbKEzIRlw0KyPXMj3QYU-KwQV5kUQqjE
+< set-cookie: xenon-auth-cookie=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkY3AiLCJzdWIiOiIvY29yZS9hdXRoei91c2Vycy9hOTk2ODIyYi1iMmRmLTRhM2QtYTk2Yi1mNTYwY2RmOWYxMzQiLCJleHAiOjE0NTIwNDIzNjk0MjYwMDB9.VACf4Xw3fbBtbKEzIRlw0KyPXMj3QYU-KwQV5kUQqjE; Path=/; Max-Age=3599
+< connection: keep-alive
+< 
+* Connection #0 to host localhost left intact
+{"requestType":"LOGIN"}
+```
+
+The output is a bit complicated: look for the "x-xenon-auth-token" header above. 
+
+If you don't mind using command-line tools to extract the cookie, you can do something like this:
+
+```sh
+% curl -s --stderr -  -u admin@localhost:changeme -v -X POST -d'{"requestType":"LOGIN"}' http://localhost:8000/core/authn/basic -H "Content-Type: application/json" | grep x-xenon-auth-token | awk '{print $3}'
+
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkY3AiLCJzdWIiOiIvY29yZS9hdXRoei91c2Vycy9hOTk2ODIyYi1iMmRmLTRhM2QtYTk2Yi1mNTYwY2RmOWYxMzQiLCJleHAiOjE0NTIwNDI0ODExNzkwMDF9.NrEHGi49id5f9FyYzZqLFl_54WG5OuFX2BsrxkFU3cg
+```
+
+You'll provide the the token as a header on future operations, like this:
+
+```
+% curl http://localhost:8000/core/authz/users -H "x-xenon-auth-token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkY3AiLCJzdWIiOiIvY29yZS9hdXRoei91c2Vycy9hOTk2ODIyYi1iMmRmLTRhM2QtYTk2Yi1mNTYwY2RmOWYxMzQiLCJleHAiOjE0NTIwNDI0ODExNzkwMDF9.NrEHGi49id5f9FyYzZqLFl_54WG5OuFX2BsrxkFU3cg"
+{
+  "documentLinks": [
+    "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0",
+    "/core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134"
+  ],
+  "documentCount": 2,
+  "queryTimeMicros": 998,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "6682ac24-fac5-4ff3-b9ae-66db2eb3fa3f"
+}
+```
+
+If you try this command, you will need to substitute your own auth token.
+
+That's rather long, so we'll simplify commands below by replacing the auth token with the text AUTH-TOKEN. Just replace AUTH-TOKEN with whatever token you received. For example:
+
+```sh
+% curl http://localhost:8000/core/authz/users -H "x-xenon-auth-token: AUTH-TOKEN"
+{
+  "documentLinks": [
+    "/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0",
+    "/core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134"
+  ],
+  "documentCount": 2,
+  "queryTimeMicros": 998,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "6682ac24-fac5-4ff3-b9ae-66db2eb3fa3f"
+}
+```
+
+Today, auth tokens are time-limited to one hour. That expiration time will be configurable in the future. 
