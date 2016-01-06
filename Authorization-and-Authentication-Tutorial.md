@@ -9,14 +9,14 @@ This tutorial assumes you have installed Xenon and can run it from the command-l
 
 We are going to start the Xenon host differently than the previous tutorials:
 
-1. We are going to start a different host, the ExampleServiceHost. This host provides extra arguments to make it easier to work with authorization
+1. We are going to start a different host, the ExampleServiceHost. This host provides extra arguments to make it easier to work with authorization.
 2. We are going to provide arguments to enable authentication and authorization as well as create two users. The two users will be:
   * User "root@localhost" with password "changeme"
   * User "example@localhost" with password "changeme"
 
 Users in Xenon are always identified by an email address. 
 
-```sh
+```
 % java -cp xenon-host/target/xenon-host-0.4.0-SNAPSHOT-j-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --isAuthorizationEnabled=true --adminUser=admin@localhost --adminUserPassword=changeme --exampleUser=example@localhost --exampleUserPassword=changeme
 
 [0][I][1452037260285][ExampleServiceHost:8000][startImpl][ServiceHost/cd70e1c8 listening on 127.0.0.1:8000]
@@ -25,10 +25,10 @@ Users in Xenon are always identified by an email address.
 ```
 
 The output is a bit long, but you can learn quite a bit from it. For example, we have created a user named admin@localhost:
-* Each user is represented by a user service. This user is at: /core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134
-* We made a user group that contains just this user. The user group is at: /core/authz/user-groups/86b928df-261a-48ff-9d56-eff01c4e75eb
-* We made a resource group that contains a set of resources: /core/authz/resource-groups/406c1eae-54ad-4313-b0ff-a7a3075c905a
-* We made a role that connects together the user group and resource group: /core/authz/roles/db12ffe9-9245-4314-98b0-93de5fd6d068
+* Each user is represented by a user service. The admin user is at: /core/authz/users/a996822b-b2df-4a3d-a96b-f560cdf9f134
+* We made a user group that contains just this user. The admin's user group is at: /core/authz/user-groups/86b928df-261a-48ff-9d56-eff01c4e75eb
+* We made a resource group from the admin user that contains a set of resources: /core/authz/resource-groups/406c1eae-54ad-4313-b0ff-a7a3075c905a
+* We made a role that connects together the admin's user and resource groups: /core/authz/roles/db12ffe9-9245-4314-98b0-93de5fd6d068
 
 We'll look at this in detail below. 
 
@@ -70,7 +70,7 @@ All API operations require an auth token. The API workflow is:
 * If the credentials are correct, the user will receive an _auth token_
 * Future API calls should provide the auth token as a header named "x-xenon-auth-token"
 
-Alternatively, clients can use cookies: the auth token is embedded in the xenon-auth-cookie. The auth token header is the preferred approach, but both are acceptable. 
+Alternatively, clients can use cookies: the auth token is embedded in the `xenon-auth-cookie`. The auth token header is the preferred approach, but both are acceptable. 
 
 Here is an example of getting the auth token. A post with curl looks like:
 
@@ -127,11 +127,11 @@ You'll provide the the token as a header on future operations, like this:
 }
 ```
 
-If you try this command, you will need to substitute your own auth token. Note that if you try this command with a token for the other user, example@localhost, it will act in the same way as an unauthenticated user: the documentLinks list will be empty. 
+If you try this command, you will need to substitute your own auth token. Note that if you try this command with a token for the other user, example@localhost, it will act in the same way as an unauthenticated user: the documentLinks list will be empty because the example user has not been authorized to GET user services. 
 
 The token makes the command rather long, so we'll simplify commands below by replacing the auth token with the text AUTH-TOKEN. Just replace AUTH-TOKEN with whatever token you received. For example:
 
-```sh
+```javascript
 % curl http://localhost:8000/core/authz/users -H "x-xenon-auth-token: AUTH-TOKEN"
 {
   "documentLinks": [
