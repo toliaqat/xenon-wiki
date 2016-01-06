@@ -91,11 +91,36 @@ $ mvn clean deploy -P release
 
 (If you get an error like "Could not find artifact com.vmware.xenon:xenon-loader-test:jar:0.3.1 in central (https://repo.maven.apache.org/maven2)", then run "mvn install". This is a dependency failure that we'll fix soon.)
 
-Release the deployment to maven central by following [these instructions](http://central.sonatype.org/pages/releasing-the-deployment.html). You will do two steps: Closing the Staging repositories, and making the release public. Useful links for this process: 
+Release the deployment to maven central: [Full instructions](http://central.sonatype.org/pages/releasing-the-deployment.html) are available on the sonatype web site, but we'll summarize them here. 
+
+First, login and navigate to staging repo at the bottom that starts with "comvmware":
+
+[[images/cut-release.staging-repo.png]]
+
+Next, verify that the correct binaries have been installed:
+
+[[images/cut-release.verify-staging-repo.png]]
+
+Then click the Close button and wait for it to finish. You can hit the Refresh button to update the progress of the close operation. It shouldn't take long.
+
+[[images/cut-release.close.png]]
+
+Finally, click on the Release button:
+
+[[images/cut-release.release.png]]
+
+At this point, you'll be able to see the release on the sonatype web site
+  * [Xenon Release Artifacts on Sonatype](https://oss.sonatype.org/content/groups/public/com/vmware/xenon/)
+
+It will take a while for it to make it to Maven Central, but they'll eventually be there too
+  * [Xenon Release Artifacts on Maven Central](https://repo1.maven.org/maven2/com/vmware/xenon/)
+
+Done!
+
+Links:
 * [Manage Sonatype Staging Repositories via Web UI](https://oss.sonatype.org/#stagingRepositories)
 * [Deploy snapshot artifacts into repository](https://oss.sonatype.org/content/repositories/snapshots)
 * [Download snapshot, release and staged artifacts from staging group](https://oss.sonatype.org/content/groups/staging)
 * [Download snapshot and release artifacts from group](https://oss.sonatype.org/content/groups/public)
 * [See the released artifacts on Maven Central](https://repo1.maven.org/maven2/com/vmware/xenon/)
 
-Done!
