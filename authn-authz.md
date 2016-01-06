@@ -1,3 +1,9 @@
+This document has been deprecated and will be removed shortly. Please see:
+
+[Authentication and Authorization Design](Authentication-and-Authorization-Design)
+
+
+
 # Authentication & authorization
 
 > **This is a work in progress**
