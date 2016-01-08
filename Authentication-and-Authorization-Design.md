@@ -70,6 +70,8 @@ This means the runtime cost of the authorization service is equal to lookup of t
 
 The authorization service performs caching where possible to amortize any query cost.
 
+Note that if a user is authorized to access a service, they are also authorized to access the service's helpers, like /stats.
+
 ## 3.3 Tenancy
 
 It is possible to implement tenancy on top of the entities and interactions described in this document. Every tenant will have its own set of roles, that allow users who belong to that tenant (through the user group specific to that tenant) access to resources that belong to that same tenant. This can be expressed by adding query terms to the queries for the user group and resource group.
