@@ -250,3 +250,84 @@ If we wait a few more seconds, the task will also be removed:
 ```
 
 # 5.0 Writing a Task Service in Java
+
+The full code in part of Xenon:
+* The factory service: [ExampleTaskFactoryService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskFactoryService.java)
+* The task service: [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
+
+# 5.1 The task factory service
+The task factory service is simple and identical in form to most other factory services. Most of the functionality is in the base class. The two essential pieces of this code are the definition of the URI (we use /core/example-tasks) and the reference to the class that implements the service
+
+```java
+public class ExampleTaskFactoryService extends FactoryService {
+    public static final String SELF_LINK = ServiceUriPaths.CORE + "/example-tasks";
+
+    public ExampleTaskFactoryService() {
+        super(ExampleTaskServiceState.class);
+        super.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
+        super.toggleOption(ServiceOption.INSTRUMENTATION, true);
+    }
+
+    @Override
+    public Service createServiceInstance() throws Throwable {
+        return new ExampleTaskService();
+    }
+}
+```
+
+# 5.2 The task service
+The task service is where all of the interesting code is. We do not have the full code here; see [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java) for details. We will highlight the most interesting parts. 
+
+# 5.2.1 The state of the task
+We must define the state of the task. Here we have one parameter for users to set and several for the task to keep track of what it is doing. 
+
+A few things to note:
+* We use the standard[TaskState](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/TaskState.java), which defines the overall progress through the task. While you are not required to use TaskState, we strongly encourage it to provide commonality between all tasks services. The TaskState only has a few stages (CREATED, STARTED, FINISHED, FAILED, CANCELLED). Most tasks will spend their working time in the STARTED state and will indicate their progress through a SubStage
+* The UsageOption AUTO_MERGE_IF_NOT_NULL makes it easier to handle PATCH requests because the state changes can be merged for you.
+
+```java
+public static class ExampleTaskServiceState extends ServiceDocument {
+    /**
+     * Time in seconds before the task expires
+     *
+     * Technically, this isn't needed: clients can just set documentExpirationTimeMicros.
+     * However, this makes tutorials easier: command-line clients can just set this to
+     * a constant instead of calculating a future time
+     */
+    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
+    public Long taskLifetime;
+
+    /**
+     * This field shouldn't be manipulated by clients, but can be examined to see the progress
+     * of the task
+     */
+    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
+    public TaskState taskInfo;
+     /**
+     * If taskInfo.stage == FAILED, this message will say why
+     */
+    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
+    public String failureMessage;
+
+    /**
+     * The current substage. See {@link SubStage}
+     */
+    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
+    public SubStage subStage;
+
+    /**
+     * The query we make to the Query Task service, and the result we
+     * get back from it.
+     */
+    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
+    public QueryTask exampleQueryTask;
+}
+```
+
+Here is our definition of the sub stage. This task is simple so it only has two sub stages:
+
+```java
+public static enum SubStage {
+    QUERY_EXAMPLES, DELETE_EXAMPLES
+}
+```
