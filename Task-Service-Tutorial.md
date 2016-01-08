@@ -255,7 +255,7 @@ The full code in part of Xenon:
 * The factory service: [ExampleTaskFactoryService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskFactoryService.java)
 * The task service: [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
 
-# 5.1 The task factory service
+## 5.1 The task factory service
 The task factory service is simple and identical in form to most other factory services. Most of the functionality is in the base class. The two essential pieces of this code are the definition of the URI (we use /core/example-tasks) and the reference to the class that implements the service
 
 ```java
@@ -275,10 +275,10 @@ public class ExampleTaskFactoryService extends FactoryService {
 }
 ```
 
-# 5.2 The task service
+## 5.2 The task service
 The task service is where all of the interesting code is. We do not have the full code here; see [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java) for details. We will highlight the most interesting parts. 
 
-# 5.2.1 The state of the task
+### 5.2.1 The state of the task
 We must define the state of the task. Here we have one parameter for users to set and several for the task to keep track of what it is doing. 
 
 A few things to note:
@@ -331,3 +331,271 @@ public static enum SubStage {
     QUERY_EXAMPLES, DELETE_EXAMPLES
 }
 ```
+
+### 5.2.2 Creating the TASK
+
+When the factory service receives the POST to make the task, the task service's method handleStart will be called. It's passed an Operation: this is the POST operation, and we can examine the body of the operation to see what to do. 
+
+A couple of important points:
+
+1. As soon as we do a _quick_ validation, we send our response to the POST by calling _complete()_ on the operation. After that, we will initialize our state and PATCH ourselves. Note that if the client _immediately_ does a GET on the service, they may not see the initialized state yet. This isn't likely in practice for clients, but it may happen for in-process requests. 
+2. Once the state is initialized, we immediately do a self PATCH. That PATCH will trigger the first step of work, and future PATCH's will continue the work. We do the self PATCH before doing any work to ensure that our state is updated. 
+
+```java
+/**
+ * This handles the initial POST that creates the task service.
+ */
+@Override
+public void handleStart(Operation taskOperation) {
+    ExampleTaskServiceState task = validateStartPost(taskOperation);
+    if (task == null) {
+        return;
+    }
+    taskOperation.complete();
+    initializeState(task, taskOperation);
+    sendSelfPatch(task);
+}
+ /**
+ * Ensure that the input task is valid.
+ *
+ * Technically we don't need to require a body since there are no parameters. However,
+ * non-example tasks will normally have parameters, so this is an example of how they
+ * could be validated.
+ */
+private ExampleTaskServiceState validateStartPost(Operation taskOperation) {
+    if (!taskOperation.hasBody()) {
+        taskOperation.fail(new IllegalArgumentException("POST body is required"));
+        return null;
+    }
+     ExampleTaskServiceState task = taskOperation.getBody(ExampleTaskServiceState.class);
+    if (task.taskInfo != null) {
+        taskOperation.fail(
+                new IllegalArgumentException("Do not specify taskBody: internal use only"));
+        return null;
+    }
+    if (task.subStage != null) {
+        taskOperation.fail(
+                new IllegalArgumentException("Do not specify subStage: internal use only"));
+        return null;
+    }
+    if (task.exampleQueryTask != null) {
+        taskOperation.fail(
+                new IllegalArgumentException("Do not specify taskBody: internal use only"));
+        return null;
+    }
+    if (task.taskLifetime != null && task.taskLifetime <= 0) {
+        taskOperation.fail(
+                new IllegalArgumentException("taskLifetime must be positive"));
+        return null;
+    }
+     return task;
+}
+ /**
+ * Initialize the task
+ *
+ * We set it to be STARTED: we skip CREATED because we don't need the CREATED state
+ * If your task does significant initialization, you may prefer to do it in the
+ * CREATED state.
+ */
+private void initializeState(ExampleTaskServiceState task, Operation taskOperation) {
+    task.taskInfo = new TaskState();
+    task.taskInfo.stage = TaskState.TaskStage.STARTED;
+    task.subStage = SubStage.QUERY_EXAMPLES;
+     if (task.taskLifetime != null) {
+        task.documentExpirationTimeMicros = Utils.getNowMicrosUtc()
+                + TimeUnit.SECONDS.toMicros(task.taskLifetime);
+    } else if (task.documentExpirationTimeMicros != 0) {
+        task.documentExpirationTimeMicros = Utils.getNowMicrosUtc()
+                + TimeUnit.SECONDS.toMicros(DEFAULT_TASK_LIFETIME);
+    }
+    taskOperation.setBody(task);
+}
+```
+
+### 5.2.2 Doing the work
+All of the work of the task service is done in response to PATCH's. When our task service receives a PATCH, the handlePatch() method is called. Ours looks like the code below. 
+
+1. Note that we respond to the PATCH as soon as we ensure it's valid. Just like the creation of the task, we respond immediately before doing the work. 
+2. Note that all of our work is in the STARTED stage
+
+```java
+@Override
+public void handlePatch(Operation patch) {
+    ExampleTaskServiceState currentTask = getState(patch);
+    ExampleTaskServiceState patchBody = patch.getBody(ExampleTaskServiceState.class);
+     if (!validateTransition(patch, currentTask, patchBody)) {
+        return;
+    }
+
+    updateState(patch, currentTask, patchBody);
+    patch.complete();
+
+    switch (patchBody.taskInfo.stage) {
+    case CREATED:
+        // Won't happen: validateTransition reports error
+        break;
+    case STARTED:
+        handleSubstage(patchBody);
+        break;
+    case CANCELLED:
+        logInfo("Task canceled: not implemented, ignoring");
+        break;
+    case FINISHED:
+        logInfo("Task finished successfully");
+        break;
+    case FAILED:
+        logWarning("Task failed: %s", (patchBody.failureMessage == null ? "No reason given"
+                : patchBody.failureMessage));
+        break;
+    default:
+        logWarning("Unexpected stage: %s", patchBody.taskInfo.stage);
+        break;
+    }
+}
+
+private void handleSubstage(ExampleTaskServiceState task) {
+    switch (task.subStage) {
+    case QUERY_EXAMPLES:
+        handleQueryExamples(task);
+        break;
+    case DELETE_EXAMPLES:
+        handleDeleteExamples(task);
+        break;
+    default:
+        logWarning("Unexpected sub stage: %s", task.subStage);
+        break;
+    }
+}
+```
+
+Our work is in two separate methods. Let's briefly look at them. 
+
+To find all of the query examples, we send a POST to the query task work. This is a task worker, just like this task worker. It's a little unusual though, because queries are so frequent and usually very quick: we can request an immediate response instead of waiting for it to complete. This is called a direct task. 
+
+Note that this method starts asynchronous work. If it needs to do long-running, CPU-intensive work, it's best to run it in another thread. When the work completes, it sends a PATCH back to the task worker to proceed with the next step. This PATCH updates the tasks state with the results of the query, so the next step can use the results. 
+
+```java
+private void handleQueryExamples(ExampleTaskServiceState task) {
+    // Create a query for "all documents with kind ==
+    // com:vmware:xenon:services:common:ExampleService:ExampleServiceState"
+    Query exampleDocumentQuery = Query.Builder.create()
+	    .setTerm(ServiceDocument.FIELD_NAME_KIND,
+		    Utils.buildKind(ExampleServiceState.class))
+	    .build();
+    task.exampleQueryTask = QueryTask.Builder.createDirectTask()
+	    .setQuery(exampleDocumentQuery)
+	    .build();
+
+    // Send the query to the query task service.
+    // When we get a response, advance to the next substage, deleting examples
+    // Note that we inherited the authorization context of the incoming patch, so
+    // we will only see documents that can be seen by the requesting user.
+    // The same is true of our completion: we'll continue to use the same authorization
+    // context
+    URI queryTaskUri = UriUtils.buildUri(this.getHost(), ServiceUriPaths.CORE_QUERY_TASKS);
+    Operation queryRequest = Operation.createPost(queryTaskUri)
+	    .setBody(task.exampleQueryTask)
+	    .setCompletion(
+		    (op, ex) -> {
+                        if (ex != null) {
+			    logWarning("Query failed, task will not finish: %s",
+				    ex.getMessage());
+			    return;
+                        }
+                        // We extract the result of the task because DELETE_EXAMPLES will use
+                        // the list of documents found
+                        task.exampleQueryTask = op.getBody(QueryTask.class);
+                        sendSelfPatch(task, TaskStage.STARTED, SubStage.DELETE_EXAMPLES);
+		    });
+    sendRequest(queryRequest);
+}
+```
+
+The step to delete the example services is similar in concept, but it uses something you may not have seen before: [OperationJoin](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/OperationJoin.java). This allows you to send multiple operations in parallel (batching can be used optionally), and receive just one completion when all of them finish. This greatly simplifies our deletion of the example services:
+
+```java
+private void handleDeleteExamples(ExampleTaskServiceState task) {
+    if (task.exampleQueryTask.results == null) {
+        sendSelfFailurePatch(task, "Query task service returned null results");
+        return;
+    }
+
+    if (task.exampleQueryTask.results.documentLinks == null) {
+        sendSelfFailurePatch(task, "Query task service returned null documentLinks");
+        return;
+    }
+    if (task.exampleQueryTask.results.documentLinks.size() == 0) {
+        logInfo("No example service documents found, nothing to do");
+        sendSelfPatch(task, TaskStage.FINISHED, null);
+    }
+
+    List<Operation> deleteOperations = new ArrayList<>();
+    for (String exampleService : task.exampleQueryTask.results.documentLinks) {
+        URI exampleServiceUri = UriUtils.buildUri(this.getHost(), exampleService);
+        Operation deleteOp = Operation.createDelete(exampleServiceUri);
+        deleteOperations.add(deleteOp);
+    }
+
+    // OperationJoin lets us do a set of operations in parallel. If we wanted to,
+    // we could specify a batch size to limit the parallelism. We'll receive one
+    // completion when all the operations complete.
+    OperationJoin operationJoin = OperationJoin.create();
+    operationJoin
+	    .setOperations(deleteOperations)
+	    .setCompletion((ops, exs) -> {
+                if (exs != null && !exs.isEmpty()) {
+		    sendSelfFailurePatch(task, String.format("%d deletes failed", exs.size()));
+                    return;
+                } else {
+                    sendSelfPatch(task, TaskStage.FINISHED, null);
+                }
+            }).sendWith(this);
+}
+```
+
+One last important code to understand is the self PATCH. Fortunately, it's straightforward. Note that we need to know the tasks URI, but this is provided for you with a method called `getUri()`. 
+
+```java
+/**
+ * Send ourselves a PATCH that will indicate failure
+ */
+private void sendSelfFailurePatch(ExampleTaskServiceState task, String failureMessage) {
+    task.failureMessage = failureMessage;
+    sendSelfPatch(task, TaskStage.FAILED, null);
+}
+
+/**
+ * Send ourselves a PATCH that will advance to another step in the task workflow to the
+ * specified stage and substage.
+ */
+private void sendSelfPatch(ExampleTaskServiceState task, TaskStage stage, SubStage subStage) {
+    if (task.taskInfo == null) {
+        task.taskInfo = new TaskState();
+    }
+    task.taskInfo.stage = stage;
+    task.subStage = subStage;
+    sendSelfPatch(task);
+}
+
+/**
+ * Send ourselves a PATCH. The caller is responsible for creating the PATCH body
+ */
+private void sendSelfPatch(ExampleTaskServiceState task) {
+    Operation patch = Operation.createPatch(getUri())
+	    .setBody(task)
+	    .setCompletion(
+                    (op, ex) -> {
+                        if (ex != null) {
+			    logWarning("Failed to send patch, task has failed: %s",
+				    ex.getMessage());
+                        }
+		    });
+    sendRequest(patch);
+}
+```
+
+# 6.0 Further Reading
+
+* [LuceneQueryTaskService](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/LuceneQueryTaskService.java) The implementation of /core/query-tasks. This is a significantly more complicated example of a task service
+* [TestExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleTaskService.java) Test code for validating the ExampleTestService.
+* [Finite State Machine](./Finite-State-Machine): Some utilities for helping you maintain more complex state machines. 
