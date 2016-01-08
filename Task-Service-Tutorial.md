@@ -135,9 +135,9 @@ Verify that you can see the example services:
 
 ## 4.2 Run a task
 
-Running the task is easy by doing a POST to the factory service. The body of the POST will contain any needed parameters.
+You start a task by doing a POST to the factory service. The body of the POST will contain any needed parameters.
 
-The ExampleTaskService does not require any parameters, but just deletes all example services that it is authorized to access. However, we do have one optional parameter, which is the time (in seconds) for the task to delete itself. Technically, this parameter is not required, because the client can just set the documentExpirationTimeMicros field for a time in the future, and the service will be deleted. Because that field is a pain to use in a tutorial (it's microseconds since January 1, 1970), we've added a parameter which is the number of seconds after which the task should delete itself. The task will set the documentExpirationTimeMicros for us. 
+The ExampleTaskService does not require any parameters, but just deletes all example services that it is authorized to access. However, we do have one optional parameter, which is the time (in seconds) for the task to delete itself. Technically, this parameter is not required, because the client can just set the documentExpirationTimeMicros field for a time in the future, and the task service will be deleted. Because that field is a pain to use in a tutorial (it's microseconds since January 1, 1970), we've added a parameter which is the number of seconds after which the task should delete itself. The task will set the documentExpirationTimeMicros for us. 
 
 _File:_ task.post
 ```
@@ -166,7 +166,7 @@ Then create the task with a POST. Note that the response tells you that the task
 }
 ```
 
-If we wait a second and query the task, we'll see that it's completed, and we'll also get to peek at the task's internal state, which includes the results of the query it did. The output has been trimmed of some of the standard fields for simplicity:
+If we wait a second and query the task, we will see that it has finished, and we also get to peek at the task's internal state, which includes the results of the query it did. The output has been trimmed of some of the standard fields for simplicity:
 
 ```
 curl -s 'http://localhost:8000/core/example-tasks?expand' | jq . 
@@ -237,7 +237,7 @@ We can also see that the example have been deleted:
 }
 ```
 
-If we wait a few more seconds, the task will also be removed:
+If we wait a few more seconds, the task will also be removed because it has expired:
 
 ```
 % curl -s 'http://localhost:8000/core/example-tasks?expand' | jq . 
@@ -255,7 +255,7 @@ If we wait a few more seconds, the task will also be removed:
 
 # 5.0 Writing a Task Service in Java
 
-The full code in part of Xenon:
+The full code for the task factory and service can be found at:
 * The factory service: [ExampleTaskFactoryService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskFactoryService.java)
 * The task service: [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
 
@@ -286,8 +286,8 @@ The task service is where all of the interesting code is. We do not have the ful
 We must define the state of the task. Here we have one parameter for users to set and several for the task to keep track of what it is doing. 
 
 A few things to note:
-* We use the standard[TaskState](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/TaskState.java), which defines the overall progress through the task. While you are not required to use TaskState, we strongly encourage it to provide commonality between all tasks services. The TaskState only has a few stages (CREATED, STARTED, FINISHED, FAILED, CANCELLED). Most tasks will spend their working time in the STARTED state and will indicate their progress through a SubStage
-* The UsageOption AUTO_MERGE_IF_NOT_NULL makes it easier to handle PATCH requests because the state changes can be merged for you.
+* We use the standard [TaskState](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/TaskState.java), which defines the overall progress through the task. While you are not required to use TaskState, we strongly encourage it to provide commonality between all tasks services. The TaskState only has a few stages: CREATED, STARTED, FINISHED, FAILED, CANCELLED. Most tasks will spend their working time in the STARTED state and will indicate their progress through a SubStage.
+* The UsageOption AUTO_MERGE_IF_NOT_NULL makes it easier to handle PATCH requests because the state changes can be merged for you by merging the changes automatically when you call `Utils.mergeWithState()`
 
 ```java
 public static class ExampleTaskServiceState extends ServiceDocument {
@@ -328,7 +328,7 @@ public static class ExampleTaskServiceState extends ServiceDocument {
 }
 ```
 
-Here is our definition of the sub stage. This task is simple so it only has two sub stages:
+Here is our definition of the sub stage. This task only has two sub stages:
 
 ```java
 public static enum SubStage {
@@ -338,11 +338,11 @@ public static enum SubStage {
 
 ### 5.2.2 Creating the TASK
 
-When the factory service receives the POST to make the task, the task service's method handleStart will be called. It's passed an Operation: this is the POST operation, and we can examine the body of the operation to see what to do. 
+When the factory service receives the POST to make the task, the task service's method handleStart will be called. It is passed an Operation; this is the POST operation, and we can examine the body of the operation to see what to do. 
 
 A couple of important points:
 
-1. As soon as we do a _quick_ validation, we send our response to the POST by calling _complete()_ on the operation. After that, we will initialize our state and PATCH ourselves. Note that if the client _immediately_ does a GET on the service, they may not see the initialized state yet. This isn't likely in practice for clients, but it may happen for in-process requests. 
+1. As soon as we do a _quick_ validation, we send our response to the POST by calling _complete()_ on the operation. After that, we will initialize our state and PATCH ourselves. Note that if the client _immediately_ does a GET on the service, they may not see the initialized state yet. This isn't likely in practice for clients, but it may happen for in-process clients. 
 2. Once the state is initialized, we immediately do a self PATCH. That PATCH will trigger the first step of work, and future PATCH's will continue the work. We do the self PATCH before doing any work to ensure that our state is updated. 
 
 ```java
@@ -419,7 +419,7 @@ private void initializeState(ExampleTaskServiceState task, Operation taskOperati
 ### 5.2.2 Doing the work
 All of the work of the task service is done in response to PATCH's. When our task service receives a PATCH, the handlePatch() method is called. Ours looks like the code below. 
 
-1. Note that we respond to the PATCH as soon as we ensure it's valid. Just like the creation of the task, we respond immediately before doing the work. 
+1. Note that we respond to the PATCH as soon as we ensure it is valid. Just like the creation of the task, we respond immediately before doing the work. 
 2. Note that all of our work is in the STARTED stage
 
 ```java
@@ -470,6 +470,23 @@ private void handleSubstage(ExampleTaskServiceState task) {
         break;
     }
 }
+
+    /**
+     * This updates the state of the task. Note that we are merging information from the
+     * PATCH into the current task. Because we are merging into the current task (it's the
+     * same object), we do not need to explicitly save the state: that will happen when
+     * we call patch.complete()
+     */
+    private void updateState(Operation patch,
+            ExampleTaskServiceState currentTask,
+            ExampleTaskServiceState patchBody) {
+        Utils.mergeWithState(getDocumentTemplate().documentDescription, currentTask, patchBody);
+
+        // Take the new document expiration time
+        if (currentTask.documentExpirationTimeMicros == 0) {
+            currentTask.documentExpirationTimeMicros = patchBody.documentExpirationTimeMicros;
+        }
+    }
 ```
 
 Our work is in two separate methods. Let's briefly look at them. 
