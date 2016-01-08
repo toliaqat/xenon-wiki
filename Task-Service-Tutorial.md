@@ -39,11 +39,211 @@ Please note that you will need to change the name of the JAR file to match the v
 [0][I][1452210831944][ExampleServiceHost:8000][startImpl][ServiceHost/1161b183 listening on 127.0.0.1:8000]
 ```
 
-# 3.0 Experimenting with the ExampleTaskService
+# 3.0 The ExampleTaskService
 
 The ExampleTaskService is a service that will delete all example service documents. This is a two step process:
 
-1. Make a query for all example service documents
+1. Make a query (POST to the QueryTaskService) for all example service documents
 2. Delete all of them. 
 
 This will usually run rather quickly (unless you have a huge number of example services to delete), but is a good illustration of how an ExampleTask is written. 
+
+Here is an illustration of what the ExampleTaskService does:
+
+__IMAGE HERE SOON__
+
+# 4.0 Using the ExampleTaskService
+
+Before we look at the code, let's see what it's like to use the ExampleTaskService. This assumes you have started up the ExampleHost, as described above.
+
+## 4.1 Create example services
+In order to delete example services, we first need to have some example services. Let's do that:
+
+_File:_ example-1.body
+```
+{
+  "name": "example-1",
+  "counter": 1
+}
+```
+
+_File:_ example-2.body
+```
+{
+  "name": "example-1",
+  "counter": 1
+}
+```
+
+Create the examples:
+% curl -s -X POST -d@example-1.body http://localhost:8000/core/examples -H "Content-Type: application/json" | jq .
+{
+  "keyValues": {},
+  "counter": 1,
+  "name": "example-1",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+  "documentSelfLink": "/core/examples/f67fc854-8efa-4672-b62d-e1eb4f4a30d8",
+  "documentUpdateTimeMicros": 1452213596649000,
+  "documentUpdateAction": "POST",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e7d748e2-597e-466e-a5ec-ec21b6838e7c",
+  "documentAuthPrincipalLink": "/core/authz/guest-user",
+  "documentTransactionId": ""
+}
+
+% curl -s -X POST -d@example-2.body http://localhost:8000/core/examples -H "Content-Type: application/json" | jq .
+{
+  "keyValues": {},
+  "counter": 2,
+  "name": "example-2",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+  "documentSelfLink": "/core/examples/91fc7d06-2b8c-4106-ba7f-f0d258f0242c",
+  "documentUpdateTimeMicros": 1452213602148002,
+  "documentUpdateAction": "POST",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e7d748e2-597e-466e-a5ec-ec21b6838e7c",
+  "documentAuthPrincipalLink": "/core/authz/guest-user",
+  "documentTransactionId": ""
+}
+```
+
+Verify that you can see the example services:
+```
+% curl http://localhost:8000/core/examples
+{
+  "documentLinks": [
+    "/core/examples/f67fc854-8efa-4672-b62d-e1eb4f4a30d8",
+    "/core/examples/91fc7d06-2b8c-4106-ba7f-f0d258f0242c"
+  ],
+  "documentCount": 2,
+  "queryTimeMicros": 4999,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e7d748e2-597e-466e-a5ec-ec21b6838e7c"
+}
+```
+
+## 4.2 Run a task
+
+Running the task is easy, just do a POST to the factory service. The body of the POST will contain any needed parameters. The ExampleTaskService does not require any parameters, but just deletes all example services that it is authorized to access. However, we do have one optional parameter, which is the time (in seconds) for the task to delete itself. Technically, this parameter is not required, because the client can just set the documentExpirationTimeMicros field for a time in the future, and the service will be deleted. Because that field is a pain to use in a tutorial (it's microseconds since January 1, 1970), we've added a parameter which is the number of seconds after which the task should delete itself. The task will set the documentExpirationTimeMicros for us. 
+
+_File:_ task.post
+```
+{
+  "taskLifetime": 5
+}
+```
+
+Then create the task with a POST. Note that the response tells you that the task is started (taskInfo.stage) and querying for the examples (subStage):
+
+```
+% curl -s -X POST -d@task.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json" | jq . 
+{
+  "taskLifetime": 5,
+  "taskInfo": {
+    "stage": "STARTED",
+    "isDirect": false
+  },
+  "subStage": "QUERY_EXAMPLES",
+  "documentVersion": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleTaskService:ExampleTaskServiceState",
+  "documentSelfLink": "/core/example-tasks/7b0501a2-44ae-4b9e-8899-9a025a3b0416",
+  "documentUpdateTimeMicros": 1452213703216002,
+  "documentExpirationTimeMicros": 1452213708217002,
+  "documentOwner": "e7d748e2-597e-466e-a5ec-ec21b6838e7c"
+}
+```
+
+If we wait a second and query the task, we'll see that it's completed, and we'll also get to peek at the task's internal state, which includes the results of the query it did. The output has been trimmed of some of the standard fields for simplicity:
+
+```
+curl -s 'http://localhost:8000/core/example-tasks?expand' | jq . 
+{
+  "documentLinks": [
+    "/core/example-tasks/7b0501a2-44ae-4b9e-8899-9a025a3b0416"
+  ],
+  "documents": {
+    "/core/example-tasks/7b0501a2-44ae-4b9e-8899-9a025a3b0416": {
+      "taskLifetime": 5,
+      "taskInfo": {
+        "stage": "FINISHED",
+        "isDirect": false
+      },
+      "subStage": "DELETE_EXAMPLES",
+      "exampleQueryTask": {
+        "taskInfo": {
+          "stage": "FINISHED",
+          "isDirect": true,
+          "durationMicros": 3000
+        },
+        "querySpec": {
+          "query": {
+            "occurance": "MUST_OCCUR",
+            "term": {
+              "propertyName": "documentKind",
+              "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+              "matchType": "TERM"
+            }
+          },
+          "resultLimit": 2147483647,
+          "options": []
+        },
+        "results": {
+          "documentLinks": [
+            "/core/examples/f67fc854-8efa-4672-b62d-e1eb4f4a30d8",
+            "/core/examples/91fc7d06-2b8c-4106-ba7f-f0d258f0242c"
+          ],
+          ... output trimmed ...
+        },
+        "indexLink": "/core/document-index",
+        ... output trimmed ...
+      },
+      "documentVersion": 3,
+      "documentKind": "com:vmware:xenon:services:common:ExampleTaskService:ExampleTaskServiceState",
+      "documentSelfLink": "/core/example-tasks/7b0501a2-44ae-4b9e-8899-9a025a3b0416",
+      "documentExpirationTimeMicros": 1452213708217002,
+      ... output trimmed ...
+    }
+  },
+  "documentCount": 1,
+  ... output trimmed ...
+}
+```
+
+We can also see that the example have been deleted:
+
+```
+% curl http://localhost:8000/core/examples
+{
+  "documentLinks": [],
+  "documentCount": 0,
+  "queryTimeMicros": 1,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e7d748e2-597e-466e-a5ec-ec21b6838e7c"
+}
+```
+
+If we wait a few more seconds, the task will also be removed:
+
+```
+% curl -s 'http://localhost:8000/core/example-tasks?expand' | jq . 
+{
+  "documentLinks": [],
+  "documents": {},
+  "documentCount": 0,
+  "queryTimeMicros": 999,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e7d748e2-597e-466e-a5ec-ec21b6838e7c"
+}
+```
+
+# 5.0 Writing a Task Service in Java
