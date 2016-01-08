@@ -13,7 +13,7 @@ The workflow for a task service is simple, but may be surprising if you have not
   2. When the action completes, update the state of the task service by doing a PATCH back to the service. 
   3. When the PATCH is processed, this process repeats with the next action
 
-__IMAGE HERE SOON__
+[[images/task-service/task-service.png]]
 
 Task services are good examples of the uniform use of REST throughout Xenon: all state changes and queries between services happen via REST. A service does not treat a request differently if it comes from an external client, another service, or itself. 
 
@@ -50,7 +50,7 @@ This will usually run rather quickly (unless you have a huge number of example s
 
 Here is an illustration of what the ExampleTaskService does:
 
-__IMAGE HERE SOON__
+[[images/task-service/example-task-service.png]]
 
 # 4.0 Using the ExampleTaskService
 
