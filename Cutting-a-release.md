@@ -95,19 +95,19 @@ Release the deployment to maven central: [Full instructions](http://central.sona
 
 First, login and navigate to staging repo at the bottom that starts with "comvmware":
 
-[[images/cut-release.staging-repo.png]]
+[[images/cut-release/staging-repo.png]]
 
 Next, verify that the correct binaries have been installed:
 
-[[images/cut-release.verify-staging-repo.png]]
+[[images/cut-release/verify-staging-repo.png]]
 
 Then click the Close button (at the top) and wait for it to finish. You can hit the Refresh button to update the progress of the close operation. It shouldn't take long.
 
-[[images/cut-release.close.png]]
+[[images/cut-release/close.png]]
 
 Finally, click on the Release button:
 
-[[images/cut-release.release.png]]
+[[images/cut-release/release.png]]
 
 At this point, you'll be able to see the release on the sonatype web site
   * [Xenon Release Artifacts on Sonatype](https://oss.sonatype.org/content/groups/public/com/vmware/xenon/)
