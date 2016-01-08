@@ -2,7 +2,7 @@
 
 This page gives you an introduction to writing a task service in Xenon. A task service will perform long-running tasks on behalf of a client (a user or another Xenon service). 
 
-Because Xenon is architected to be highly scalable and asynchronous, a service should not delay its response while a long-running task is running. Instead, it should accept the task and allow clients to query for the results later. That is exactly what a task service does and what you can learn in this tutorial.
+Because Xenon is architected to be highly scalable and asynchronous, a service should not delay its response while a long-running task is running. Instead, it should accept the task and allow clients to query or subscribe for the results. That is exactly what a task service does and what you can learn in this tutorial.
 
 # 1.1 Task Service Workflow
 
@@ -10,9 +10,9 @@ The workflow for a task service is simple, but may be surprising if you have not
 
 1. A client (user or another Xenon service) does a POST to the task factory service to create a task. The POST will include all parameters needed to describe the task. 
 2. The task factory service creates the task service
-3. The task factory service will go through a series of steps. For each step, it will:
+3. The task factory service will go through a series of steps. It models a finite state machine. For each step, it will:
   1. Make some action. In Xenon, this will generally be an asynchronous action that completes at some future time
-  2. When the action completes, update the state of the task service by doing a PATCH back to the service. 
+  2. When the action completes, update the state of the task service by doing a PATCH back to itself. 
   3. When the PATCH is processed, this process repeats with the next action
 
 The image below illustrates this pattern. Please note that in the diagram, the client only requests the state after it's completed, but it can request the state at any time. 
@@ -21,7 +21,7 @@ The image below illustrates this pattern. Please note that in the diagram, the c
 
 Task services are good examples of the uniform use of REST throughout Xenon: all state changes and queries between services happen via REST. A service does not treat a request differently if it comes from an external client, another service, or itself. For a task service, these requests include the POST that created the task as well as the self PATCH's that update the task as it progresses.
 
-In a strict technical sense, requests are often not "REST" because when services are running in the same process, they are optimized, in-process communication instead of HTTP. However, that distinction is transparent to the author of a service: requests are handled identically whether they arrive over an HTTP connection or from another in-process service.
+In a strict technical sense, requests are often not using HTTP because when services are running in the same process, they are optimized, in-process communication instead of going on the network/sockets. However, that distinction is transparent to the author of a service: requests are handled identically whether they arrive over an HTTP connection or from another in-process service.
 
 # 1.2 Assumptions
 
@@ -260,7 +260,7 @@ The full code for the task factory and service can be found at:
 * The task service: [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
 
 ## 5.1 The task factory service
-The task factory service is simple and identical in form to most other factory services. Most of the functionality is in the base class. The two essential pieces of this code are the definition of the URI (we use /core/example-tasks) and the reference to the class that implements the service
+The task factory service is simple and identical in form to most other factory services. Most of the functionality is in the base FactoryService class so the derived class is concise. The two essential pieces of this code are the definition of the URI (we use /core/example-tasks) and the reference to the class that implements the service
 
 ```java
 public class ExampleTaskFactoryService extends FactoryService {
@@ -327,6 +327,8 @@ public static class ExampleTaskServiceState extends ServiceDocument {
     public QueryTask exampleQueryTask;
 }
 ```
+
+Note that the same options can be set at runtime, if the service author overrides getDocumentTemplate(). See the ExampleService for how this is done.
 
 Here is our definition of the sub stage. This task only has two sub stages:
 
