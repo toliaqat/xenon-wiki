@@ -597,5 +597,8 @@ No: authentication and authorization go hand-in-hand. Note that you create users
 ## Can non-authenticated and non-authorized users access core services?
 No. See the examples above.
 
+## How does authorization for helpers (like /stats) work?
+For a service like /foo, there are several helpers, like /foo/stats and /foo/config. These helper URIs have the same authorization policy as the base URI (/foo in this case). If a user can do a GET against /foo, they can also do a GET against /foot/stats.
+
 # 6.0 More Information
 * [Authentication and Authorization Design](./Authentication-and-Authorization-Design)
