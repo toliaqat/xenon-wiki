@@ -9,5 +9,6 @@
   * [Introduction to Service Queries](./Introduction-to-Service-Queries)
   * [Query Task Service Tutorial](./QueryTaskService) - An in-depth tutorial on query tasks
   * [Authentication and Authorization Tutorial](./Authentication-And-Authorization-Tutorial)
+  * [Task Service Tutorial](./Task-Service-Tutorial) Task services manage long-running tasks
 * [Developer guide](./Developer-Guide) - How to build, test, contribute
 * [Glossary](./Glossary) - commonly used terms and their definitions
