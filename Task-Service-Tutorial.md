@@ -76,6 +76,7 @@ _File:_ example-2.body
 ```
 
 Create the examples:
+```
 % curl -s -X POST -d@example-1.body http://localhost:8000/core/examples -H "Content-Type: application/json" | jq .
 {
   "keyValues": {},
