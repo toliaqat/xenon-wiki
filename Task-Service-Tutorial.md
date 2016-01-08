@@ -617,7 +617,73 @@ private void sendSelfPatch(ExampleTaskServiceState task) {
 }
 ```
 
-# 6.0 Further Reading
+# 6.0 Subscriptions
+You may have noticed that our command-line example used polling to find out when a task finished. Within Xenon, you can write code that instead subscribes to a task service and will receive a notification every time it changes its state. This is more efficient than polling. 
+
+There is an example of this in [TestExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleTaskService.java). The essential part of the code has two parts. 
+
+First, you need a completion handler that will be notified of every change. The completion handler takes one parameter, which is the operation that is sent to you. The body of the operation will contain the change that was made, such as PATCH or DELETE. 
+
+```java
+/**
+ * This creates a lambda to receive notifications. It's meant as a demonstration of how
+ * to receive notifications. 
+ */
+private Consumer<Operation> createNotificationTarget() {
+
+    Consumer<Operation> notificationTarget = (update) -> {
+        update.complete();
+
+        if (!update.hasBody()) {
+	    // This is probably a DELETE
+	    this.host.log(Level.INFO, "Got notification: %s", update.getAction());
+	    return;
+        }
+
+        ExampleTaskServiceState taskState = update.getBody(ExampleTaskServiceState.class);
+        this.host.log(Level.INFO, "Got notification: %s", taskState);
+        String stage = "Unknown";
+        String substage = "Unknown";
+        if (taskState.taskInfo != null && taskState.taskInfo.stage != null) {
+	    stage = taskState.taskInfo.stage.toString();
+        }
+        if (taskState.subStage != null) {
+	    substage = taskState.subStage.toString();
+        }
+        this.host.log(Level.INFO,
+                "Received task notification: %s, stage = %s, substage = %s",
+                update.getAction(), stage, substage);
+    };
+    return notificationTarget;
+}
+```
+
+Next, you need to request that notifications are sent. Here's what it looks like. Not that this has been modified slightly to remove test-specific code. 
+
+```java
+/**
+ * Subscribe to notifications from the task.
+ *
+ * Note that in this short-running test, we are not guaranteed to get all notifications:
+ * we may subscribe after the task has completed some or all of its steps. However, we
+ * usually get all notifications.
+ *
+ */
+private void subscribeTask(String taskPath, Consumer<Operation> notificationTarget)
+        throws Throwable {
+    URI taskUri = UriUtils.buildUri(this.host, taskPath);
+    Operation subscribe = Operation.createPost(taskUri)
+	    //.setCompletion(...) will be called when your subscription succeeds or fails
+	    .setReferer(this.host.getReferer());
+
+    // the notificationTarget is the completion we made above
+    this.host.startSubscriptionService(subscribe, notificationTarget);
+}
+```
+
+For more information on subscriptions, see the description on the [Programming Model](Programming-Model#subscriptions) page. 
+
+# 7.0 Further Reading
 
 * [LuceneQueryTaskService](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/LuceneQueryTaskService.java) The implementation of /core/query-tasks. This is a significantly more complicated example of a task service
 * [TestExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleTaskService.java) Test code for validating the ExampleTestService.
