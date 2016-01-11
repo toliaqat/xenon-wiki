@@ -86,7 +86,7 @@ The response above means no documents / services are created yet.
 
 ### POST Example
 
-Create a new instance by issuing a POST. If no body is supplied the child service will have a default initial state and a random selflink. See [multi node deployment](./Developer-deployments#create-a-service) for the complete example.
+Create a new instance by issuing a POST. If no body is supplied the child service will have a default initial state and a random selflink. 
 
 ```sh
 $ curl -X POST -H "Content-type: application/json" -d '{"documentSelfLink":"niki","name":"n"}' http://localhost:8000/core/examples
