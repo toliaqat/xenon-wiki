@@ -10,6 +10,6 @@
   * [Query Task Service Tutorial](./QueryTaskService) - An in-depth tutorial on query tasks
   * [Authentication and Authorization Tutorial](./Authentication-And-Authorization-Tutorial)
   * [Task Service Tutorial](./Task-Service-Tutorial) Task services manage long-running tasks
-  * [Multiple Node Tutorial](/Multi-Node-Tutorial) Simple example of on how to start N xenon hosts, have them join each other, and verify service and state replication
+  * [Multiple Node Tutorial](./Multi-Node-Tutorial) Simple example of on how to start N xenon hosts, have them join each other, and verify service and state replication
 * [Developer guide](./Developer-Guide) - How to build, test, contribute
 * [Glossary](./Glossary) - commonly used terms and their definitions
