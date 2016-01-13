@@ -9,8 +9,8 @@ To perform transactional operations using the Simple Transaction Service, a clie
 * If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; if some operation failed (e.g. an IllegalStateException due to a transactional conflict), sends an Abort request to the coordinator. 
 
 The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage:
-The host sets the core transaction service to null and starts the Simple Transaction Factory. 
-A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**).
+* The host sets the core transaction service to null and starts the Simple Transaction Factory. 
+* A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**). It also needs to disable ServiceOption.CONCURRENT_GET_HANDLING.
     
     @Before
     public void setUp() throws Exception {
@@ -46,6 +46,57 @@ A service participating in the Simple Transaction Service protocol must inject t
 
             OperationProcessingChain opProcessingChain = new OperationProcessingChain(this);
             opProcessingChain.add(new TransactionalRequestFilter(this));
+            setOperationProcessingChain(opProcessingChain);
+            return opProcessingChain;
+        }
+    }
+
+    public static class BankAccountService extends StatefulService {
+
+        public static class BankAccountServiceState extends ServiceDocument {
+            static final String KIND = Utils.buildKind(BankAccountServiceState.class);
+            public double balance;
+        }
+
+        public static class BankAccountServiceRequest {
+            public static enum Kind {
+                DEPOSIT, WITHDRAW
+            }
+
+            public Kind kind;
+            public double amount;
+        }
+
+        public BankAccountService() {
+            super(BankAccountServiceState.class);
+            super.toggleOption(ServiceOption.PERSISTENCE, true);
+            super.toggleOption(ServiceOption.REPLICATION, true);
+            super.toggleOption(ServiceOption.OWNER_SELECTION, true);
+            super.toggleOption(ServiceOption.CONCURRENT_GET_HANDLING, false);
+        }
+
+        @Override
+        public OperationProcessingChain getOperationProcessingChain() {
+            if (super.getOperationProcessingChain() != null) {
+                return super.getOperationProcessingChain();
+            }
+
+            RequestRouter myRouter = new RequestRouter();
+            myRouter.register(
+                    Action.PATCH,
+                    new RequestRouter.RequestBodyMatcher<BankAccountServiceRequest>(
+                            BankAccountServiceRequest.class, "kind",
+                            BankAccountServiceRequest.Kind.DEPOSIT),
+                    this::handlePatchForDeposit, "Deposit");
+            myRouter.register(
+                    Action.PATCH,
+                    new RequestRouter.RequestBodyMatcher<BankAccountServiceRequest>(
+                            BankAccountServiceRequest.class, "kind",
+                            BankAccountServiceRequest.Kind.WITHDRAW),
+                    this::handlePatchForWithdraw, "Withdraw");
+            OperationProcessingChain opProcessingChain = new OperationProcessingChain(this);
+            opProcessingChain.add(new TransactionalRequestFilter(this));
+            opProcessingChain.add(myRouter);
             setOperationProcessingChain(opProcessingChain);
             return opProcessingChain;
         }
