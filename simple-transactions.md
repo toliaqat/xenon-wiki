@@ -8,23 +8,88 @@ To perform transactional operations using the Simple Transaction Service, a clie
 * Sends the operation
 * If all operations within the context of the transaction succeed, commits the transaction by sending a Commit request to the transaction coordinator; if some operation failed (e.g. an IllegalStateException due to a transactional conflict), sends an Abort request to the coordinator. 
 
-The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage:
-* The host sets the core transaction service to null and starts the Simple Transaction Factory. 
-* A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**). It also needs to disable ServiceOption.CONCURRENT_GET_HANDLING.
+Here are some relevant code snippets from TestSimpleTransactionService:
 
-    
+    private String newTransaction() throws Throwable {
+        String txid = UUID.randomUUID().toString();
+
+        // this section is required until IDEMPOTENT_POST is used
+        this.host.testStart(1);
+        SimpleTransactionServiceState initialState = new SimpleTransactionServiceState();
+        initialState.documentSelfLink = txid;
+        Operation post = Operation
+                .createPost(getTransactionFactoryUri())
+                .setBody(initialState).setCompletion((o, e) -> {
+                    if (e != null) {
+                        this.host.failIteration(e);
+                        return;
+                    }
+                    this.host.completeIteration();
+                });
+        this.host.send(post);
+        this.host.testWait();
+
+        return txid;
+    }
+
+    private void createAccount(String transactionId, String accountId, boolean independentTest)
+            throws Throwable {
+        if (independentTest) {
+            this.host.testStart(1);
+        }
+        BankAccountServiceState initialState = new BankAccountServiceState();
+        initialState.documentSelfLink = accountId;
+        Operation post = Operation
+                .createPost(getAccountFactoryUri())
+                .setBody(initialState).setCompletion((o, e) -> {
+                    if (operationFailed(o, e)) {
+                        this.host.failIteration(e);
+                        return;
+                    }
+                    this.host.completeIteration();
+                });
+        if (transactionId != null) {
+            post.setTransactionId(transactionId);
+        }
+        this.host.send(post);
+        if (independentTest) {
+            this.host.testWait();
+        }
+    }
+
+    private void commit(String transactionId) throws Throwable {
+        this.host.testStart(1);
+        Operation patch = SimpleTransactionService.TxUtils.buildCommitRequest(this.host,
+                transactionId);
+        patch.setCompletion((o, e) -> {
+            if (operationFailed(o, e)) {
+                this.host.failIteration(e);
+                return;
+            }
+            this.host.completeIteration();
+        });
+        this.host.send(patch);
+        this.host.testWait();
+    }
+
+TestSimpleTransactionService contains a number of unit tests that demonstrate that usage:
+* The host sets the core transaction service to null and starts the Simple Transaction Factory.
     @Before
     public void setUp() throws Exception {
         try {
+            this.baseAccountId = Utils.getNowMicrosUtc();
             this.host.setTransactionService(null);
             if (this.host.getServiceStage(SimpleTransactionFactoryService.SELF_LINK) == null) {
                 this.host.startServiceAndWait(SimpleTransactionFactoryService.class,
                         SimpleTransactionFactoryService.SELF_LINK);
+                this.host.startServiceAndWait(BankAccountFactoryService.class,
+                        BankAccountFactoryService.SELF_LINK);
             }
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
+* A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**). It also needs to disable ServiceOption.CONCURRENT_GET_HANDLING.
 
     public static class BankAccountFactoryService extends FactoryService {
 
@@ -101,69 +166,6 @@ The TestSimpleTransactionService class contains a number of unit tests that demo
             setOperationProcessingChain(opProcessingChain);
             return opProcessingChain;
         }
-    }
-
-
-    private String newTransaction() throws Throwable {
-        String txid = UUID.randomUUID().toString();
-
-        // this section is required until IDEMPOTENT_POST is used
-        this.host.testStart(1);
-        SimpleTransactionServiceState initialState = new SimpleTransactionServiceState();
-        initialState.documentSelfLink = txid;
-        Operation post = Operation
-                .createPost(getTransactionFactoryUri())
-                .setBody(initialState).setCompletion((o, e) -> {
-                    if (e != null) {
-                        this.host.failIteration(e);
-                        return;
-                    }
-                    this.host.completeIteration();
-                });
-        this.host.send(post);
-        this.host.testWait();
-
-        return txid;
-    }
-
-    private void createAccount(String transactionId, String accountId, boolean independentTest)
-            throws Throwable {
-        if (independentTest) {
-            this.host.testStart(1);
-        }
-        BankAccountServiceState initialState = new BankAccountServiceState();
-        initialState.documentSelfLink = accountId;
-        Operation post = Operation
-                .createPost(getAccountFactoryUri())
-                .setBody(initialState).setCompletion((o, e) -> {
-                    if (operationFailed(o, e)) {
-                        this.host.failIteration(e);
-                        return;
-                    }
-                    this.host.completeIteration();
-                });
-        if (transactionId != null) {
-            post.setTransactionId(transactionId);
-        }
-        this.host.send(post);
-        if (independentTest) {
-            this.host.testWait();
-        }
-    }
-
-    private void commit(String transactionId) throws Throwable {
-        this.host.testStart(1);
-        Operation patch = SimpleTransactionService.TxUtils.buildCommitRequest(this.host,
-                transactionId);
-        patch.setCompletion((o, e) -> {
-            if (operationFailed(o, e)) {
-                this.host.failIteration(e);
-                return;
-            }
-            this.host.completeIteration();
-        });
-        this.host.send(patch);
-        this.host.testWait();
     }
 
 # Conflicts
