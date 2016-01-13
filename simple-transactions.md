@@ -11,6 +11,7 @@ To perform transactional operations using the Simple Transaction Service, a clie
 The TestSimpleTransactionService class contains a number of unit tests that demonstrate that usage:
 * The host sets the core transaction service to null and starts the Simple Transaction Factory. 
 * A service participating in the Simple Transaction Service protocol must inject the Simple Transaction Service Filter to its request I/O pipeline (**both in its factory and service classes**). It also needs to disable ServiceOption.CONCURRENT_GET_HANDLING.
+
     
     @Before
     public void setUp() throws Exception {
@@ -101,6 +102,7 @@ The TestSimpleTransactionService class contains a number of unit tests that demo
             return opProcessingChain;
         }
     }
+
 
     private String newTransaction() throws Throwable {
         String txid = UUID.randomUUID().toString();
