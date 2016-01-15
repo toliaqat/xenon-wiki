@@ -93,7 +93,7 @@ $ mvn clean deploy -P release
 
 Release the deployment to maven central: [Full instructions](http://central.sonatype.org/pages/releasing-the-deployment.html) are available on the sonatype web site, but we'll summarize them here. 
 
-First, login and navigate to staging repo at the bottom that starts with "comvmware":
+First, [login](https://oss.sonatype.org/#stagingRepositories) and navigate to staging repo at the bottom that starts with "comvmware":
 
 [[images/cut-release/staging-repo.png]]
 
