@@ -7,12 +7,11 @@ This tutorial will walk through starting a couple of xenon hosts, each in their 
 
 In a terminal window, preferrably within a xenon enlistment, type the following to build the latest xenon jars:
 
-`
-
+```
 cd xenon
 git pull
 mvn package -DskipTests=true
-`
+```
 The above should have produced a host jar that we can now start in the terminal. This host will have just core services plus the example factory service (see example tutorial). Now lets start one host, on port 8000. If that port is not available on your system, use a different one.
 `
 java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8000 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
