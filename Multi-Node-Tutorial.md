@@ -8,6 +8,7 @@ This tutorial will walk through starting a couple of xenon hosts, each in their 
 In a terminal window, preferrably within a xenon enlistment, type the following to build the latest xenon jars:
 
 `
+
 cd xenon
 git pull
 mvn package -DskipTests=true
