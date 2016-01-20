@@ -5,6 +5,8 @@ The role of this service is described in the [design page](./Design#active-updat
 
 Multiple groups can co exist and run independently of each other. A service is implicitly associated with a group, through a [node selector service](./NodeSelectorService)
 
+A visual description is in this [deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx)
+
 ## Nodes
 
 A Xenon service host, regardless of its packaging and environment, is a **node**. You can have multiple service host instances, each with their own ports, within a single process, all isolated from each other, or within the same container, same VM, bare metal OS etc. For the purposes of the node group membership each one is treated as a independent node.
