@@ -43,3 +43,70 @@ When a node is starting you will see log output:
 [5][I][1453320791302][8000/core/node-groups/default][handlePatch][State updated, merge with 866041aa-e8a3-4cbf-ba49-8cf7c567f37d, self 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, 1453320791301005]
 [6][I][1453320797027][8000/core/node-groups/default][handlePatch][State updated, merge with 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, self 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, 1453320797027026]
 ```
+## Verifying node join
+
+The state of th enode group, including node availability is available through the REST API of the node group service. Using curl or your browser, example the default node group state, on either node:
+
+```
+$ curl http://localhost:8000/core/node-groups/default
+{
+  "config": {
+    "nodeRemovalDelayMicros": 3600000000,
+    "stableGroupMaintenanceIntervalCount": 5
+  },
+  "nodes": {
+    "79418bdd-c8e4-4ce1-b98b-d073c9ab06c3": {
+      "groupReference": "http://127.0.0.1:8000/core/node-groups/default",
+      "status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+      "id": "79418bdd-c8e4-4ce1-b98b-d073c9ab06c3",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 2,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/79418bdd-c8e4-4ce1-b98b-d073c9ab06c3",
+      "documentUpdateTimeMicros": 1453320791192000,
+      "documentExpirationTimeMicros": 0
+    },
+    "866041aa-e8a3-4cbf-ba49-8cf7c567f37d": {
+      "groupReference": "http://127.0.0.1:8001/core/node-groups/default",
+      "status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+      "id": "866041aa-e8a3-4cbf-ba49-8cf7c567f37d",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 2,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/866041aa-e8a3-4cbf-ba49-8cf7c567f37d",
+      "documentUpdateTimeMicros": 1453321855512048,
+      "documentExpirationTimeMicros": 0
+    }
+  },
+  "membershipUpdateTimeMicros": 1453320798032007,
+  "documentVersion": 1615,
+  "documentKind": "com:vmware:xenon:services:common:NodeGroupService:NodeGroupState",
+  "documentSelfLink": "/core/node-groups/default",
+  "documentUpdateTimeMicros": 1453321856376009,
+  "documentUpdateAction": "PATCH",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "79418bdd-c8e4-4ce1-b98b-d073c9ab06c3",
+  "documentAuthPrincipalLink": "/core/authz/system-user",
+  "documentTransactionId": ""
+
+```
+Notice that both nodes are listed, with status AVAILABLE:
+```
+"status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+```
+The node group service uses random probing and state merges to maintain the group state without a large number of messages.
+
+# Replication
+
+To be continued ...
