@@ -16,6 +16,7 @@ the system
  * [Query Task Service](./QueryTaskService) - A task based service to process both local, and multi-node potentially long running queries over all indexed documents. A factory service, QueryTaskFactoryService, is used to create tasks that specify the query to execute and reflect the query progress. The service talks with the document index service, co-located in the same process and translates the query description to the lucene query format
  * [Node Group Service](./NodeGroupService) - Tracks node membership using a scalable gossip layer.
  * [Node Selector Service](./NodeSelectorService) - Selects nodes, given a node group and a key, using a consistent hashing algorithm. Custom node selector implementations can be supplied.
+ * [DNS Service](./DnsService) - Provides a REST and DNS interface for service discovery and health
  * [Host Management Service](./HostManagementService) - A simple REST front end to each Xenon micro service host providing system information and means to change micro service host configuration
  * [Service Host Log service](./ServiceHostLogServiceDocumentation) - Returns the process logs for the service host as a JSON response
  * [Dynamic service loader](./LoaderService) - A service that reflects JAR files dropped in a directory under the sandbox, and loads any singleton services it finds, in the running service host.
