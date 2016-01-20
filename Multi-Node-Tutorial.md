@@ -3,9 +3,14 @@
 Xenon provides an operationally simple model to federate several nodes (Xenon service hosts) to form a node group. A node group provides high availability, scale out and the ability to dynamically expand / contract.
 This tutorial will walk through starting a couple of xenon hosts, each in their process, have them join, and then demonstrate replication by adding a service instance on one node, then finding it on all nodes.
 
+## Prerequisites
+
+* [Example Tutorial](./Example-Service-Tutorial)
+* [Xenon Clustering deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx)
+
 # Starting a host
 
-In a terminal window, preferrably within a xenon enlistment, type the following to build the latest xenon jars:
+In a terminal window, preferably within a xenon enlistment, type the following to build the latest xenon jars:
 
 ```
 cd xenon
