@@ -1,7 +1,7 @@
 # Overview
 The node group service tracks a group of Xenon nodes. It does failure detection and membership update between all nodes using an implementation of the SWIM protocol. 
 
-The role of this service is described in the [design page](./Design#active-update-replication) and [replication protocol page](./leaderElectionAndReplicationDesignPage)
+The role of this service is described in the [design page](./Design#active-update-replication) and [replication protocol page](./Leader-Election-And-Replication-Design)
 
 Multiple groups can co exist and run independently of each other. A service is implicitly associated with a group, through a [node selector service](./NodeSelectorService)
 
