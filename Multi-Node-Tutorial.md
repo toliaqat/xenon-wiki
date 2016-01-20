@@ -24,7 +24,9 @@ Notice we started the second host with --port=8001
 
 ## Node join at startup
 
-In xenon you can either dynamically join a node gorup by sending a POST to the local (un joined) node group service, or, you can have the xenon host join when it starts, by supplying the --peerNodes argument, with a list of URIs. To make startup scripts simple, you can supply the **same set of URIs, including the IP:PORT of the local host**. Xenon will ignore its self address but concurrently join through the other peer addresses.
+In xenon you can either dynamically join a node group by sending a POST to the local (un-joined) node group service at /core/node-groups/default, or, you can have the xenon host join when it starts, by supplying the --peerNodes argument, with a list of URIs. To make startup scripts simple, you can supply the **same set of URIs, including the IP:PORT of the local host**. Xenon will ignore its self address but concurrently join through the other peer addresses.
+
+For more details on node group maintenance, see the [node group service](./NodeGroupService)
 
 When a node is starting you will see log output:
 ```
