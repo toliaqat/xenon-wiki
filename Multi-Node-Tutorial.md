@@ -227,7 +227,7 @@ Notice that the documentOwner points to node at port 8000. We did a GET earlier 
 
 ### Friendly node IDs
 
-Instead of hard to remember class 4 UUIDs, you can specify a hostId when you start a Xenon host:
+Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host:
 ```
 java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
 ```
