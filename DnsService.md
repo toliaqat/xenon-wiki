@@ -1,6 +1,6 @@
 ## Overview
 The DNS service is built on top of Xenon. Other services can register and discover using a REST interface or the DNS interface. This is not a replacement or enhancement to  [Node Group Service](https://github.com/vmware/xenon/wiki/NodeGroupService). Both work together to simplify the deployment of a complex application.
-``
+
 ## Xenon DNS Service
 
 A Xenon DNS service contains key information of a set of services or nodes. You can have multiple services of the same type and behavior register with the DNS service. For example, a node group could host a set of nodes (N), each of which might contain one or more services. A client that needs to interact can communicate to any of them as Xenon routes the request to the appropriate node.
@@ -22,7 +22,8 @@ During registration a service can specify a set of fields in the service record 
     /core/dns/query
 
 ### GET
-`
+
+
       curl http://localhost:8000/core/dns/query?$filter=serviceName%20eq%20ExampleFactoryService
       {
         "documentLinks": [
@@ -49,11 +50,13 @@ During registration a service can specify a set of fields in the service record 
         },
         ...
       }
-`
+
+
 ### POST
 
 A Xenon service or any REST service can by sending a POST to <DNSHost:port>/core/dns/service-records with the following body:
-`
+
+
       {
         "serviceLink": "/core/examples",
         "serviceName": "ExampleFactoryService",
@@ -64,11 +67,12 @@ A Xenon service or any REST service can by sending a POST to <DNSHost:port>/core
           "http://127.0.0.1:63012"],
         "documentSelfLink": "ExampleFactoryService"
       }
-`
+
+
 ### Service Record
 
 Each record in the DNS Service is represented with the DNSServiceState PODO
-`
+
       public static class DNSServiceState extends ServiceDocument {
           public static final String FIELD_NAME_SERVICE_NAME = "serviceName";
           public static final String FIELD_NAME_SERVICE_TAGS = "tags";
@@ -94,4 +98,3 @@ Each record in the DNS Service is represented with the DNSServiceState PODO
           @UsageOption(option = ServiceDocumentDescription.PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
           public ServiceStatus serviceStatus;
       }
-`
