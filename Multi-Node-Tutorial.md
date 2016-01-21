@@ -176,4 +176,38 @@ $curl http://localhost:8000/core/examples
   "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9"
 }
 ```
+## Owner selection
 
+Xenon will pick a "owner" node to route updates and GET requests for service instances marked with ServiceOption.OWNER_SELECTION. We can verify that the same owner id is returned for the example service we just created (the GET is actually automatically routed to the owner node, regardless of what entry node the client directs the request
+
+```
+$ curl http://localhost:8000/core/examples/one
+{
+  "keyValues": {},
+  "name": "example one",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+  "documentSelfLink": "/core/examples/one",
+  "documentUpdateTimeMicros": 1453337721979002,
+  "documentUpdateAction": "POST",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
+  "documentTransactionId": ""
+}
+
+$ curl http://localhost:8001/core/examples/one
+{
+  "keyValues": {},
+  "name": "example one",
+  "documentVersion": 0,
+  "documentEpoch": 0,
+  "documentKind": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+  "documentSelfLink": "/core/examples/one",
+  "documentUpdateTimeMicros": 1453337721979002,
+  "documentUpdateAction": "POST",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
+  "documentTransactionId": ""
+}
+```
