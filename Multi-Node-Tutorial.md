@@ -43,6 +43,65 @@ When a node is starting you will see log output:
 [5][I][1453320791302][8000/core/node-groups/default][handlePatch][State updated, merge with 866041aa-e8a3-4cbf-ba49-8cf7c567f37d, self 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, 1453320791301005]
 [6][I][1453320797027][8000/core/node-groups/default][handlePatch][State updated, merge with 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, self 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, 1453320797027026]
 ```
+
+### Friendly node IDs
+
+Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host:
+```
+java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
+```
+A GET to the node group now provides the following (we restarted both nodes after specifying the new --id parameter)
+```
+$ curl http://localhost:8000/core/node-groups/default
+{
+  "config": {
+    "nodeRemovalDelayMicros": 3600000000,
+    "stableGroupMaintenanceIntervalCount": 5
+  },
+  "nodes": {
+    "hostAtPort8000": {
+      "groupReference": "http://127.0.0.1:8000/core/node-groups/default",
+      "status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+      "id": "hostAtPort8000",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 2,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/hostAtPort8000",
+      "documentUpdateTimeMicros": 1453338214662000,
+      "documentExpirationTimeMicros": 0
+    },
+    "hostAtPort8001": {
+      "groupReference": "http://127.0.0.1:8001/core/node-groups/default",
+      "status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+      "id": "hostAtPort8001",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 2,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/hostAtPort8001",
+      "documentUpdateTimeMicros": 1453338279309033,
+      "documentExpirationTimeMicros": 0
+    }
+  },
+  "membershipUpdateTimeMicros": 1453338225178007,
+  "documentVersion": 87,
+  "documentKind": "com:vmware:xenon:services:common:NodeGroupService:NodeGroupState",
+  "documentSelfLink": "/core/node-groups/default",
+  "documentUpdateTimeMicros": 1453338279310007,
+  "documentUpdateAction": "PATCH",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "hostAtPort8000",
+}
+
+```
+
 ## Node Group Service
 
 The state of the node group, including node availability is available through the REST API of the node group service. Using curl or your browser, example the default node group state, on either node:
@@ -223,62 +282,4 @@ Notice that the documentOwner points to node at port 8000. We did a GET earlier 
       "id": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
 ...
 ...
-```
-
-### Friendly node IDs
-
-Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host:
-```
-java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
-```
-A GET to the node group now provides the following (we restarted both nodes after specifying the new --id parameter)
-```
-$ curl http://localhost:8000/core/node-groups/default
-{
-  "config": {
-    "nodeRemovalDelayMicros": 3600000000,
-    "stableGroupMaintenanceIntervalCount": 5
-  },
-  "nodes": {
-    "hostAtPort8000": {
-      "groupReference": "http://127.0.0.1:8000/core/node-groups/default",
-      "status": "AVAILABLE",
-      "options": [
-        "PEER"
-      ],
-      "id": "hostAtPort8000",
-      "membershipQuorum": 1,
-      "synchQuorum": 2,
-      "documentVersion": 2,
-      "documentKind": "com:vmware:xenon:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/hostAtPort8000",
-      "documentUpdateTimeMicros": 1453338214662000,
-      "documentExpirationTimeMicros": 0
-    },
-    "hostAtPort8001": {
-      "groupReference": "http://127.0.0.1:8001/core/node-groups/default",
-      "status": "AVAILABLE",
-      "options": [
-        "PEER"
-      ],
-      "id": "hostAtPort8001",
-      "membershipQuorum": 1,
-      "synchQuorum": 2,
-      "documentVersion": 2,
-      "documentKind": "com:vmware:xenon:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/hostAtPort8001",
-      "documentUpdateTimeMicros": 1453338279309033,
-      "documentExpirationTimeMicros": 0
-    }
-  },
-  "membershipUpdateTimeMicros": 1453338225178007,
-  "documentVersion": 87,
-  "documentKind": "com:vmware:xenon:services:common:NodeGroupService:NodeGroupState",
-  "documentSelfLink": "/core/node-groups/default",
-  "documentUpdateTimeMicros": 1453338279310007,
-  "documentUpdateAction": "PATCH",
-  "documentExpirationTimeMicros": 0,
-  "documentOwner": "hostAtPort8000",
-}
-
 ```
