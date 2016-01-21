@@ -140,6 +140,8 @@ $ curl http://localhost:8001/core/examples
 }
 ```
 
+**Note**: A factory service computes its response by doing an index query. It then fills in the documentOwner with the id of its host. This is not related to ServiceOption.OWNER_SELECTION, which applies only to stateful services
+
 Both nodes have no example services. Since the example service is marked replicated, a POST on the factory on one node will create a replica on all peer nodes.
 
 ```
