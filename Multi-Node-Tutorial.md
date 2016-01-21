@@ -109,4 +109,71 @@ The node group service uses random probing and state merges to maintain the grou
 
 # Replication
 
-To be continued ...
+We are going to create an example service instance, by issuing a POST to the /core/examples service factory, on one of the nodes. We first issue a GET to the factory to see if they have child services:
+
+```
+$ curl http://localhost:8000/core/examples
+```
+Node at port 8000 returns:
+
+```
+{
+  "documentLinks": [],
+  "documentCount": 0,
+  "queryTimeMicros": 1,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9"
+}
+```
+We now check with node at port 8001:
+```
+$ curl http://localhost:8001/core/examples
+{
+  "documentLinks": [],
+  "documentCount": 0,
+  "queryTimeMicros": 1,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "93ded02d-e8a8-4d6b-b4e6-199a4ec56ac8"
+}
+```
+
+Both nodes have no example services. Since the example service is marked replicated, a POST on the factory on one node will create a replica on all peer nodes.
+
+```
+$ curl -X POST -H "Content-type: application/json" -d '{"documentSelfLink":"one","name":"example one"}' http://localhost:8000/core/examples
+```
+Now we issue GET to the factory in each node and notice that we have the service present, in both:
+
+```
+$ curl http://localhost:8001/core/examples
+{
+  "documentLinks": [
+    "/core/examples/one"
+  ],
+  "documentCount": 1,
+  "queryTimeMicros": 5996,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "93ded02d-e8a8-4d6b-b4e6-199a4ec56ac8"
+}
+```
+```
+$curl http://localhost:8000/core/examples
+{
+  "documentLinks": [
+    "/core/examples/one"
+  ],
+  "documentCount": 1,
+  "queryTimeMicros": 5997,
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9"
+}
+```
+
