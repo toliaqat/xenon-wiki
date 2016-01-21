@@ -194,7 +194,6 @@ $ curl http://localhost:8000/core/examples/one
   "documentUpdateAction": "POST",
   "documentExpirationTimeMicros": 0,
   "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
-  "documentTransactionId": ""
 }
 
 $ curl http://localhost:8001/core/examples/one
@@ -209,7 +208,6 @@ $ curl http://localhost:8001/core/examples/one
   "documentUpdateAction": "POST",
   "documentExpirationTimeMicros": 0,
   "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
-  "documentTransactionId": ""
 }
 ```
 
@@ -281,7 +279,6 @@ $ curl http://localhost:8000/core/node-groups/default
   "documentUpdateAction": "PATCH",
   "documentExpirationTimeMicros": 0,
   "documentOwner": "hostAtPort8000",
-  "documentTransactionId": ""
 }
 
 ```
