@@ -9,9 +9,9 @@ node cluster to the new node cluster.
 For the side-by-side upgrade to work your project will need to meet several
 requirements:
 
-* You need **extra hardware** to set up a second node cluster.
+* You need **additional resources** to set up a second node cluster.
 * The new node cluster needs to be able to **connect** to the old node cluster.
-* You need to be able to **take the service offline** to for the upgrade.
+* There might need to be a small time window where requests to the service are queued, at an edge device, or failed (the service appears offline).
 
 ## Assumptions
 Besides the aforementioned requirements there is also a set of assumptions that
