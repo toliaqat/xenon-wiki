@@ -50,7 +50,11 @@ Instead of hard to remember class 4 UUIDs, you can specify an ID when you start 
 ```
 java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
 ```
-A GET to the node group now provides the following (we restarted both nodes after specifying the new --id parameter)
+
+## Node Group Service
+
+The state of the node group, including node availability is available through the REST API of the node group service. Using curl on the terminal, or your browser, issue a GET:
+
 ```
 $ curl http://localhost:8000/core/node-groups/default
 {
@@ -102,60 +106,6 @@ $ curl http://localhost:8000/core/node-groups/default
 
 ```
 
-## Node Group Service
-
-The state of the node group, including node availability is available through the REST API of the node group service. Using curl or your browser, example the default node group state, on either node:
-
-```
-$ curl http://localhost:8000/core/node-groups/default
-{
-  "config": {
-    "nodeRemovalDelayMicros": 3600000000,
-    "stableGroupMaintenanceIntervalCount": 5
-  },
-  "nodes": {
-    "e289f2ff-2fa1-42fb-9bb7-726120e16ec9": {
-      "groupReference": "http://127.0.0.1:8000/core/node-groups/default",
-      "status": "AVAILABLE",
-      "options": [
-        "PEER"
-      ],
-      "id": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
-      "membershipQuorum": 1,
-      "synchQuorum": 2,
-      "documentVersion": 2,
-      "documentKind": "com:vmware:xenon:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
-      "documentUpdateTimeMicros": 1453337346482000,
-      "documentExpirationTimeMicros": 0
-    },
-    "93ded02d-e8a8-4d6b-b4e6-199a4ec56ac8": {
-      "groupReference": "http://127.0.0.1:8001/core/node-groups/default",
-      "status": "AVAILABLE",
-      "options": [
-        "PEER"
-      ],
-      "id": "93ded02d-e8a8-4d6b-b4e6-199a4ec56ac8",
-      "membershipQuorum": 1,
-      "synchQuorum": 2,
-      "documentVersion": 2,
-      "documentKind": "com:vmware:xenon:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/93ded02d-e8a8-4d6b-b4e6-199a4ec56ac8",
-      "documentUpdateTimeMicros": 1453338005121037,
-      "documentExpirationTimeMicros": 0
-    }
-  },
-  "membershipUpdateTimeMicros": 1453337353308007,
-  "documentVersion": 959,
-  "documentKind": "com:vmware:xenon:services:common:NodeGroupService:NodeGroupState",
-  "documentSelfLink": "/core/node-groups/default",
-  "documentUpdateTimeMicros": 1453338005122007,
-  "documentUpdateAction": "PATCH",
-  "documentExpirationTimeMicros": 0,
-  "documentOwner": "e289f2ff-2fa1-42fb-9bb7-726120e16ec9",
-}
-
-```
 Notice that both nodes are listed, with status AVAILABLE:
 ```
 "status": "AVAILABLE",
@@ -164,6 +114,11 @@ Notice that both nodes are listed, with status AVAILABLE:
       ],
 ```
 The node group service uses random probing and state merges to maintain the group state without a large number of messages.
+
+### Multiple node groups
+A xenon host can be listed in multiple node groups. You can create new node groups through a POST to /core/node-groups, similar to any other factory service.
+
+A service participates in a node group through a node selector service. Please refer to the slides / protocol page, linked at the top of this tutorial, for more details.
 
 # Replication
 
