@@ -405,6 +405,24 @@ The framework makes the handler a completely stateless method: It passes the ope
    1. If the service is indexed or durable, it will send the state to the document store for indexing and durability
    1. If there are any subscribers, it will issue the request, with the same body, to all subscribers
  
+### Request rate throttling (back pressure)
+
+The runtime supports back pressure, in the form of operation throughput tracking, per authorized user. The developer can adjust request rate limits by using the ServiceHost.setRequestLimit() methods.
+
+```
+// userPath is a link to a service presenting a user. It needs to much the subject
+// in the Claims associated with inbound requests
+ this.host.setRequestRateLimit(userPath, 1.0);
+
+```
+
+The request limits are computed over the host maintenance window and are expressed in operations per second. The runtime keeps track of operations / second for a given authorized subject. The rate is computed and averaged over a maintenance window, and reset at the start of the next.
+
+If the compute average exceeds the rate limit, the request is failed with the appropriate error code (STATUS_CODE_UNAVAILABLE) and a suggested retry time is included in the response header.
+
+See the verification test for an [example](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/common/TestServiceHost.java#L116)
+
+
 ### Request Body Routing
 
 Xenon can route to handler methods based on the action and the request body, if a request router is configured and set. See the [request routing](./custom-request-routing) for more details.
