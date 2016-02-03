@@ -71,7 +71,7 @@ JoinedCompletionHandler jh = (ops, failures) -> {
     parentGet.complete();  // handle parent Operation here
 };
 
-OperationJoin.create(op1, op2).setCompletion(jh).sendWith(...);
+OperationJoin.create(op1, op2).setCompletion(jh).sendWith(this);
 ```
 
 *Invocation Order*
@@ -117,7 +117,7 @@ JoinedCompletionHandler jh = (ops, failures) -> {
     parentGet.complete();   // handle parent Operation here
 };
 
-OperationSequence.create(op1).next(op2).setCompletion(jh).sendWith(...);
+OperationSequence.create(op1).next(op2).setCompletion(jh).sendWith(this);
 
 ```
 
@@ -135,7 +135,7 @@ When there is a failed operation, `OperationSequence` will continue calling next
 ```java
 
 // assume op2 fails
-OperationSequence.create(op1).next(op2).next(op3).next(op4).setCompletion(jh).sendWith(...);
+OperationSequence.create(op1).next(op2).next(op3).next(op4).setCompletion(jh).sendWith(this);
 ```
 
 *Invocation Order*
