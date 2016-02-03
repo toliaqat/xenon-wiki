@@ -1,5 +1,3 @@
-# Coordinating Async Operations (and avoiding callback hell)
-
 ## with `Operation#nestCompletion()`
 
 `nestCompletion()` can control existing *completion-handler(s)* to be invoked or not.
@@ -137,7 +135,7 @@ When there is a failed operation, `OperationSequence` will continue calling next
 ```java
 
 // assume op2 fails
-OperationSequence.create(op1).next(op2).next(op3).next(op4).setCompletion(jh).sendWith(getHost());
+OperationSequence.create(op1).next(op2).next(op3).next(op4).setCompletion(jh).sendWith(...);
 ```
 
 *Invocation Order*
