@@ -8,7 +8,7 @@
 ```java
 Operation op1 = Operation
     .createGet(...)
-    .seCompletion((o,e) -> {   // let's call this "handler"
+    .setCompletion((o,e) -> {   // let's call this "handler"
       if(e != null){
         parentGet.fail(e);
         ...
