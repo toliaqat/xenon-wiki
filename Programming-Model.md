@@ -726,3 +726,6 @@ Broadcast operations should only be used on non replicated services.
 
 ## Peer to peer forwarding
 The forwarding functionality allows a client to send a request to Xenon node, and have that node transparently forward it to the designated owner of a service, or to the node that is assigned (through consistent hashing) to a key supplied by the client. See the **ServiceHost.forwardRequest** method and also the REST API available for peer to peer forwarding, on **/core/groups/<group>/forwarding** URI (per node group)
+
+## Coordinating Asynch Operations
+Please reference: [Coordinating-Async-Operations-(and-avoiding-callback-hell)](Coordinating-Async-Operations-(and-avoiding-callback-hell))
