@@ -20,22 +20,32 @@ lifecycle actions.
 Xenon starts a utility service  for every service instance.  The utility
 service  listens on  a  set of  suffix paths  that  provide per  service
 instance functionality:
+ * `service/subscriptions` - Provides a list  of subscribers, as a list of
+ URIs, which will be forwarded state update operations. This is the root
+ mechanism of an efficient pub/sub model
 
- *  /stats -  Various stats  reported by  Xenon runtime  (see below),  per
+ * `service/stats` - Requires ServiceOption.INSTRUMENTATION. Various stats
+reported by  Xenon runtime  (see below),  per
  service and  custom stats reported  through the setStat  and adjustStat
  Service methods.
 
- * /ui - Custom, per service, UI rendered using either default JS + HTML
+ * `service/ui` - Custom, per service, UI rendered using either default JS + HTML
  files,  or files  found on  disk. UI  files should  be named  after the
  service name and be available on the local file system. For more, check
  the [UI info](./HostYourUi.markdown).
 
- * /config - Ability to change service options, and other configuration,
+ * `service/config` - Ability to change service options, and other configuration,
  at runtime.
 
- * /template  - Provides a default  instance of the service  state, plus
+ * `service/template` - Provides a default  instance of the service  state, plus
  per service document documentation,  options, comments. Its the dynamic
- PODO discovery mechanism
+ PODO and capabilities discovery mechanism
+ * `service/available` - Simple mechanism to determine if a service is ready to
+ accept requests. It relies on a service stat.
+ A service will return 200 on GET service/available, by default. A service author
+ can call **setAvailable(true|false)** to explicitly control the result of the GET on
+ the /available suffix. If **setAvailable()** is called ServiceOption.INSTRUMENTATION
+ will automatically be toggled on.
 
 ### Per service stats
 
@@ -383,37 +393,6 @@ should follow these naming conventions depending on PODO property type:
 * Links - A single link property (service uri path) should end with/contain `link`.
 * Multiple URIs - A collections of URIs should end with/contain `references` unless it is the only property, which in that case should end with/contain items: Example: List<URI> subscriberReferences;
 * Date - A string representation of a date should end with/contain `date` or `time`;
-
-## Helper services
-
-Each service listens on a URI  (or multiple URIs) but the framework will
-automatically add additional helper services, listening on URI suffixes,
-that can provide additional functionality, with REST semantics.
-
- * `service/subscriptions` - Provides a list  of subscribers, as a list of
- URIs, which will be forwarded state update operations. This is the root
- mechanism of an efficient pub/sub model
-
- * `service/stats` -- if  the ServiceOption.INSTRUMENTATION  is enabled,
- provides a list of in memory stat entries, that can be modified, added,
- deleted by either the service  itself or remote entities. The framework
- will automatically report capabilities  and its own runtime information
- and performance stats through this REST endpoint, per service instance.
- Stat entries can be pushed to  the log service if indexing, persistence
- and analytics are required
-
- * `service/template` -- All services  are schema-less, but do provide a
- canonical, default representation of their state. The /template is auto
- generated from  the service PODO,  and allows for dynamic  discovery of
- the document instance, its fields, documentation, field types, etc
-
- * `service/config` -- Capabilities and configuration options per service
- instance
-
- *  `service/ui` --  HTML5  + Javascript  rendered  service current  and
- template state, with forms for submitting service updates. Available on
- every service instance, making  interaction through the browser (poking
- the service) simpler
 
 ## Examples
 
