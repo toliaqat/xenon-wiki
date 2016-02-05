@@ -26,34 +26,88 @@ An observer node is a node that can be a member of a group, receive gossip updat
 
 ```
 
+### Utility URIs
+
+#### Available
+```
+/core/node-groups/some-group/available
+```
+
+GET to the /available suffix will return 200 (OK) if the node group meets the following criteria
+ * There have been no updates to node state through gossip for a certain interval (configurable through /config)
+ * The node group has at least N healthy members, where N is greater or equal to the greatest between membership forum and synchronization forum
+
+Otherwise, when the group is in flux, or quorum of nodes is not met, it will return 503 (UNAVAILABLE).
+
+#### Stats
+```
+/core/node-groups/some-group/stats
+```
+Several important stats including gossip attempts are tracked in real time by the node group service
 
 ## GET
+
+`GET http://127.0.0.1:63742/core/node-groups/default'
 ```json
-curl http://192.168.1.33:8000/core/node-groups/default
-{
-  "documents": {
-    "/core/node-groups/default/130fad85-70fa-4e9a-848d-78b3c025a425": {
-      "groupReference": "http://192.168.1.33:8000/core/node-groups/default",
+  "config": {
+    "nodeRemovalDelayMicros": 3600000000,
+    "stableGroupMaintenanceIntervalCount": 5
+  },
+  "nodes": {
+    "host-2": {
+      "groupReference": "http://127.0.0.1:63742/core/node-groups/default",
       "status": "AVAILABLE",
-      "options": "PEER, SYNCHRONIZE_ON_JOIN",
-      "id": "130fad85-70fa-4e9a-848d-78b3c025a425",
-      "documentVersion": 0,
-      "documentKind": "com:vmware:dcp:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/130fad85-70fa-4e9a-848d-78b3c025a425",
-      "documentUpdateTimeMicros": 1415321955360000,
+      "options": [
+        "PEER"
+      ],
+      "id": "host-2",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 3,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/host-2",
+      "documentUpdateTimeMicros": 1454693047110000,
       "documentExpirationTimeMicros": 0
     },
-    "/core/node-groups/default/2256569e-c5f3-4a93-a593-ac355b610a33": {
-      "groupReference": "http://192.168.1.98:8000/core/node-groups/default", 
+    "host-3": {
+      "groupReference": "http://127.0.0.1:63738/core/node-groups/default",
       "status": "AVAILABLE",
-      "options": "PEER, SYNCHRONIZE_ON_JOIN",
-      "id": "2256569e-c5f3-4a93-a593-ac355b610a33",
-      "documentVersion": 0,
-      "documentKind": "com:vmware:dcp:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/2256569e-c5f3-4a93-a593-ac355b610a33",
-      "documentUpdateTimeMicros": 1415321955328000,
+      "options": [
+        "PEER"
+      ],
+      "id": "host-3",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 3,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/host-3",
+      "documentUpdateTimeMicros": 1454693063410098,
       "documentExpirationTimeMicros": 0
     },
+    "host-4": {
+      "groupReference": "http://127.0.0.1:63740/core/node-groups/default",
+      "status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+      "id": "host-4",
+      "membershipQuorum": 1,
+      "synchQuorum": 2,
+      "documentVersion": 3,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/default/host-4",
+      "documentUpdateTimeMicros": 1454693064465049,
+      "documentExpirationTimeMicros": 0
+    }
+  },
+  "membershipUpdateTimeMicros": 1454693047849007,
+  "documentVersion": 377,
+  "documentKind": "com:vmware:xenon:services:common:NodeGroupService:NodeGroupState",
+  "documentSelfLink": "/core/node-groups/default",
+  "documentUpdateTimeMicros": 1454693064466000,
+  "documentUpdateAction": "PATCH",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "host-2"
 }
 ```
 
