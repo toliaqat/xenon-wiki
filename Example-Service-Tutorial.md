@@ -27,33 +27,36 @@ Note that Xenon is packaged also a **[container](./Developer-Guide#docker-images
 Building and using Xenon containers will be documented soon. 
 
 # The service factory
-A client can create new instances of a micro service through another service, the service factory. A service factory mostly relies on framework for doing all the work and has the following properties:
+A client can create new instances of a service through another service, the service factory. A service factory mostly relies on framework for doing all the work and has the following properties:
  * it is stateless - A factory relies 100% on the document index or service host for keeping track of any child service instances. The lifecycle of a child is controlled by DELETE requests directly to the child.
  * GET requests are queries - The factory simply forwards a GET to its URI, to the document index, which returns all documents that their selfLink is prefixed by the factory URI
 
-## Example Factory Service Code
+## Creating a factory
+
+A developer can either derive from the FactoryService abstract class, or use a static helper to create a default instance:
  Below is a minimal, but still useful, factory:
-
 ```java
-public class ExampleFactoryService extends FactoryService {
-    public static String SELF_LINK = ServiceUriPaths.CORE + "/examples";
-
-    public ExampleFactoryService() {
-        super(ExampleServiceState.class);
+    /**
+     * Create a default factory service that starts instances of this service on POST.
+     * This method is optional, {@code FactoryService.create} can be used directly
+     */
+    public static Service createFactory() {
+        Service fs = FactoryService.create(ExampleService.class, ExampleServiceState.class);
+        // Set additional factory service option. This can be set in service constructor as well
+        // but its really relevant on the factory of a service.
+        fs.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
+        return fs;
     }
-
-    @Override
-    public Service createServiceInstance() throws Throwable {
-        return new ExampleService();
-    }
-}
 ```
+
+Since factory code gives limited ability to change POST or GET processing, deriving from the factory class is not recommended. In particular, **avoid any state side effects across services** in replicated factory handlePost methods. Most of the logic that deals with service creation happens on POST completion, and on the owner node, so you will be violating key invariants.
+
 
 ### Per service Utility URIs
 Each service comes with a set of Xenon provided [utility services](./REST-API#helper-services), listening under the service/* suffix. Use them to gather stats, subscribe, or interact with your service through a browser
 
 ## POST Handling
-The factory service does not need to implement any handlers, if no additional logic or validation is required for processing POST requests. The _FactoryService_ super class takes care of POST handling, and also GET. What it does need to do however is know how to construct the service object. Every factory service must implement the _createServiceInstance_ method. The child service URI will be the composite of the factory URI (the prefix) and whatever selfLink path was supplied in the POST body. If no body was supplied, a random UUID will be used for the child.
+The factory service does not need to implement any handlers, if no additional logic or validation is required for processing POST requests. The _FactoryService_ super class takes care of POST handling, and also GET. The child service URI will be the composite of the factory URI (the prefix) and whatever selfLink path was supplied in the POST body. If no body was supplied, a random UUID will be used for the child.
 
 ### Durability
 If the service instance state must survive host restarts, the child service instance must enable the ***ServiceOption.PERSISTENCE*** in its constructor. The runtime will then make sure every state change, including service creation is indexed on disk, and on restart, it will automatically re-create all child services, per factory and set the version numbers to the latest known version per child service instance
