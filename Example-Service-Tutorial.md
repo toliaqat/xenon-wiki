@@ -51,6 +51,27 @@ A developer can either derive from the FactoryService abstract class, or use a s
 
 Since factory code gives limited ability to change POST or GET processing, deriving from the factory class is not recommended. In particular, **avoid any state side effects across services** in replicated factory handlePost methods. Most of the logic that deals with service creation happens on POST completion, and on the owner node, so you will be violating key invariants.
 
+### Starting a Factory service
+
+The factory service is a singleton that should be started on host start:
+```java
+    @Override
+    public ServiceHost start() throws Throwable {
+        super.start();
+
+        startDefaultCoreServicesSynchronously();
+
+        setAuthorizationContext(this.getSystemAuthorizationContext());
+
+        // Start the example service factory
+        super.startService(
+                Operation.createPost(UriUtils.buildFactoryUri(this, ExampleService.class)),
+                ExampleService.createFactory());
+
+       ...
+       ...
+```
+
 
 ### Per service Utility URIs
 Each service comes with a set of Xenon provided [utility services](./REST-API#helper-services), listening under the service/* suffix. Use them to gather stats, subscribe, or interact with your service through a browser
@@ -145,6 +166,20 @@ The example below is of a minimal service that represents a specific document (t
 
 ```java
 public class ExampleService extends StatefulService {
+
+    public static final String FACTORY_LINK = ServiceUriPaths.CORE + "/examples";
+
+    /**
+     * Create a default factory service that starts instances of this service on POST.
+     * This method is optional, {@code FactoryService.create} can be used directly
+     */
+    public static Service createFactory() {
+        Service fs = FactoryService.create(ExampleService.class, ExampleServiceState.class);
+        // Set additional factory service option. This can be set in service constructor as well
+        // but its really relevant on the factory of a service.
+        fs.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
+        return fs;
+    }
 
     public static class ExampleServiceState extends ServiceDocument {
         public static final String FIELD_NAME_KEY_VALUES = "keyValues";
