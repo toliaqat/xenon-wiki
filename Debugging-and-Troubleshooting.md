@@ -214,6 +214,12 @@ tcpdump -i lo -s 0 -A port 8000 or port 8082
 
 
 # Stats per service
+Service stats can be enabled on-demand for services that do not have the INSTRUMENTED option. The following command for example will enable stats for the /core/document-index service:
+```
+curl -X PATCH -H "Content-Type: application/json" -d \  
+'{ "addOptions": ["INSTRUMENTATION"], "kind": "com:vmware:xenon:common:ServiceConfigUpdateRequest" }' \  
+"http://localhost:8000/core/document-index/config"
+```
 Please refer to the [REST API page](./REST-API#per-service-stats)
 
 # Single machine development and debugging
