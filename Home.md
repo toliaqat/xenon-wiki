@@ -11,5 +11,6 @@
   * [Authentication and Authorization Tutorial](./Authentication-And-Authorization-Tutorial)
   * [Task Service Tutorial](./Task-Service-Tutorial) Task services manage long-running tasks
   * [Multiple Node Tutorial](./Multi-Node-Tutorial) Simple example of on how to start N xenon hosts, have them join each other, and verify service and state replication
+  * [Restartable Highly Available Task Tutorial](./Highly-Available-Task-Tutorial) Advanced tutorial on core xenon concepts regarding high availability, consensus, restartable work flows
 * [Developer guide](./Developer-Guide) - How to build, test, contribute
 * [Glossary](./Glossary) - commonly used terms and their definitions
