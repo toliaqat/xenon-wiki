@@ -522,4 +522,4 @@ private void queryUser() {
 ```
 
 ## 6.3 Learn more about Query Tasks
-To learn more about query tasks please see the [./QueryTaskService](Query Task Service Tutorial).
+To learn more about query tasks please see the [Query Task Service Tutorial](./QueryTaskService)
