@@ -8,3 +8,21 @@ While replicated services deployed across multiple nodes should be the default t
 * [Example Tutorial](./Example-Service-Tutorial)
 * [Multi Node Tutorial](./Multi-Node-Tutorial)
 * [Xenon Clustering deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx)
+
+# Key Concepts
+
+Xenon relies on two mechanisms to understand and properly implement the needs of a service:
+
+ * Service options - ServiceOption.OWNER_SELECTION and ServiceOption.REPLICATION
+ * Node group configuration - Membership quorum
+
+Service instances run on each node but the consensus protocol routes requests to a single node, the one elected as owner, for a particular service.
+
+Using the same underlying protocol the runtime will guarantee that
+ * updates happen atomically, service handler execute only on owner node
+ * periodic maintenance only happens on owner node
+ * handleStart only executes on owner node
+
+The service author does not need to know which node is owner. It simply authors logic assuming it only runs on one node, and if nodes come and go, a new node will dynamically take over.
+
+leader election and high availability come "embedded" in the programming model: since the update, maintenance and start handlers are guaranteed to run on one node, out of N, the author can initiate logic assuming the peers will see state changes and persist them, but will not duplicate the effort.
