@@ -19,8 +19,8 @@ Xenon relies on two mechanisms to understand and properly implement the needs of
 Service instances run on each node but the consensus protocol routes requests to a single node, the one elected as owner, for a particular service.
 
 Using the same underlying protocol the runtime will guarantee that
- * updates happen atomically, service handler execute only on owner node
- * periodic maintenance only happens on owner node
+ * updates happen atomically, service handlers execute only on service instance on owner node
+ * periodic handleMaintenance only executes on owner node
  * handleStart only executes on owner node
 
 The service author does not need to know which node is owner. It simply authors logic assuming it only runs on one node, and if nodes come and go, a new node will dynamically take over.
