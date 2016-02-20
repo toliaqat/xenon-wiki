@@ -10,6 +10,10 @@ The following types are the key components of the Xenon framework. Xenon is impl
  * ServiceClient - The asynchronous client interface
  * HttpServiceClient - The implementation of ServiceClient for talking to other HTTP Xenon services or HTTP endpoints. The caller constructs an Operation instance, using a builder pattern, and calls send() on the client
  
+## Asynchronous programming
+
+Please review [coordinating async operations](./Coordinating-Async-Operations-(and-avoiding-callback-hell))
+
 ## Design patterns
 
 The [design patterns](./service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details 
@@ -491,6 +495,8 @@ The framework allows a service developer to refine the semantics on a per servic
 
 # Client API
 The framework provides a 100% asynchronous API, with a builder pattern for creating operations. The design is language agnostic, but the examples given below are in Java, since that is the reference implementation. 
+
+See [coordinating async operations](./Coordinating-Async-Operations-(and-avoiding-callback-hell))
 
 ## Point to point operations
 The example below shows how to send N requests, to N services, in parallel (no blocking). When each request completes, a completion is invoked. If it fails the completion is passed in the error.
