@@ -2,6 +2,22 @@
 
 The xenon service model enables lightweight services that can number in the millions, and handle very large message loads. It is important however to follow certain guidelines to avoid excessive CPU usage or wasting memory. In addition, serious correctness errors will occur if the developer side steps the service lifecycle and state management model.
 
+## Code Re-Use 
+
+Xenon is not an object oriented model. Its a message passing, agent model that promotes re-use through service composition and stateless utility classes. Since its default implementation is java, it does rely on some very shallow inheritance but any heavy inheritance beyond the service base classes *should be avoided*.
+
+Service should re-use code *not* through inheritance but through:
+ * stateless helper services
+ * singleton, stateless utility classes that take operations or completions (and never block)
+
+Xenon services should look similar, and "flat". Each service should have handlers, finite state machine like methods, etc. See the tutorials for patterns
+
+## Cross Service Interaction
+
+There is a cost to patching / querying services so avoid tiny patches or queries across the entire index or node group. Think scale: If you have to send N messages to achieve an end goal, and each message is a index update or query, it will start having an impact in performance.
+
+Always start with protocol design and interaction diagrams, and iterate as you develop services.
+
 ## State Management
 
 ### Class instance fields
