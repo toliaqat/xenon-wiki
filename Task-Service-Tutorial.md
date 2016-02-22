@@ -74,8 +74,8 @@ _File:_ example-1.body
 _File:_ example-2.body
 ```
 {
-  "name": "example-1",
-  "counter": 1
+  "name": "example-2",
+  "counter": 2
 }
 ```
 
