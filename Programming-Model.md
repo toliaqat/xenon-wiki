@@ -22,25 +22,6 @@ The [design patterns](./service-design-patterns) page offers some tips on how to
 
 The [guidelines](./service-implementation-guidelines) page contains important implementation and performance guidelines. Please read before embarking on scale testing.
 
-## Xenon Operation processing
-
-### IO Pipeline
-
-![io-pipeline](./io-pipeline.jpg)
-
-### Service Creation (POST to Factory Service)
-
-![Xenon-POST](./Xenon-POST.jpg)
-
-### Update handling (PUT,PATCH, DELETE to a StatefulService)
-
-![Xenon-PUT](./Xenon-PUT.jpg)
-
-### Service Lifecycle
-
-![service-lifecycle](./service-lifecycle.jpg)
-
-
 ## Service Interface
 Please refer to [Service.java]
 (https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/Service.java)
@@ -51,10 +32,31 @@ The best way to see the declarative nature of xenon services, and how an author 
 
 A service instance is created by issuing a POST to a factory service. Factory services should be started during service host start and are considered singletons. A factory service will create a new "child" service instance and ask the service host to start it. 
 
+### Lifecycle management
+
+Xenon provides a consistent REST API to manage the lifecycle of service instances.
+The following describes how actions translate to handler invocations on the service interface
+
+ * Client POST -> handleCreate
+ * Client DELETE -> handleDelete
+
+Rules:  
+ * handleStart always follows handleCreate, on owner only.
+ * handleStop always follows handleDelete, on owner only.
+ * handleStart occurs on service start, due to host restart, synch, or create (on owner)
+ * handleStop occurs on service stop, on service host stop, or due to delete (on owner)
+
+### Lifecycle Graph
+
+![service-lifecycle](./service-lifecycle.jpg)
+
 ### Factory Service Handlers
 
 Factory services are stateless so authors should keep them as simple as possible and defer initial state validation to the child service. The child service can do initial state validation in handleStart(). If the child service models a task, it should do validation as part of its task state machine. The handleStart() method should simple, initial state validation only (see the design patterns page) 
 
+### Service Creation through POST to Factory Service
+
+![Xenon-POST](./Xenon-POST.jpg)
 
 ## Service Handlers
 The main customization point is the service handler. That is where specific validation or orchestration logic lives. A service must override handlers for state update operations or to kick off any work. It does not need to implement a GET handler, or handlers for its utility functions (subcriptions, stats, template).
@@ -77,7 +79,15 @@ The framework makes the handler a completely stateless method: It passes the ope
    1. If the service is replicated, the consensus and replication protocol will be invoked 
    1. If the service is indexed or durable, it will send the state to the document store for indexing and durability
    1. If there are any subscribers, it will issue the request, with the same body, to all subscribers
- 
+
+## Xenon Operation processing
+
+### IO Pipeline
+![io-pipeline](./io-pipeline.jpg)
+
+### Update handling (PUT,PATCH, DELETE to a StatefulService)
+![Xenon-PUT](./Xenon-PUT.jpg)
+
 ### Request rate throttling (back pressure)
 
 The runtime supports back pressure, in the form of operation throughput tracking, per authorized user. The developer can adjust request rate limits by using the ServiceHost.setRequestLimit() methods.
