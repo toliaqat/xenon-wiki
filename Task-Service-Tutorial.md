@@ -256,28 +256,29 @@ If we wait a few more seconds, the task will also be removed because it has expi
 # 5.0 Writing a Task Service in Java
 
 The full code for the task factory and service can be found at:
-* The factory service: [ExampleTaskFactoryService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskFactoryService.java)
-* The task service: [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
+* [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
 
 ## 5.1 The task factory service
-The task factory service is simple and identical in form to most other factory services. Most of the functionality is in the base FactoryService class so the derived class is concise. The two essential pieces of this code are the definition of the URI (we use /core/example-tasks) and the reference to the class that implements the service
+
+Similar to the [ExampleService](Example-Service-Tutorial), the task factory service is created through a static helper within ExampleTaskService.java:
 
 ```java
-public class ExampleTaskFactoryService extends FactoryService {
-    public static final String SELF_LINK = ServiceUriPaths.CORE + "/example-tasks";
+public static final String FACTORY_LINK = ServiceUriPaths.CORE + "/example-tasks";
 
-    public ExampleTaskFactoryService() {
-        super(ExampleTaskServiceState.class);
-        super.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
-        super.toggleOption(ServiceOption.INSTRUMENTATION, true);
-    }
-
-    @Override
-    public Service createServiceInstance() throws Throwable {
-        return new ExampleTaskService();
-    }
+/**
+ * Create a default factory service that starts instances of this task service on POST.
+ */
+public static Service createFactory() {
+    Service fs = FactoryService.create(ExampleTaskService.class, ExampleTaskServiceState.class);
+    // Set additional factory service option. This can be set in service constructor as well
+    // but its really relevant on the factory of a service.
+    fs.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
+    fs.toggleOption(ServiceOption.INSTRUMENTATION, true);
+    return fs;
 }
 ```
+
+The task factory service is simple and identical in form to most other factory services because the functionality is contained within the base FactoryService class. The two essential pieces of this code are the definition of the FACTORY_LINK URI (we use /core/example-tasks) and the ServiceOptions. Note that the URI must be named FACTORY_LINK: it is used by the buildFactoryUri() method by Java clients that wish to make a POST to the factory.
 
 ## 5.2 The task service
 The task service is where all of the interesting code is. We do not have the full code here; see [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java) for details. We will highlight the most interesting parts. 
