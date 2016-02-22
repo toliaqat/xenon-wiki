@@ -43,7 +43,7 @@ The [guidelines](./service-implementation-guidelines) page contains important im
 
 ## Service Interface
 Please refer to [Service.java]
-(/vmware/xenon-common/src/main/java/com/vmware/xenon/common/Service.java)
+(https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/Service.java)
 
 The best way to see the declarative nature of xenon services, and how an author can select which aspects of C.A.P they want to enforce, please read the tutorials.
 
