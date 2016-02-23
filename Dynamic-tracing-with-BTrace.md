@@ -90,3 +90,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 }
 ```
+
+## More Info
+* Download btrace from here: https://github.com/jbachorik/btrace/releases/latest
+* BTrace docs and samples: https://github.com/jbachorik/btrace
