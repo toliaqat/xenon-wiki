@@ -13,6 +13,7 @@ Some examples of things that can be done for Xenon with BTrace:
 1. Print all the the operations being sent in the host (operation details such as URI, body as well as the stacktrace leading to the operation)
 
 `
+
 package com.vmware.xenon.btrace;
 
 import com.sun.btrace.annotations.*;
@@ -31,6 +32,7 @@ import java.net.*;
         jstack(); 
     }
 }
+
 `
 
 This is similar to the operation tracing feature, but you can filter for specific URIs, services or include more relevant information.
@@ -39,6 +41,7 @@ This is similar to the operation tracing feature, but you can filter for specifi
 2. Create a histogram of accessed URIs:
 
 `
+
 package com.vmware.xenon.btrace;
 
 import com.sun.btrace.annotations.*;
@@ -83,4 +86,5 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
     }
 }
+
 `
