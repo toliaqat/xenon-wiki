@@ -2,6 +2,7 @@ Sometimes logging and operation tracing give too much or too little information 
 
 BTrace is a tool for dynamically tracing and instrumenting java code (the java equivalent of DTrace).
 You write a probe in java then dynamically insert it into a running Xenon host.
+
 `
 $ PID=$(jps | awk '/my-service-host-1.0.0.jar/ { print $1 }')
 $ bin/btrace -cp /path/to/my-service-host-1.0.0.jar $PID Xenon.java 
@@ -36,6 +37,7 @@ This is similar to the operation tracing feature, but you can filter for specifi
 
 
 2. Create a histogram of accessed URIs:
+
 `
 package com.vmware.xenon.btrace;
 
