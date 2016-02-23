@@ -39,6 +39,7 @@ This is similar to the operation tracing feature, but you can filter for specifi
 
 ### Create a histogram of accessed URIs
 A histogram with the number of times each URI has been accessed, printed every 4 seconds.
+As an example this also filters out some operations based on path and referer (requires reflection since BTrace can't access methods/instances directly).
 
 ```
 package com.vmware.xenon.btrace;
@@ -58,11 +59,14 @@ import java.util.concurrent.atomic.AtomicInteger;
         clazz="+com.vmware.xenon.common.ServiceClient",
         method="send")
     public static void onClientSend(com.vmware.xenon.common.Operation operation) {
+        // filter our operations where the referer is the document index
         Object refererUri = Reflective.get(Reflective.field("com.vmware.xenon.common.Operation", "referer"), operation);
         String referer = str(Reflective.get(Reflective.field("java.net.URI", "path"), refererUri));
         if (compare(ignoreReferer, referer)) {
             return;
         }
+
+        // filter out node-group operations
         Object uri = Reflective.get(Reflective.field("com.vmware.xenon.common.Operation", "uri"), operation);
         String path = str(Reflective.get(Reflective.field("java.net.URI", "path"), uri));
         if (compare(ignorePath, path)) {
