@@ -10,7 +10,8 @@ $ bin/btrace -cp /path/to/my-service-host-1.0.0.jar $PID Xenon.java
 
 Some examples of things that can be done for Xenon with BTrace:
 
-1. Print all the the operations being sent in the host (operation details such as URI, body as well as the stacktrace leading to the operation)
+### Print all the the operations being sent in the host 
+Print Operation details such as URI, body as well as the stacktrace leading to the operation.
 
 ```
 package com.vmware.xenon.btrace;
@@ -36,7 +37,8 @@ import java.net.*;
 This is similar to the operation tracing feature, but you can filter for specific URIs, services or include more relevant information.
 
 
-2. Create a histogram of accessed URIs:
+### Create a histogram of accessed URIs
+A histogram with the number of times each URI has been accessed, printed every 4 seconds.
 
 ```
 package com.vmware.xenon.btrace;
