@@ -12,64 +12,10 @@ In summary use the following mechanisms:
  * Use standard java logging through the JavaService.logXXXX() methods, or insert logs on one of the logging services so you can query any log event
  * Always have tests that run within a single machine, but using mocks and multiple instances of service hosts, simulate multi machine deployments. Take advantage of the fact Xenon can run 100s of hosts in one machine, with many services (millions each), all independent of each other.
 
+** please review the tutorials first **
 
 ## Clients
 Xenon uses JSON and HTTP which means the web browser and curl are useful tools to interact with running services.
-
-## Starting a host
-
-The default host can be started as follows.
-Navigate to the xenon-host directory
-
-To start a host with default parameters, listening on port 8000:
-
-```
-java -jar xenon-host/target/xenon-host-*-with-dependencies.jar
-```
-
-To start a host listening on a particular interface address (useful for multi node) :
-
-```
-java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170
-```
-
-To start a host with a specific identifier (helps with multi-node debugging):
-
-```
-java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --id=host-one
-```
-
-
-Replace ***192.168.1.170*** with a valid IP address on your node.
-
-If you plan to join a peer node group do not use "localhost" as the address since Xenon currently only binds to one interface so it can deterministically advertise its public IP to peers.
-
-You should see the following log messages in your terminal:
-```
-$ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170
-
-[1][I][1419530239289][ServiceHost:8000][loadState][loading previous state from /var/folders/ds/0173d2vj4zx9ty7vcdpg6bd80000gn/T/xenon/8000/serviceHostState.json]
-[3][I][1419530239504][ServiceHost:8000][start][Listening on 192.168.1.170:8000]
-[4][I][1419530239544][ServiceHost:8000][allocateExecutor][New executor for service /core/document-index]
-```
-
-If you want to experiment with replication, on the same node, in a different terminal, start a second host:
-
-```
-java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170 --port=8001 --peerNodes=http://192.168.1.170:8000
-```
-
-When the second host starts you should see join messages:
-
-```
-$ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar --bindAddress=192.168.1.170 --port=8001 --peerNodes=http://192.168.1.170:8000
-
-[3][I][1419530466530][ServiceHost:8001][getSystemInfo][Address fe80:0:0:0:4483:50ff:fe61:556a%awdl0 is unreachable, ignoring]
-[4][I][1419530466663][ServiceHost:8001][start][Listening on 192.168.1.170:8001]
-[5][I][1419530466717][ServiceHost:8001][allocateExecutor][New executor for service /core/document-index]
-[8][I][1419530467026][ServiceHost:8001][lambda$2][Joined peer http://192.168.1.170:8000/core/node-groups/default]
-
-```
 
 ## Client side tips
 
@@ -93,6 +39,10 @@ dcpc get /core/management/go-dcp-process-log | jq -r .items[]
 ### Using the broadcast and P2P routing
 
 Please see the node selector [forwarding REST API section](./NodeSelectorService#forwarding-service)
+
+## Tracing Java code with BTrace
+
+Please review the examples in the [dynamic tracing page](./Dynamic-tracing-with-BTrace)
 
 ## Operation Tracing
 To get a view of operations as they are passed throughout the system, Xenon supports [Operation Tracing](./OperationTracing).  The operation tracing service will index all inbound and outbound operations, so once again lucene can be used to build a complete timeline of all operations on the service host.
