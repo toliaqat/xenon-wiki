@@ -239,7 +239,7 @@ PLAIN-OLD-DATA_TYPE (only data fields, no methods)
             public String uniqueId;
             public long counter;
             public double normalizedConsumption;
-            public List<URI> otherServiceReferences;
+            public List<String> serviceLinks;
             public Task pendingTask;
     }
 ```
@@ -279,23 +279,35 @@ protocol page for details](./leaderElectionAndReplicationDesignPage).
 
 ## Composition and extensibility
 
-A micro service  is tied to a document, and  through references to other
-service instances.  If a developer wants  to create a new  micro service
+A  service  is tied to a document, and  through links, to other
+service instances.  If a developer wants  to create a new   service
 that  provides additional  functionality  to an  existing service,  they
 simply  create  a new  PODO,  add  the new  properties  and  then add  a
-reference property,  a URI, to the  existing micro service that  has the
-existing fields.  A client can  issue a GET  to the new,  advanced micro
+link property,  a string, to the  existing  service that  has the
+existing fields.  A client can  issue a GET  to the new,  advanced 
 service, and  add a $expand directive,  and they will get  back one PODO
 that includes both the old and the new fields.
 
-## Query capabilities
+### Relationships between documents
 
-Rich queries over all indexed documents can be issued through the [Query
-Task Service](./queryTaskServiceDocumentation).  It provides a  task based
-model for  specifying multi tier  queries (across nodes) with  a boolean
-algebra composing various clauses.
+Its strongly recommended that relationships are encoded as links. Add a field
+of type String, name so it ends in "link" and populate with the self link of another service.
 
-### Example of composition
+Links should flow from "leafs" towards parents only. Avoid two way links.
+
+```
+public class ChildDocument extends ServiceDocument {
+   public int count;
+   public String parentLink;
+}
+
+public class ParentDocument extends ServiceDocument {
+...
+...
+};
+
+```
+## Example of composition
 For example, imagine service A with the following document:
 
 ```
@@ -316,20 +328,12 @@ following PODO:
     
     {
         storageNode : "http://somehost.org",
-        vmReference : "http://<host>:<port>/virtual-machines/<guid>"
+        vmLink : "/virtual-machines/<guid>"
     }
 ```
 
-By adding the "vmReference" property, it composed the new property, with
+By adding the "vmLink" property, it composed the new property, with
 the _existing_ PODO and service implementation.
-
-_TODO: How do you do this programatically?_
-
-### Relationship between documents
-
-The document store indexes  _relationships_ between documents. Any field
-that is  a URI  will be  indexed in  a special  way, allowing  for graph
-traversals of the document graph.
 
 ### Example of flattening relationships
 
