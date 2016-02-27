@@ -201,7 +201,7 @@ public class ExampleService extends StatefulService {
     @Override
     public void handleStart(Operation startPost) {
         if (startPost.hasBody()) {
-            ExampleServiceState s = startPost.getBody(ExampleServiceState.class);
+            ExampleServiceState s = getBody(startPost);
             logFine("Initial name is %s", s.name);
         }
         startPost.complete();
@@ -209,7 +209,7 @@ public class ExampleService extends StatefulService {
 
     @Override
     public void handlePut(Operation put) {
-        ExampleServiceState newState = put.getBody(ExampleServiceState.class);
+        ExampleServiceState newState = getBody(put);
         ExampleServiceState currentState = super.getState(put);
 
         // example of structural validation: check if the new state is acceptable
@@ -239,7 +239,7 @@ public class ExampleService extends StatefulService {
         // A Xenon service handler is state-less: Everything it needs is provided as part of the
         // of the operation. The body and latest state associated with the service are retrieved
         // below.
-        ExampleServiceState body = update.getBody(ExampleServiceState.class);
+        ExampleServiceState body = getBody(update);
         ExampleServiceState currentState = getState(update);
         boolean hasStateChanged = Utils.mergeWithState(getDocumentTemplate().documentDescription,
                 currentState, body);
