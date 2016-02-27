@@ -374,7 +374,7 @@ private ExampleTaskServiceState validateStartPost(Operation taskOperation) {
         taskOperation.fail(new IllegalArgumentException("POST body is required"));
         return null;
     }
-     ExampleTaskServiceState task = taskOperation.getBody(ExampleTaskServiceState.class);
+    ExampleTaskServiceState task = getBody(taskOperation);
     if (task.taskInfo != null) {
         taskOperation.fail(
                 new IllegalArgumentException("Do not specify taskBody: internal use only"));
@@ -429,8 +429,8 @@ All of the work of the task service is done in response to PATCH's. When our tas
 @Override
 public void handlePatch(Operation patch) {
     ExampleTaskServiceState currentTask = getState(patch);
-    ExampleTaskServiceState patchBody = patch.getBody(ExampleTaskServiceState.class);
-     if (!validateTransition(patch, currentTask, patchBody)) {
+    ExampleTaskServiceState patchBody = getBody(patch);
+    if (!validateTransition(patch, currentTask, patchBody)) {
         return;
     }
 
@@ -641,7 +641,7 @@ private Consumer<Operation> createNotificationTarget() {
 	    return;
         }
 
-        ExampleTaskServiceState taskState = update.getBody(ExampleTaskServiceState.class);
+        ExampleTaskServiceState taskState = getBody(update);
         this.host.log(Level.INFO, "Got notification: %s", taskState);
         String stage = "Unknown";
         String substage = "Unknown";
