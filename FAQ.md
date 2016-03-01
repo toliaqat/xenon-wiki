@@ -79,16 +79,16 @@ orchestration to be hosted and run somewhere else.
 ### 7. Is replication achieved using PAXOS or a two phase commit protocol?
  
 Service options determine replication and consistency behavior.
-We use  a variant  of viewstamped replication  (VR) for
-services marked with `EAGER_CONSISTENCY`. If a service is replicated and
+Xenon provides strong consensus and "synchronous" replication, using a variant  of viewstamped replication  (VR) for
+services marked with `OWNER_SELECTION`. If a service is replicated and
 marked with `OWNER_SELECTION`,  all requests are  forwarded to an owner  node, using
 consistent  hashing  of  the service  URI
-across the node  ids. Please the replication and leader election page for
-details.
+across the node  ids. Please start with the [multi node tutorial](./Multi-Node-Tutorial)
+and the [replication protocol page](./Leader-Election-And-Replication-Design)
 
 ### 8. Are strong consistency models supported?
 
-Yes, if a service author  enables the strong consistency capability. The
+Yes, if a service author  enables the OWNER_SELECTION service option. The
 VR protocol, using consistent hashing to  elect a leader, is employed to
 make sure the majority of the nodes  agree on each state update. See the
 [protocol page](./leaderElectionAndReplicationDesignPage)
@@ -97,13 +97,16 @@ make sure the majority of the nodes  agree on each state update. See the
 
 The analogy comes from 3 tier applications where a database allows users 
 to read/modify data with out the web server running.Xenon allows us to query 
-the documents via “/core/query-tasks” with out the actual Service running.
+the documents via “/core/query-tasks” with out the actual Service running. You can also
+use the lucene "luke" tool to inspect the index, when xenon is not even started.
 
 ### 10. How should I communicate to remote REST API?
 
 There is no difference in communicating to a service, written in Xenon or 
 otherwise. One can use the same programming constructs like Operation, 
-sendRequest to achieve this.
+sendRequest to achieve this. If a service is co-located with another service
+xenon will use a fast-path but still guarantee strong isolation between sender
+and receiver.
 
 ### 11. How do I debug my application? 
 
