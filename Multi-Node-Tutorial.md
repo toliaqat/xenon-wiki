@@ -51,6 +51,98 @@ Instead of hard to remember class 4 UUIDs, you can specify an ID when you start 
 java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
 ```
 
+## Dynamic join and custom node groups (post-startup)
+
+You can also create custom node groups after host startup, and have hosts dynamically join. This is useful if you want to have your Xenon services replicated (and be able to scale) independently from other Xenon services. 
+
+For this section, we will assume you have two `Hosts` running locally; one on port 8000 (id: `hostAtPort8000`) and the other on 8001 (id: `hostAtPort8001`). This example will show you how to create a new `hello-node-group`, and have `hostAtPort8000` be a PEER, and have `hostAtPort8001` join as an OBSERVER. See the [NodeGroupService wiki](./NodeGroupService) if you're unfamiliar with these concepts. 
+
+### Create a custom node group
+
+Issue a `POST` against the `/core/node-groups` factory (just like any other Xenon service factory). You will need to create this service on both hosts.
+
+```bash
+$ cat hello-node-group.json 
+{
+  "config": {
+    "nodeRemovalDelayMicros": 3600000000,
+    "stableGroupMaintenanceIntervalCount": 5
+  },
+  "nodes": {},
+  "membershipUpdateTimeMicros": 1456872059568025,
+  "documentSelfLink": "hello-node-group"
+}
+$ curl -H "Content-Type: application/json" -X POST http://localhost:8000/core/node-groups --data @hello-node-group.json
+$ curl -H "Content-Type: application/json" -X POST http://localhost:8001/core/node-groups --data @hello-node-group.json
+```
+
+> At this point, each host should have a `/core/node-groups/hello-node-group`, and each host's node-group should have only it's own host listed under `nodes`.
+
+### Dynamically join another host's group as an OBSERVER
+
+Next, you'll need to issue a `JoinPeerRequest`. We will have `hostAtPort8001` join `hostAtPort8000`'s group as an OBSERVER via a `POST` on the local `hello-node-service`.
+
+```bash
+$ cat observer-join.json 
+{
+    "kind": "com:vmware:xenon:services:common:NodeGroupService:JoinPeerRequest",
+    "memberGroupReference": "http://127.0.0.1:8000/core/node-groups/hello-node-group",
+    "membershipQuorum": 1,
+    "localNodeOptions": [ "OBSERVER" ]
+}
+$ curl -H "Content-Type: application/json" -X POST http://localhost:8001/core/node-groups/hello-node-group --data @observer-join.json 
+```
+
+If this was successful, both `hostAtPort8000` and `hostAtPort8001` should return the same details for `nodes`. Also notice that `hostAtPort8001` joined as an OBSERVER.
+
+```bash
+$ curl http://localhost:8001/core/node-groups/hello-node-group
+{
+  "config": {
+    "nodeRemovalDelayMicros": 3600000000,
+    "stableGroupMaintenanceIntervalCount": 5
+  },
+  "nodes": {
+    "hostAtPort8001": {
+      "groupReference": "http://127.0.0.1:8001/core/node-groups/hello-node-group",
+      "status": "AVAILABLE",
+      "options": [
+        "OBSERVER"
+      ],
+      "id": "hostAtPort8001",
+      "membershipQuorum": 2,
+      "documentVersion": 2,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/hello-node-group/hostAtPort8001",
+      "documentUpdateTimeMicros": 1456883477064000,
+      "documentExpirationTimeMicros": 0
+    },
+    "hostAtPort8000": {
+      "groupReference": "http://127.0.0.1:8000/core/node-groups/hello-node-group",
+      "status": "AVAILABLE",
+      "options": [
+        "PEER"
+      ],
+      "id": "hostAtPort8000",
+      "membershipQuorum": 2,
+      "documentVersion": 1,
+      "documentKind": "com:vmware:xenon:services:common:NodeState",
+      "documentSelfLink": "/core/node-groups/hello-node-group/hostAtPort8000",
+      "documentUpdateTimeMicros": 1456883586893051,
+      "documentExpirationTimeMicros": 0
+    }
+  },
+  "membershipUpdateTimeMicros": 1456883477070005,
+  "documentVersion": 771,
+  "documentKind": "com:vmware:xenon:services:common:NodeGroupService:NodeGroupState",
+  "documentSelfLink": "/core/node-groups/hello-node-group",
+  "documentUpdateTimeMicros": 1456883586894013,
+  "documentUpdateAction": "PATCH",
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "hostAtPort8001"
+}
+```
+
 ## Node Group Service
 
 The state of the node group, including node availability is available through the REST API of the node group service. Using curl on the terminal, or your browser, issue a GET:
