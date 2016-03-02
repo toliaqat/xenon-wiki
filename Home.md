@@ -4,6 +4,7 @@
 
 * [Design](./Design) - a starting point for learning about Xenon core design and implementation
 * [FAQ](./FAQ) - frequently asked questions and answers
+* Slack channel (VMware only for now) - [xenon](https://vmware.slack.com/messages/xenon/details/)
 * Tutorials
   * [Example Service Tutorial](./Example-Service-Tutorial) - A simple service walk through
   * [Introduction to Service Queries](./Introduction-to-Service-Queries)
