@@ -40,7 +40,7 @@ $ curl -s localhost:8000/core/management | jq .codeProperties
 ```
 
 **Note**: if you're on windows running VirtualBox you can't access localhost:8000 directly. You either need to get that VM IP (boot2docker ip) or better yet reroute 8000 to your docker container VM like this:
-![virtualbox port forwarding](images/virtualbox_port_forwarding.png)
+![virtualbox port forwarding](images/developer-guide/virtualbox_port_forwarding.png)
 
 ## Maven
 
