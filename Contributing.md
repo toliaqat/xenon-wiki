@@ -6,7 +6,7 @@ Hi, and thanks for your interest in helping out with Xenon.  This page will guid
 
 Prior to 'diving in', there are a few book-keeping things that need to get taken care of:  
 
-* If you haven't already, now is the time to fill out our [Contributor License Agreement](http://vmware.github.io/photon/assets/files/vmware_cla.pdf) and return a copy to [osscontributions@vmware.com](mailto:osscontributions@vmware.com) as you will need to do so before we can merge your contribution. 
+> If you haven't already, now is the time to fill out our [Contributor License Agreement](http://vmware.github.io/photon/assets/files/vmware_cla.pdf) and return a copy to [osscontributions@vmware.com](mailto:osscontributions@vmware.com) as you will need to do so before we can merge your contribution. 
 
 #### Gerrit Workflow v Github Workflow
 
