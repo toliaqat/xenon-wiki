@@ -25,6 +25,14 @@ The team uses Eclipse or IntelliJ. Formatting style settings for both these edit
 
 Our developer guide has up to date information on how to set up your development environment to build and test xenon as well as a number of topics related to setting things up in different configurations and environments.
 
+#### A Note about Commit Messages
+
+After you have made your changes, added the relevant test cases, and made sure they pass, it is time to commit!
+
+Please observe the following guidelines for writing a comprehensive commit message: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+
+See the [Gerrit workflow](Gerrit-workflow) document for a more comprehensive guide to using Git and Gerrit.
+
 #### Using and Consuming Xenon
 
 Xenon was built so you can use it.  It's released under [Apache v2 License](https://github.com/vmware/xenon/raw/master/LICENSE), our Integrators Guide and Tutorials are the place to start for important concepts, documentation, and walkthroughs.
