@@ -16,6 +16,11 @@ Currently there are two processes for submitting changes to Xenon: an internal p
 
 Our public Pivotal Project at https://www.pivotaltracker.com/n/projects/1471320 is open to everyone, so please help us out by reporting issues you encounter.
 
+#### Editing Guidelines
+
+The team uses Eclipse or IntelliJ. Formatting style settings for both these editors can be found in the
+[contrib](https://github.com/vmware/xenon/tree/master/contrib) folder.
+
 #### Building and Testing Changes
 
 Our developer guide has up to date information on how to set up your development environment to build and test xenon as well as a number of topics related to setting things up in different configurations and environments.
