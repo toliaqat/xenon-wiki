@@ -16,5 +16,5 @@
   * [Restartable Highly Available Task Tutorial](./Highly-Available-Task-Tutorial) Advanced tutorial on core xenon concepts regarding high availability, consensus, restartable work flows
   * [Coordinating async operations](./Coordinating-Async-Operations-(and-avoiding-callback-hell))
 * [Developer guide](./Developer-Guide) - How to set up your development environment, build & run tests.
-* [Contributing](../Contributing) - How to work with revision control and submit changes to Xenon.
+* [Contributing](./Contributing) - How to work with revision control and submit changes to Xenon.
 * [Glossary](./Glossary) - commonly used terms and their definitions
