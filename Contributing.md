@@ -33,14 +33,3 @@ Please observe the following guidelines for writing a comprehensive commit messa
 
 See the [Gerrit workflow](Gerrit-workflow) document for a more comprehensive guide to using Git and Gerrit.
 
-#### Using and Consuming Xenon
-
-Xenon was built so you can use it.  It's released under [Apache v2 License](https://github.com/vmware/xenon/raw/master/LICENSE), our [Implementors Guide](Implementors-Guide) and Tutorials are the place to start for important concepts, documentation, and walkthroughs.
-
-
-
-
-
-
-
- 
