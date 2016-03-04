@@ -99,10 +99,3 @@ git review -s
 Congratulations, you are now ready to submit changes for review on Xenon! 
 
 Move ahead to the Project Workflow discussion.
-
-#### Bugs
-
-```
-Pivotal: 
-https://www.pivotaltracker.com/n/projects/1471320
-```
