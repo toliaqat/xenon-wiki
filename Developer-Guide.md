@@ -1,10 +1,5 @@
-This guide  describes a few  common guidelines and  recommendations when
-implementing a micro service and development in the Xenon framework (i.e.,
-contributing  code).
-
-## Under construction
-The page is under construction and in the process of being updated to properly
-cover open source based work flow, vs the vmware internal details still mentioned below
+This guide describes how to set up a development environment to build the tutorials -- or to work on Xenon.
+See the [Implementors Guide]() for more information on the tutorials, and working with Xenon in your application.  The [Contributing Guide](Contributing) has the up to date information on how to contribute to Xenon.
 
 # Prerequisites
 
@@ -26,14 +21,6 @@ Maven is used to build and test the project.
   * Run `mvn -Dtest={test-name} test` to run a single test (http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html)
 * Run `mvn package` to build and package Xenon
 * Run `mvn -DskipTests package` to package everything and skip running the tests. (Not recommended.)
-
-## Contributing
-
-After you have made your changes, added the relevant test cases, and made sure they pass, it is time to commit!
-
-Please observe the following guidelines for writing a comprehensive commit message: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
-
-See the [Gerrit workflow](Gerrit-workflow) document for a more comprehensive guide to using Git and Gerrit.
 
 ## Docker Images
 
