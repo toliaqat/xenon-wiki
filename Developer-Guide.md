@@ -1,5 +1,5 @@
 This guide describes how to set up a development environment to build the tutorials -- or to work on Xenon.
-See the [Implementors Guide]() for more information on the tutorials, and working with Xenon in your application.  The [Contributing Guide](Contributing) has the up to date information on how to contribute to Xenon.
+See the [Implementors Guide](Implementors-Guide) for more information on the tutorials, and working with Xenon in your application.  The [Contributing Guide](Contributing) has the up to date information on how to contribute to Xenon.
 
 # Prerequisites
 
