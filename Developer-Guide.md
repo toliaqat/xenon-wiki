@@ -22,6 +22,12 @@ Maven is used to build and test the project.
 * Run `mvn package` to build and package Xenon
 * Run `mvn -DskipTests package` to package everything and skip running the tests. (Not recommended.)
 
+> Tip: See which goals are bound to which phases for a particular command:
+```sh
+mvn help:describe -Dcmd=compile
+```
+
+
 ## Docker Images
 
 Up to date information can be found on building and using the [Xenon Docker Images here](Docker-Images)
@@ -33,20 +39,13 @@ Resulting JAR goes to `xenon-host/target/xenon-host-*-with-dependencies.jar`.
 * `mvn clean package -DskipTests` (packages without running tests)
 *  To start the default service host and poke it with a HTTP client see [this debugging page section](Debugging-and-Troubleshooting#starting-a-host)
 
-## Maven tips
-
-See which goals are bound to which phases for a particular command:
-
-```sh
-mvn help:describe -Dcmd=compile
-```
-
-# Debugging
-
-Please refer to the [debugging page](Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
-
 # Building a service
 
 After reading more on the [programming model](Programming-Model) and how a service works, please refer to the [example service tutorial](Example-Service-Tutorial) to learn about a simple service that is already started as part of the production service host, and enables you to interact with the system. In addition you can follow the guide for [serving your service with a default or custom user interface](HostYourUi).
 
 To create a new service host, that starts custom services, in its own jar, please see the [custom service hosting tutorial](Hosting-Custom-Services-On-Xenon)
+
+# Debugging
+
+Please refer to the [debugging page](Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
+
