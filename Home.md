@@ -2,7 +2,7 @@
 
 ## Documentation
 
-* [Design](./Design) - a starting point for learning about Xenon core design and implementation
+* [Implementors Guide](./Implementors-Guide) - a starting point for learning about Xenon core design and implementation
 * [FAQ](./FAQ) - frequently asked questions and answers
 * Slack channel (VMware only for now) - [xenon](https://vmware.slack.com/messages/xenon/details/)
 * Tutorials
