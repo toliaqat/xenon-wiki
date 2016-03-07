@@ -75,7 +75,7 @@ The document for compute has a link to the shared, root resource, the pool:
  
 *  _Is  the service  modeling  a  long-running  task?_ Its  document  is
 something that describes  the task and it should  periodically update it
-with progress. The service should include the TaskStae PODO in its state
+with progress. The service should include the TaskState PODO in its state
 and send self-PATCHes to move its  state machine forward. 
 
 *  _Is the  service modeling  a  configuration object?_  It should  have
