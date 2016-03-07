@@ -21,7 +21,7 @@ Always start with protocol design and interaction diagrams, and iterate as you d
 ## State Management
 
 ### Class instance fields
-Avoid instanced fields in the service class implementation. A service class should be 100% code (handlers).
+Avoid instance fields in the service class implementation. A service class should be 100% code (handlers).
 Persisted services, extending **StatefulService** in particular will not function correctly if the code relies on state outside the state PODO. Any instance variables will be lost if the service is paused to disk, or if the host restarts. In addition, if the service is replicated, any class instance fields will **not** be replicated across nodes. 
 
 ### Nested Collection fields
@@ -30,13 +30,13 @@ Avoid large collections inside a state PODO. Xenon creates a new version with th
 
 ### Opt-in Indexing per field
 
-Indexing cost goes up linearly with the number of services and fields per service document. If you only need to store some fields, but do not require indexing (you will not be querying over them), mark the field with IndexingOption.STORE_ONLY. Also, if the field is not used for determining equality, mark it IndexingOption.IGNORE_FROM_SIGNATURE
+Indexing cost goes up linearly with the number of services and fields per service document. If you only need to store some fields, but do not require indexing (you will not be querying over them), mark the field with PropertyIndexingOption.STORE_ONLY. Also, if the field is not used for determining equality, mark it PropertyIndexingOption.EXCLUDE_FROM_SIGNATURE.
 
 ## CPU
 
 ### Request / Response Payloads
 
-Avoid setting a large response body in a service handlers. If a service handles PATCH for example, and you dont need to return the entire state to the client, set the operation body to null, or to a minimal request PODO, then complete the operation. This can increase the per service I/O throughput by 2x, since the runtime avoids the cloning and serialization cost, in addition to the network overhead.
+Avoid setting a large response body in a service handlers. If a service handles PATCH for example, and you don't need to return the entire state to the client, set the operation body to null, or to a minimal request PODO, then complete the operation. This can increase the per service I/O throughput by 2x, since the runtime avoids the cloning and serialization cost, in addition to the network overhead.
 
 ### Periodic maintenance
 
@@ -47,5 +47,3 @@ Periodic maintenance currently prevents a service from being paused to disk, so 
 ### Custom thread pools
 
 Avoid creating and managing per service instance thread pools. Xenon services should be 100% asynchronous and should never require their own threads. If you have no choice, create a stateless service with its own, fixed size thread pool, and use messaging to have it do work that is blocking. Use the ServiceHost.allocateExecutor() method to allocate a custom thread pool.
-
-
