@@ -45,6 +45,17 @@ After reading more on the [programming model](Programming-Model) and how a servi
 
 To create a new service host, that starts custom services, in its own jar, please see the [custom service hosting tutorial](Hosting-Custom-Services-On-Xenon)
 
+# CI / CD
+(Currently this information is relevant for VMware internal development only)
+
+Core xenon changes are validated through tests running on a jenkins instances, across several VMs. The tests run for every gerrit patch and periodically (over 1000 full tests passes a day, single node, multi node, etc).
+
+Any failures are reported to the Pivotal Tracker xenon project using a specific Jenkins job:
+https://enatai-jenkins.eng.vmware.com/view/All/job/failures-to-pivotal-dcp/
+
+The job uses an API token for a specific user, and creates new items when a test fails
+
+
 # Debugging
 
 Please refer to the [debugging page](Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
