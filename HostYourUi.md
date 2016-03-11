@@ -20,7 +20,7 @@ To access the default UI point your browser to localhost:8000/service-self-link/
 **Note**: You can define the custom UI of your service using different front end frameworks (JavaScript, jQuery, etc.) In practice, we recommend the use of AngularJS, since it provides valuable features (such as routing) and allows to write clean UI with few lines of code.
 
 ### Host custom UI for a single microservice
-**Note**: Find the complete code for this tutorial in the dcp-samples of the module of dcp source.  
+**Note**: Find the complete code for this tutorial in the xenon-samples of the module of xenon source.  
 
 To define custom UI for a service, follow the steps below:
 
@@ -31,13 +31,13 @@ To define custom UI for a service, follow the steps below:
  * Copyright (c) 2015 VMware, Inc. All Rights Reserved.
  */
 
-package com.vmware.dcp.services.samples;
+package com.vmware.xenon.services.samples;
 
-import com.vmware.dcp.common.Operation;
-import com.vmware.dcp.common.StatelessService;
-import com.vmware.dcp.common.UriUtils;
-import com.vmware.dcp.common.Utils;
-import com.vmware.dcp.services.common.ServiceUriPaths;
+import com.vmware.xenon.common.Operation;
+import com.vmware.xenon.common.StatelessService;
+import com.vmware.xenon.common.UriUtils;
+import com.vmware.xenon.common.Utils;
+import com.vmware.xenon.services.common.ServiceUriPaths;
 
 public class SampleServiceWithSharedCustomUi extends StatelessService {
     public static final String SELF_LINK = ServiceUriPaths.CUSTOM_UI_BASE_URL;
@@ -74,12 +74,12 @@ super.startService(
                         .class)), new SampleServiceWithSharedCustomUi());
 ```
 
-**Step 3**: Next, the actual UI resources need to be added. Place the UI resources under resources/ui/service-package-name. For the SampleServiceWithSharedCustomUi the UI files are under resources/ui/com/vmware/dcp/services/samples/SampleServiceWithSharedCustomUi. 
+**Step 3**: Next, the actual UI resources need to be added. Place the UI resources under resources/ui/service-package-name. For the SampleServiceWithSharedCustomUi the UI files are under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithSharedCustomUi. 
 The custom UI for SampleServiceWithSharedCustomUi is built in AngularJS, and a typical folder structure for that would be the following:
 
 ![angularApp-structure](./angularApp-structure.png)
 
-**Step 4**: Next, for the service that will use above custom UI set the **ServiceOption.HTML_USER_INTERFACE to true** inside the constructor. When this option is set to true the back end expects to find the UI resources related to this service under resources/ui/com/vmware/dcp/services/samples/SampleServiceWithCustomUi (next step). 
+**Step 4**: Next, for the service that will use above custom UI set the **ServiceOption.HTML_USER_INTERFACE to true** inside the constructor. When this option is set to true the back end expects to find the UI resources related to this service under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi (next step). 
 ```
 public SampleServiceWithCustomUi() {
         super(SampleServiceWithCustomUiState.class);
@@ -91,7 +91,7 @@ public SampleServiceWithCustomUi() {
     }
 ```
 
-**Step 5**: Every time you point your browser to services-using-custom-ui-self-link/ui the host looks for an index.html file. That index.html needs to be placed under resource/ui/your-service-package. Form the SampleServiceWithCustomUi it needs to be under resources/ui/com/vmware/dcp/services/samples/SampleServiceWithCustomUi and it looks like the below:
+**Step 5**: Every time you point your browser to services-using-custom-ui-self-link/ui the host looks for an index.html file. That index.html needs to be placed under resource/ui/your-service-package. Form the SampleServiceWithCustomUi it needs to be under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi and it looks like the below:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -116,7 +116,7 @@ The index of SampleServiceWithCustomUi will then get extract the self-link of th
 ![custom_ui](./custom_ui.png)
 
 
-**Step 6**: Since the SampleServiceWithCustomUi has the HTML_USER_INTERFACE option on, the corresponding factory service (SampleFactoryServiceWithCustomUi) will get that option as well. As expected, a similar index.html file needs to be in place for the factory service. Under resources/ui/com/vmware/dcp/services/samples/SampleFactoryServiceWithCustomUi add an identical index.html file as in the previous step (which will again redirect to the same custom UI). 
+**Step 6**: Since the SampleServiceWithCustomUi has the HTML_USER_INTERFACE option on, the corresponding factory service (SampleFactoryServiceWithCustomUi) will get that option as well. As expected, a similar index.html file needs to be in place for the factory service. Under resources/ui/com/vmware/xenon/services/samples/SampleFactoryServiceWithCustomUi add an identical index.html file as in the previous step (which will again redirect to the same custom UI). 
 
 
 ### Routing
@@ -151,4 +151,3 @@ customUiApp .config(['$routeProvider', function ($routeProvider) {
 }]);
 ``` 
 In more detail, if you pointed your browser to http://localhost:8000/core/ui/custom# you would be redirected to the home.html (in the first when clause above). If you wanted to add an additional service you can add a link to your html views that will take you there. The link would look like http://localhost:8000/core/ui/custom#/core/customUiExamples/addService (the fourth when clause in the above config). In similar fashion, you can extend as needed.
-
