@@ -13,7 +13,7 @@ See the [Implementors Guide](Implementors-Guide) for more information on the tut
  
 ## Maven
 
-Maven is used to build and test the project. (recommend v3.3.x or above)
+Maven is used to build and test the project. _(recommend v3.3.x or above)_
 
 * Install Maven with your system's package manager (e.g. _apt_ on Ubuntu/Debian, _homebrew_ on OSX, ...).
 * Set your `JAVA_HOME` environment variable to be the home of the Java 8 JDK. On OSX, this lands in `/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home/`.
