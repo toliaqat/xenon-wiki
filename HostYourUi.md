@@ -4,7 +4,8 @@ Xenon provides built-in support for interacting with your services through user 
 The UI support is flexible enough to allow you to point any number or services to the default or the custom UI by sharing the custom endpoint.
 
 This section describes how:
-1. [access the default Xenon UI]./(HostYourUi#access-the-default-ui)
+
+1. [access the default Xenon UI](./HostYourUi#access-the-default-ui)
 2. [host the same custom UI for multiple services](./HostYourUi#host-custom-ui-for-a-collection-of-micro-services)
 
 ## Access the default UI
