@@ -13,18 +13,18 @@ See the [Implementors Guide](Implementors-Guide) for more information on the tut
  
 ## Maven
 
-Maven is used to build and test the project. _(recommend v3.3.x or above)_
+Maven is used to build and test the project. Use the Maven Wrapper (`mvnw`) which comes with project, or install maven to your local system. Reference the [maven-wrapper.properties][] file for required version.
 
-* Install Maven with your system's package manager (e.g. _apt_ on Ubuntu/Debian, _homebrew_ on OSX, ...).
+* _(Optional)_ Install Maven with your system's package manager (e.g. _apt_ on Ubuntu/Debian, _homebrew_ on OSX, ...).
 * Set your `JAVA_HOME` environment variable to be the home of the Java 8 JDK. On OSX, this lands in `/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home/`.
-* Run `mvn test` to run the tests.
-  * Run `mvn -Dtest={test-name} test` to run a single test (http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html)
-* Run `mvn package` to build and package Xenon
-* Run `mvn -DskipTests package` to package everything and skip running the tests. (Not recommended.)
+* Run `./mvnw test` to run the tests.
+  * Run `./mvnw -Dtest={test-name} test` to run a single test (http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html)
+* Run `./mvnw package` to build and package Xenon
+* Run `./mvnw -DskipTests package` to package everything and skip running the tests. (Not recommended.)
 
 > Tip: See which goals are bound to which phases for a particular command:
 ```sh
-mvn help:describe -Dcmd=compile
+./mvnw help:describe -Dcmd=compile
 ```
 
 
@@ -36,7 +36,7 @@ Up to date information can be found on building and using the [Xenon Docker Imag
 
 Resulting JAR goes to `xenon-host/target/xenon-host-*-with-dependencies.jar`.
 
-* `mvn clean package -DskipTests` (packages without running tests)
+* `./mvnw clean package -DskipTests` (packages without running tests)
 *  To start the default service host and poke it with a HTTP client see [this debugging page section](Debugging-and-Troubleshooting#starting-a-host)
 
 # Building a service
@@ -60,3 +60,5 @@ The job uses an API token for a specific user, and creates new items when a test
 
 Please refer to the [debugging page](Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
 
+----
+[maven-wrapper.properties]: https://github.com/vmware/xenon/blob/master/.mvn/wrapper/maven-wrapper.properties
