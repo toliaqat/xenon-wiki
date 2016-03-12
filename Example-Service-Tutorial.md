@@ -1,5 +1,5 @@
 # Overview
-This simple tutorial describes a very simple service, and its factory (they way to create new instances). Use it as a starting point in creating your own service. It also describes how to start the default Xenon host, or multiple hosts that synchronize with each other.
+This simple tutorial describes a very simple service, and its factory (the way to create new instances). Use it as a starting point in creating your own service. It also describes how to start the default Xenon host, or multiple hosts that synchronize with each other.
 
 # Prerequisites
 
