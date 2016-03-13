@@ -114,7 +114,7 @@ Congratulations, you just submitted your first patch!
 
 Move ahead to the Developer Setup Guide and Project Tutorials.
 
-### Troubleshooting ###
+## Troubleshooting ##
 
 Git-review normally sets up the necessary git remotes and configurations for you.  In the event that ```git review -s``` fails, it may be because ```git-review``` was unable to determine the location of your project.  If that's the case, you can create the gerrit remote manually and re-run ```git-review```
 
