@@ -8,8 +8,8 @@ This page describes the process for using Gerrit to submit changes to Xenon, ini
 
 Before you may begin, you'll need to have an account on the Gerrit server hosting Xenon builds:
 
-* Visit https://enatai-gerrit.eng.vmware.com/ and click the Sign In link at the top-right corner of the page. Log in with your LDAP account (just username, no ‘@vmware.com’ required)
-* Register your public SSH key by clicking on your name in the upper right-hand corner, go to Settings, SSH Public Keys or by following [this link](https://enatai-gerrit.eng.vmware.com/#/settings/ssh-keys).
+* Visit https://review.ec.eng.vmware.com and click the Sign In link at the top-right corner of the page. Log in with your LDAP account (just username, no ‘@vmware.com’ required).
+* Register your public SSH key by clicking on your name in the upper right-hand corner, go to Settings, SSH Public Keys or by following [this link](https://review.ec.eng.vmware.com/#/settings/ssh-keys).
 
 Ensure that you have told 'git' who you are as this will be required for access to Gerrit when using the 'git-review' plugin.
 
@@ -20,7 +20,7 @@ git config --global user.email "your_email@youremail.com"
 
 If you use multiple credentials for your projects, we presume you know how to switch (TODO: reference to using git with multiple logins)
 
-Test your configuration now by issuing the following commands 
+Test your configuration now by issuing the following commands & make sure your username/email are correct.  
 
 ```sh
 git config --list
