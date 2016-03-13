@@ -37,7 +37,7 @@ ssh -v -T -p 29418 username@review.ec.eng.vmware.com
 ```
 
 #### Installing git-review
-We recommend using the git-review tool which is a git subcommand that handles all the details of working with Gerrit, making this process much much easier.  This component was developed by the folks at Openstack Infrastructure and used in the OpenStack code review system. It is widely available and included in the standard distros for Ubuntu, SUSE, Fedora and RHEL (see below).  A nice documentation page for git-review [is provided here](https://www.mediawiki.org/wiki/Gerrit/git-review).  More information and documentation is available w/in the [Openstack repository here](http://git.openstack.org/cgit/openstack-infra/git-review/tree/README.rst).
+We recommend using the git-review tool which is a git subcommand that handles all the details of working with Gerrit, making this process much much easier.  This component was developed by the folks at Openstack Infrastructure and used in the OpenStack code review system. It is widely available and included in the standard distros for Ubuntu, SUSE, Fedora and RHEL (see below).  A nice documentation page for git-review [is provided here](https://www.mediawiki.org/wiki/Gerrit/git-review).  More information and documentation is available w/in the [Openstack repository here](http://docs.openstack.org/infra/git-review/installation.html#installing-git-review).
  
  Before you start work, make sure you have git-review installed on your system.  Steps to perform for several platforms are provided below with more complete instructions available in the documentations links above.
  
