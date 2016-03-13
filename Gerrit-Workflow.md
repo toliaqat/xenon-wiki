@@ -13,8 +13,24 @@ Before you may begin, you'll need to have an account on the Gerrit server hostin
 * Register your public SSH key by clicking on your name in the upper right-hand corner, go to Settings, SSH Public Keys or by following [this link](https://review.ec.eng.vmware.com/#/settings/ssh-keys).
 * See [this page](generating-and-configuring-ssh-keys) for more information on how to generate and configure SSH keys for use with Gerrit on your machine.
 
-#### Local Git Configuration
-Ensure that you have told 'git' who you are as this will be required for access to Gerrit when using the 'git-review' plugin.
+#### Local Configuration
+**SSH Key Configuration.** If you have generated a new SSH key, make sure the ssh-agent is running and add your key to the ssh agent as follows:
+
+```
+# make sure the agent is started:
+$ eval "$(ssh-agent -s)"
+Agent pid 59566
+
+# add your key:
+$ ssh-add ~/.ssh/id_rsa
+```
+
+To list the installed keys, use the following commands:
+```
+$ ssh-add -l -E md5
+```
+
+**Git Configuration.** Ensure that you have told 'git' who you are as this will be required for access to Gerrit when using the 'git-review' plugin.
 
 ```sh
 git config --global user.name "Firstname Lastname"
@@ -36,29 +52,15 @@ Once you have validated that your user/email are correct, you can verify that yo
 ssh -v -T -p 29418 username@review.ec.eng.vmware.com
 ```
 
-#### Installing git-review
+#### Installing and Configuring git-review
 We recommend using the git-review tool which is a git subcommand that handles all the details of working with Gerrit, making this process much much easier.  This component was developed by the folks at Openstack Infrastructure and used in the OpenStack code review system. It is widely available and included in the standard distros for Ubuntu, SUSE, Fedora and RHEL (see below).  A nice documentation page for git-review [is provided here](https://www.mediawiki.org/wiki/Gerrit/git-review).  More information and documentation is available w/in the [Openstack repository here](http://docs.openstack.org/infra/git-review/installation.html#installing-git-review).
  
- Before you start work, make sure you have git-review installed on your system.  Steps to perform for several platforms are provided below with more complete instructions available in the documentations links above.
+Steps to perform for a few common platforms are provided below with more complete instructions available in the documentations links above.
  
 **Ubuntu Precise (12.04) and later:** git-review is included in the distribution, so install it as any other package:
 
 ```bash
 apt-get install git-review
-```
-
-**Fedora 16 and later:** git-review is included into the distribution, so install it as any other package
-
-**Red Hat Enterprise Linux:** you must first enable the EPEL repository, then install it as any other package:
-
-```bash
-yum install git-review
-```
-
-**OpenSUSE 12.2 and later:** git-review is included in the distribution under the name python-git-review, so install it as any other package:
-
-```bash
-zypper in python-git-review
 ```
 
 **Mac OS X:** or most other Unix-like systems, you may install it with pip, or if you prefer the brew package manager:
@@ -81,31 +83,44 @@ You can clone the repository in the usual way
 git clone ssh://<username>@review.ec.eng.vmware.com:29418/xenon
 ```
 
-If you're having trouble, be sure that you have uploaded your public SSH key to Gerrit: https://review.ec.eng.vmware.com/#/settings/ssh-keys and that your username / password are correct.  Additionally, you may find it helpful to use an SSH config file if you use multiple SSH keys for different projects:
+Now, you'll need to configure your repository to know about Gerrit.  To do so, manually set up an origin named 'gerrit' in your local git configuration as shown in the following example.  Then tell git-review to configure itself with the ```git review -s``` command.
 
-```bash
-Host review.ec.eng.vmware.com
-    Hostname review.ec.eng.vmware.com
-    User <your gerrit username>
-    PreferredAuthentications publickey
-    IdentityFile <path/to/ssh_key.pub
 ```
-
-Next, you'll want git-review to configure your repository to know about Gerrit.  If you don't, it will do so the first time you submit a review but you will need the git-hook installed beforehand which git-review can do for you
-
-```bash
 cd <xenon-project-directory>
-git config --global gitreview.username yourgerritusername
+git remote add gerrit ssh://<username>@review.ec.eng.vmware.com:29418/xenon
+git config gitreview.username yourgerritusername
 git review -s
 ```
+
+Documentation for git-review can be found [here](http://docs.openstack.org/infra/git-review/usage.html) but here are some of the more common commands:
+
+Hack on some code and then issue the normal 'git commit' command (well, presuming you collected your changes with ```git add``` first, but we're not going to detail the complete ```git``` workflow here, just the gerrit interaction.
+
+```
+git commit -m "your comment detailing your changes according with the guidelines"
+```
+
+Then, you're ready to submit your changes for review:
+
+```
+git review
+```
+
+git-review is pretty instructive and will (usually) coach you along the process. Once your changes are reviewed and the unit tests are successful, the change will be ready to 'submit' for merging.  This is done through the Gerrit UI by clicking the 'submit' button next in your change description screen.  For a complete rundown of the Gerrit UI and more Gerrit documentation, follow the [Gerrit User Guide](https://review.ec.eng.vmware.com/Documentation/intro-user.html) and [Gerrit UI](https://review.ec.eng.vmware.com/Documentation/user-review-ui.html#download).
+
+A great diagram of the gerrit workflow of a change was included in the [Android Project](http://source.android.com/source/life-of-a-patch.html)
+
+Congratulations, you just submitted your first patch!
+
+Move ahead to the Developer Setup Guide and Project Tutorials.
+
+### Troubleshooting ###
 
 Git-review normally sets up the necessary git remotes and configurations for you.  In the event that ```git review -s``` fails, it may be because ```git-review``` was unable to determine the location of your project.  If that's the case, you can create the gerrit remote manually and re-run ```git-review```
 
-```
-git remote add gerrit https://<username>@review.openstack.org/<umbrella repository name>/<repository name>.git
-git review -s
-```
+Additionaly information on git-review commands can be found in the [Git Review Usage Guide](http://docs.openstack.org/infra/git-review/usage.html) or by typing ```git review -h```.
 
-Congratulations, you are now ready to submit changes for review on Xenon! 
+See the Git SCM Book for more information on [Working With Remotes](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes).
 
-Move ahead to the Project Workflow discussion.
+The [Advanced Gerrit Usage Guide](https://www.mediawiki.org/wiki/Gerrit/Advanced_usage) at Media Wiki also details a number of useful scenarios you may encounter with Git, Gerrit, and Git-Review.
+
