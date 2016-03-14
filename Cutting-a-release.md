@@ -21,11 +21,15 @@
 (Update version numbers appropriately)
 
 * Make sure the CHANGELOG is up to date
-* Run `mvn versions:set -DnewVersion=0.3.0` (insert new version)
+  * should remove "-SNAPSHOT" from the top change log entry
+* Run `mvn versions:set -DgenerateBackupPoms=false -DnewVersion=0.3.0` (insert new version)
 * Commit `Mark 0.3.0 release`
+  * `git commit -a -m "Mark 0.3.0 release"`
 * Add a line to the CHANGELOG with the new version, e.g. 0.3.1.
-* Run `mvn versions:set -DnewVersion=0.3.1-SNAPSHOT` (insert new snapshot version)
+  * add line with new development version which should have "-SNAPSHOT"
+* Run `mvn versions:set -DgenerateBackupPoms=false -DnewVersion=0.3.1-SNAPSHOT` (insert new snapshot version)
 * Commit `Mark 0.3.1-SNAPSHOT for development`
+  * `git commit -a -m "Mark 0.3.1-SNAPSHOT for development"`
 * Push commits to Gerrit
 * Wait for +1/+2 for **both** commits
 * Merge them at the **same time** (so no other commits can be interleaved)
