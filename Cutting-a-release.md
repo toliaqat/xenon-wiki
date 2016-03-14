@@ -39,6 +39,8 @@
 **After** both commits have been merged you know the bits you're about to release won't change.
 
 * Create a new branch in Gerrit, v0.3.0, using the hash from the corresponding commit for the release (**note**: the commit may be different if Gerrit rebased it upon submitting, so always fetch new changes after submitting the commits!)
+  * open xenon project branches page: https://review.ec.eng.vmware.com/#/admin/projects/xenon,branches
+  * add new "Branch Name" and "Initial Revision" for creating branch.
 * Checkout the new branch: 
 
 ```
@@ -127,4 +129,3 @@ Links:
 * [Download snapshot, release and staged artifacts from staging group](https://oss.sonatype.org/content/groups/staging)
 * [Download snapshot and release artifacts from group](https://oss.sonatype.org/content/groups/public)
 * [See the released artifacts on Maven Central](https://repo1.maven.org/maven2/com/vmware/xenon/)
-
