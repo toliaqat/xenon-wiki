@@ -45,9 +45,7 @@ class ExampleServiceHost extends ServiceHost {
         startDefaultCoreServicesSynchronously();
 
         // start the example factory
-        super.startService(
-                Operation.createPost(UriUtils.buildUri(this, ExampleFactoryService.class)),
-                new ExampleFactoryService());
+        super.startService(new ExampleFactoryService());
 
         return this;
     }
