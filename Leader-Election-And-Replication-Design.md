@@ -59,7 +59,7 @@ consensus protocol executes.
 The handleStart and handle PATCH/PUT/DELETE/GET handlers only get
 invoked on the service instance running on the owner node.
 
-#### Level 3 ServiceOption.REPLICATION + ServiceOption.OWNER_SELECTION + ServiceOption.EAGER_CONSISTENCY
+#### Level 3 ServiceOption.REPLICATION + ServiceOption.OWNER_SELECTION + ServiceOption.ENFORCE_QUORUM
 
 This combination is identical to level 2, with one crucial difference
 : if the number of available nodes is below the quorum level, the
