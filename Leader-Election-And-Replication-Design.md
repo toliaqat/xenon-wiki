@@ -26,7 +26,7 @@ service options  declared in the  service class. Please  see programming
 model for details. This page relates to the following two options:
 
  * ServiceOption.OWNER_SELECTION
- * ServiceOption.EAGER_CONSISTENCY
+ * ServiceOption.ENFORCE_QUORUM
 
 Both of the above options _require_ ServiceOption.REPLICATION
 
@@ -109,7 +109,7 @@ out of date work can happen in one of two ways:
 If  the service  is marked  with OWNER_SELECTION  and an  update is  not
 accepted by a majority of peers, the client sees failures and the update
 is not committed at any service  instance (owner or peers). For services
-that do  not require eager consistency,  the update is committed  on the
+that do  not require eager consistency(enforce quorum),  the update is committed  on the
 owner and all replicas that accepted it but a service statistic is added
 to each service instance marking the service as IN-CONFLICT.
 
@@ -172,7 +172,7 @@ The following service options must be enabled on a service for the following pro
  * REPLICATION
  * OWNER_SELECTION 
 
-The EAGER_CONSISTENCY option determines if a request is committed only when group membership is stable and a majority of nodes accept the update. 
+The ENFORCE_QUORUM option determines if a request is committed only when group membership is stable and a majority of nodes accept the update. 
 
 ## Leader/Owner Selection (View Progression/Reconfiguration)
 
