@@ -82,7 +82,7 @@ Assuming the service host is running locally (see the developer guide and debugg
 $ curl http://localhost:8000/core/examples
 ```
 
-Alternatively you can use the Xenon cli **xenonc**
+Alternatively you can use the Xenon cli [xenonc](./Xenon-Client-(xenonc))
 
 ```sh
 $ export XENON=http://localhost:8000
