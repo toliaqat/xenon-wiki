@@ -40,12 +40,9 @@ A developer can either derive from the FactoryService abstract class, or use a s
      * Create a default factory service that starts instances of this service on POST.
      * This method is optional, {@code FactoryService.create} can be used directly
      */
-    public static Service createFactory() {
-        Service fs = FactoryService.create(ExampleService.class, ExampleServiceState.class);
-        // Set additional factory service option. This can be set in service constructor as well
-        // but its really relevant on the factory of a service.
-        fs.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
-        return fs;
+    public static FactoryService createFactory() {
+        return FactoryService.createWithOptions(ExampleService.class, ExampleServiceState.class,
+                EnumSet.of(ServiceOption.IDEMPOTENT_POST));
     }
 ```
 
@@ -64,9 +61,7 @@ The factory service is a singleton that should be started on host start:
         setAuthorizationContext(this.getSystemAuthorizationContext());
 
         // Start the example service factory
-        super.startService(
-                Operation.createPost(UriUtils.buildFactoryUri(this, ExampleService.class)),
-                ExampleService.createFactory());
+        super.startFactory(ExampleService.class, ExampleService::createFactory);
 
        ...
        ...
@@ -173,12 +168,9 @@ public class ExampleService extends StatefulService {
      * Create a default factory service that starts instances of this service on POST.
      * This method is optional, {@code FactoryService.create} can be used directly
      */
-    public static Service createFactory() {
-        Service fs = FactoryService.create(ExampleService.class, ExampleServiceState.class);
-        // Set additional factory service option. This can be set in service constructor as well
-        // but its really relevant on the factory of a service.
-        fs.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
-        return fs;
+    public static FactoryService createFactory() {
+        return FactoryService.createWithOptions(ExampleService.class, ExampleServiceState.class,
+                EnumSet.of(ServiceOption.IDEMPOTENT_POST));
     }
 
     public static class ExampleServiceState extends ServiceDocument {
