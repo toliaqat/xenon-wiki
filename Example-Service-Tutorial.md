@@ -41,8 +41,7 @@ A developer can either derive from the FactoryService abstract class, or use a s
      * This method is optional, {@code FactoryService.create} can be used directly
      */
     public static FactoryService createFactory() {
-        return FactoryService.createWithOptions(ExampleService.class, ExampleServiceState.class,
-                EnumSet.of(ServiceOption.IDEMPOTENT_POST));
+        return FactoryService.createIdempotent(ExampleService.class);
     }
 ```
 
