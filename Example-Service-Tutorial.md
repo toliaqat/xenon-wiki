@@ -82,11 +82,11 @@ Assuming the service host is running locally (see the developer guide and debugg
 $ curl http://localhost:8000/core/examples
 ```
 
-Alternatively you can use the Xenon cli **dcpc**
+Alternatively you can use the Xenon cli **xenonc**
 
 ```sh
-$ export Xenon=http://localhost:8000
-$ dcpc get /core/examples
+$ export XENON=http://localhost:8000
+$ xenonc get /core/examples
 ```
 
 The factory responds with:
@@ -111,9 +111,9 @@ Create a new instance by issuing a POST. If no body is supplied the child servic
 $ curl -X POST -H "Content-type: application/json" -d '{"documentSelfLink":"niki","name":"n"}' http://localhost:8000/core/examples
 ```
 
-Same operation, using dcpc
+Same operation, using xenonc
 ```sh
-$ dcpc post /core/examples --documentSelfLink=niki --name=n
+$ xenonc post /core/examples --documentSelfLink=niki --name=n
 ```
 
 The example factory will respond with the initial state of the new service:
