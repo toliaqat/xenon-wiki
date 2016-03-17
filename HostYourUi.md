@@ -1,7 +1,7 @@
 # Overview
-Xenon provides built-in support for interacting with your services through user interface from your browser. You have the option to load and serve your factory and instance services through the default UI (the resources reside on the disk). To access the default UI point your browser at localhost:8000/selflink-to-service/ui. A different option is define your own custom UI by using the HTML_USER_INTERFACE_OPTION on the service that you want to serve with the custom resources. 
+Xenon provides built-in support for interacting with your services through user interface from your browser. You have the option to load and serve your factory and instance services through the default UI (the resources reside on the disk). To access the default UI point your browser at localhost:8000/selflink-to-service/ui. A different option is define your own custom UI by using the HTML_USER_INTERFACE option on the service that you want to serve with the custom resources. 
 
-The UI support is flexible enough to allow you to point any number or services to the default or the custom UI by sharing the custom endpoint.
+The UI support is flexible enough to allow you to point any number of services to the default or the custom UI by sharing the custom endpoint.
 
 This section describes how:
 
@@ -80,7 +80,7 @@ The custom UI for SampleServiceWithSharedCustomUi is built in AngularJS, and a t
 
 ![angularApp-structure](./angularApp-structure.png)
 
-**Step 4**: Next, for the service that will use above custom UI set the **ServiceOption.HTML_USER_INTERFACE to true** inside the constructor. When this option is set to true the back end expects to find the UI resources related to this service under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi (next step). 
+**Step 4**: Next, for the service that will use above custom UI set the **ServiceOption.HTML_USER_INTERFACE** to **true** inside the constructor. When this option is set to true the back end expects to find the UI resources related to this service under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi (next step). 
 ```
 public SampleServiceWithCustomUi() {
         super(SampleServiceWithCustomUiState.class);
@@ -116,6 +116,11 @@ The index of SampleServiceWithCustomUi will then get extract the self-link of th
 
 ![custom_ui](./custom_ui.png)
 
+**Note:** To facilitate writing/testing your code, you can make xenon UI serve the actual resource files from disk rather than the compiled in .jar file. Any HTML/CSS/JS changes you make will be reflect in the browser on refresh. Once built you can run the sample apps like this and make live changes:
+```
+cd xenon-samples
+java -jar target/xenon-samples-0.7.5-SNAPSHOT-jar-with-dependencies.jar --resourceSandbox=src/main/resources/
+```
 
 **Step 6**: Since the SampleServiceWithCustomUi has the HTML_USER_INTERFACE option on, the corresponding factory service (SampleFactoryServiceWithCustomUi) will get that option as well. As expected, a similar index.html file needs to be in place for the factory service. Under resources/ui/com/vmware/xenon/services/samples/SampleFactoryServiceWithCustomUi add an identical index.html file as in the previous step (which will again redirect to the same custom UI). 
 
