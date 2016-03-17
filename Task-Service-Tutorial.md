@@ -257,6 +257,7 @@ If we wait a few more seconds, the task will also be removed because it has expi
 
 The full code for the task factory and service can be found at:
 * [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)
+* [TaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/TaskService.java) - the superclass that most task service implementations (including `ExampleTaskService`) should extend from
 
 ## 5.1 The task factory service
 
@@ -268,13 +269,9 @@ public static final String FACTORY_LINK = ServiceUriPaths.CORE + "/example-tasks
 /**
  * Create a default factory service that starts instances of this task service on POST.
  */
-public static Service createFactory() {
-    Service fs = FactoryService.create(ExampleTaskService.class, ExampleTaskServiceState.class);
-    // Set additional factory service option. This can be set in service constructor as well
-    // but its really relevant on the factory of a service.
-    fs.toggleOption(ServiceOption.IDEMPOTENT_POST, true);
-    fs.toggleOption(ServiceOption.INSTRUMENTATION, true);
-    return fs;
+public static FactoryService createFactory() {
+    return FactoryService.createWithOptions(ExampleTaskService.class, ExampleTaskServiceState.class,
+            EnumSet.of(ServiceOption.IDEMPOTENT_POST, ServiceOption.INSTRUMENTATION));
 }
 ```
 
@@ -284,14 +281,15 @@ The task factory service is simple and identical in form to most other factory s
 The task service is where all of the interesting code is. We do not have the full code here; see [ExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java) for details. We will highlight the most interesting parts. 
 
 ### 5.2.1 The state of the task
-We must define the state of the task. Here we have one parameter for users to set and several for the task to keep track of what it is doing. 
+We must define the state of the task. Here we have one parameter for users to set and several for the task to keep track of what it is doing. We also extend from `TaskService.TaskServiceState` to inherit common task details, such as a `TaskState` and a failure message.
 
 A few things to note:
 * We use the standard [TaskState](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/TaskState.java), which defines the overall progress through the task. While you are not required to use TaskState, we strongly encourage it to provide commonality between all tasks services. The TaskState only has a few stages: CREATED, STARTED, FINISHED, FAILED, CANCELLED. Most tasks will spend their working time in the STARTED state and will indicate their progress through a SubStage.
 * The UsageOption AUTO_MERGE_IF_NOT_NULL makes it easier to handle PATCH requests because the state changes can be merged for you by merging the changes automatically when you call `Utils.mergeWithState()`
 
 ```java
-public static class ExampleTaskServiceState extends ServiceDocument {
+public static class ExampleTaskServiceState extends TaskService.TaskServiceState {
+
     /**
      * Time in seconds before the task expires
      *
@@ -301,18 +299,6 @@ public static class ExampleTaskServiceState extends ServiceDocument {
      */
     @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
     public Long taskLifetime;
-
-    /**
-     * This field shouldn't be manipulated by clients, but can be examined to see the progress
-     * of the task
-     */
-    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
-    public TaskState taskInfo;
-     /**
-     * If taskInfo.stage == FAILED, this message will say why
-     */
-    @UsageOption(option = PropertyUsageOption.AUTO_MERGE_IF_NOT_NULL)
-    public String failureMessage;
 
     /**
      * The current substage. See {@link SubStage}
@@ -334,52 +320,88 @@ Note that the same options can be set at runtime, if the service author override
 Here is our definition of the sub stage. This task only has two sub stages:
 
 ```java
-public static enum SubStage {
+public enum SubStage {
     QUERY_EXAMPLES, DELETE_EXAMPLES
 }
 ```
 
 ### 5.2.2 Creating the TASK
 
-When the factory service receives the POST to make the task, the task service's method handleStart will be called. It is passed an Operation; this is the POST operation, and we can examine the body of the operation to see what to do. 
+When the factory service receives the POST to make the task, the task service's method `handleStart()` will be called (which is implemented in the `TaskService` base class). It is passed an Operation; this is the POST operation, and we can examine the body of the operation to see what to do. 
 
-A couple of important points:
+Here are a couple of important points that the `TaskService` base class takes care of for you:
 
-1. As soon as we do a _quick_ validation, we send our response to the POST by calling _complete()_ on the operation. After that, we will initialize our state and PATCH ourselves. Note that if the client _immediately_ does a GET on the service, they may not see the initialized state yet. This isn't likely in practice for clients, but it may happen for in-process clients. 
-2. Once the state is initialized, we immediately do a self PATCH. That PATCH will trigger the first step of work, and future PATCH's will continue the work. We do the self PATCH before doing any work to ensure that our state is updated. 
+1. As soon as it does a _quick_ validation, we send our response to the POST by calling _complete()_ on the operation. After that, we will initialize our state and PATCH ourselves. Note that if the client _immediately_ does a GET on the service, they may not see the initialized state yet. This isn't likely in practice for clients, but it may happen for in-process clients. 
+2. Once the state is initialized, we immediately do a self PATCH. That PATCH will trigger the first step of work, and future PATCH's will continue the work. We do the self PATCH before doing any work to ensure that our state is updated.
+3. `TaskService` provides reasonable defaults for validation and initialization of the base `TaskServiceState`-related data (all of which can be easily overridden).
 
+`TaskService.java` , where `T` is the class of the actual task's state (such as `ExampleTaskService.ExampleTaskServiceState`)
 ```java
 /**
- * This handles the initial POST that creates the task service.
+ * This handles the initial {@code POST} that creates the task service. Most subclasses won't
+ * need to override this method, although they likely want to override the {@link
+ * #validateStartPost(Operation)} and {@link #initializeState(TaskServiceState, Operation)}
+ * methods.
  */
 @Override
 public void handleStart(Operation taskOperation) {
-    ExampleTaskServiceState task = validateStartPost(taskOperation);
+    T task = validateStartPost(taskOperation);
     if (task == null) {
         return;
     }
     taskOperation.complete();
+
     initializeState(task, taskOperation);
     sendSelfPatch(task);
 }
- /**
- * Ensure that the input task is valid.
- *
- * Technically we don't need to require a body since there are no parameters. However,
- * non-example tasks will normally have parameters, so this is an example of how they
- * could be validated.
+
+/**
+ * Ensure that the initial input task is valid. Subclasses might want to override this
+ * implementation to also validate their {@code SubStage}.
  */
-private ExampleTaskServiceState validateStartPost(Operation taskOperation) {
+protected T validateStartPost(Operation taskOperation) {
     if (!taskOperation.hasBody()) {
         taskOperation.fail(new IllegalArgumentException("POST body is required"));
         return null;
     }
-    ExampleTaskServiceState task = getBody(taskOperation);
+
+    T task = getBody(taskOperation);
     if (task.taskInfo != null) {
-        taskOperation.fail(
-                new IllegalArgumentException("Do not specify taskBody: internal use only"));
+        taskOperation.fail(new IllegalArgumentException(
+                "Do not specify taskBody: internal use only"));
         return null;
     }
+
+    // Subclasses might also want to ensure that their "SubStage" is not specified also
+    return task;
+}
+
+/**
+ * Initialize the task with default values. Subclasses might want to override this
+ * implementation to initialize their {@code SubStage}
+ */
+protected void initializeState(T task, Operation taskOperation) {
+    task.taskInfo = new TaskState();
+    task.taskInfo.stage = TaskState.TaskStage.STARTED;
+
+    // Put in some default expiration time if it hasn't been provided yet.
+    if (task.documentExpirationTimeMicros == 0) {
+        setExpirationFromMinutes(task, DEFAULT_EXPIRATION_MINUTES);
+    }
+
+    // Subclasses should initialize their "SubStage"...
+    taskOperation.setBody(task);
+}
+```
+
+As the javadoc mentions, most task implementations will want to override the `validateStartPost()` and `initializeState()` methods to provide our task-specific logic... as seen below:
+
+`ExampleTaskService.java`
+```java
+@Override
+protected ExampleTaskServiceState validateStartPost(Operation taskOperation) {
+    ExampleTaskServiceState task = super.validateStartPost(taskOperation);
+
     if (task.subStage != null) {
         taskOperation.fail(
                 new IllegalArgumentException("Do not specify subStage: internal use only"));
@@ -395,27 +417,22 @@ private ExampleTaskServiceState validateStartPost(Operation taskOperation) {
                 new IllegalArgumentException("taskLifetime must be positive"));
         return null;
     }
-     return task;
+
+    return task;
 }
- /**
- * Initialize the task
- *
- * We set it to be STARTED: we skip CREATED because we don't need the CREATED state
- * If your task does significant initialization, you may prefer to do it in the
- * CREATED state.
- */
-private void initializeState(ExampleTaskServiceState task, Operation taskOperation) {
-    task.taskInfo = new TaskState();
-    task.taskInfo.stage = TaskState.TaskStage.STARTED;
+
+@Override
+protected void initializeState(ExampleTaskServiceState task, Operation taskOperation) {
+    super.initializeState(task, taskOperation);
     task.subStage = SubStage.QUERY_EXAMPLES;
-     if (task.taskLifetime != null) {
+
+    if (task.taskLifetime != null) {
         task.documentExpirationTimeMicros = Utils.getNowMicrosUtc()
                 + TimeUnit.SECONDS.toMicros(task.taskLifetime);
     } else if (task.documentExpirationTimeMicros != 0) {
         task.documentExpirationTimeMicros = Utils.getNowMicrosUtc()
                 + TimeUnit.SECONDS.toMicros(DEFAULT_TASK_LIFETIME);
     }
-    taskOperation.setBody(task);
 }
 ```
 
@@ -434,7 +451,7 @@ public void handlePatch(Operation patch) {
         return;
     }
 
-    updateState(patch, currentTask, patchBody);
+    updateState(currentTask, patchBody);
     patch.complete();
 
     switch (patchBody.taskInfo.stage) {
@@ -473,16 +490,17 @@ private void handleSubstage(ExampleTaskServiceState task) {
         break;
     }
 }
+```
 
+NOTE: The `updateState()` method implementation is already in the base `TaskService` class:
+```java
     /**
      * This updates the state of the task. Note that we are merging information from the
      * PATCH into the current task. Because we are merging into the current task (it's the
      * same object), we do not need to explicitly save the state: that will happen when
      * we call patch.complete()
      */
-    private void updateState(Operation patch,
-            ExampleTaskServiceState currentTask,
-            ExampleTaskServiceState patchBody) {
+    private void updateState(ExampleTaskServiceState currentTask, ExampleTaskServiceState patchBody) {
         Utils.mergeWithState(getDocumentTemplate().documentDescription, currentTask, patchBody);
 
         // Take the new document expiration time
