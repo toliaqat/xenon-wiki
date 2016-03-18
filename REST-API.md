@@ -15,6 +15,11 @@ page](./Programming-Model#verb-semantics-and-associated-actions)  on
 how  Xenon maps  the well  known HTTP  verbs to  service state  update and
 lifecycle actions.
 
+## Documentation / Discovery
+
+See the /template utility suffix, available on all service instances. In addition,
+the runtime provides dynamic generation of Swagger UI descriptors. See the [SwaggerDescriptorService](./SwaggerDescriptorService)
+
 ## Utility services, per instance
 
 Xenon starts a utility service  for every service instance.  The utility
