@@ -17,6 +17,7 @@ host.startService(swagger);
 ```
 
 # REST API
+
 ```/discovery/swagger```
 
 ## GET
