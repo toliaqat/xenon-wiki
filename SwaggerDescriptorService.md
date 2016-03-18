@@ -29,7 +29,7 @@ The descriptor is available at /discovery/swagger. It can be retrieved in JSON o
 
 # SwaggerUI
 SwaggerUI is deployed as custom UI of the stateless service. It is available at /discovery/swagger/ui.
-![swagger-ui](./images/swagger-ui.png)
+![swagger-ui](./swagger-ui.png)
 
 # Limitations
 * stateless service are not supported currently
