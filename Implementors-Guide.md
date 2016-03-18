@@ -14,6 +14,7 @@ Proven third party technology or research is used to satisfy some of the key req
  * [Scalable gossip algorithm](http://www.cs.cornell.edu/~asdas/research/dsn02-swim.pdf) for node failure detection and membership tracking
  * [Kryo](https://github.com/EsotericSoftware/kryo) for efficient runtime data isolation and binary serialization
  * [Netty](https://github.com/netty/netty) for non blocking HTTP/HTTPS processing. 
+ * [Swagger](http://swagger.io/) Optional, dynamic support for generating swagger documentation UI at run time
 
 In each case, third party dependencies are abstracted behind a API and do not leak into the framework
 
