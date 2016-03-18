@@ -270,8 +270,8 @@ public static final String FACTORY_LINK = ServiceUriPaths.CORE + "/example-tasks
  * Create a default factory service that starts instances of this task service on POST.
  */
 public static FactoryService createFactory() {
-    return FactoryService.createWithOptions(ExampleTaskService.class, ExampleTaskServiceState.class,
-            EnumSet.of(ServiceOption.IDEMPOTENT_POST, ServiceOption.INSTRUMENTATION));
+    return FactoryService.create(ExampleTaskService.class, ExampleTaskServiceState.class,
+            ServiceOption.IDEMPOTENT_POST, ServiceOption.INSTRUMENTATION);
 }
 ```
 
