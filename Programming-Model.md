@@ -16,7 +16,11 @@ Please review [coordinating async operations](./Coordinating-Async-Operations-(a
 
 ## Design patterns
 
-The [design patterns](./service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details 
+The [design patterns](./service-design-patterns) page offers some tips on how to think about Xenon services and how to model various documents, workflows. It might be worth reading before diving into details. The tutorials are an even better source of various service patterns
+
+## REST API
+
+Please review [the REST API documentation](./REST-API)
 
 ## Implementation Guidelines
 
