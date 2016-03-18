@@ -14,11 +14,14 @@ swagger.setInfo(info);
 swagger.setExcludedPrefixes("/core/authz/");
 
 host.startService(swagger);
+
 ```
 
 # REST API
 
-```/discovery/swagger```
+```
+/discovery/swagger
+```
 
 ## GET
 The descriptor is available at /discovery/swagger. It can be retrieved in JSON or YAML format depending on the "Accept" header.
