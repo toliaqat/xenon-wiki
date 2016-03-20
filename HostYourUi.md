@@ -17,71 +17,43 @@ To access the default UI point your browser to localhost:8000/service-self-link/
 
 ![ServiceLandingPage](./ServiceLandingPage.png)
 
-## Host custom UI 
+## Host custom UI
 **Note**: You can define the custom UI of your service using different front end frameworks (JavaScript, jQuery, etc.) In practice, we recommend the use of AngularJS, since it provides valuable features (such as routing) and allows to write clean UI with few lines of code.
 
 ### Host custom UI for a single microservice
-**Note**: Find the complete code for this tutorial in the xenon-samples of the module of xenon source.  
+**Note**: Find the complete code for this tutorial in the xenon-samples of the module of xenon source.
 
 To define custom UI for a service, follow the steps below:
 
 **Step 1**: Create a new service which will be responsible for serving the custom UI. An example would be the SampleServiceWithSharedCustomUi and it would look like the code below:
 
-```
-/*
- * Copyright (c) 2015 VMware, Inc. All Rights Reserved.
- */
-
+```java
 package com.vmware.xenon.services.samples;
 
-import com.vmware.xenon.common.Operation;
-import com.vmware.xenon.common.StatelessService;
-import com.vmware.xenon.common.UriUtils;
-import com.vmware.xenon.common.Utils;
 import com.vmware.xenon.services.common.ServiceUriPaths;
+import com.vmware.xenon.services.common.UiContentService;
 
-public class SampleServiceWithSharedCustomUi extends StatelessService {
-    public static final String SELF_LINK = ServiceUriPaths.CUSTOM_UI_BASE_URL;
-
-    public SampleServiceWithSharedCustomUi() {
-        super();
-        toggleOption(ServiceOption.HTML_USER_INTERFACE, true);
-    }
-
-    @Override
-    public void handleGet(Operation get) {
-        String serviceUiResourcePath = Utils.buildUiResourceUriPrefixPath(this);
-        serviceUiResourcePath += "/" + ServiceUriPaths.UI_RESOURCE_DEFAULT_FILE;
-
-        Operation operation = get.clone();
-        operation.setUri(UriUtils.buildUri(getHost(), serviceUiResourcePath))
-                .setReferer(get.getReferer())
-                .setCompletion((o, e) -> {
-                    get.setBody(o.getBodyRaw())
-                            .setContentType(o.getContentType())
-                            .complete();
-                });
-
-        getHost().sendRequest(operation);
-        return;
-    }
+/**
+ * Just serve the static resources at a location.
+ */
+public class SampleServiceWithSharedCustomUi extends UiContentService {
+    public static final String SELF_LINK = "/core/ui/custom";
 }
-``` 
+```
+The UiContentService is stateless service that behaves like a regular web server serving resources from a directory.
 
 **Step 2**: Once SampleServiceWithSharedCustomUi was created it needs to be started in the host:
-```
-super.startService(
-                Operation.createPost(UriUtils.buildUri(this, SampleServiceWithSharedCustomUi
-                        .class)), new SampleServiceWithSharedCustomUi());
+```java
+super.startService(new SampleServiceWithSharedCustomUi());
 ```
 
-**Step 3**: Next, the actual UI resources need to be added. Place the UI resources under resources/ui/service-package-name. For the SampleServiceWithSharedCustomUi the UI files are under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithSharedCustomUi. 
+**Step 3**: Next, the actual UI resources need to be added. Place the UI resources under resources/ui/service-package-name. For the SampleServiceWithSharedCustomUi example this translates to resources/ui/com/vmware/xenon/services/samples/SampleServiceWithSharedCustomUi.
 The custom UI for SampleServiceWithSharedCustomUi is built in AngularJS, and a typical folder structure for that would be the following:
 
 ![angularApp-structure](./angularApp-structure.png)
 
-**Step 4**: Next, for the service that will use above custom UI set the **ServiceOption.HTML_USER_INTERFACE** to **true** inside the constructor. When this option is set to true the back end expects to find the UI resources related to this service under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi (next step). 
-```
+**Step 4**: Next, for the service that will use above custom UI set the **ServiceOption.HTML_USER_INTERFACE** to **true** inside the constructor. When this option is set to true the back end expects to find the UI resources related to this service under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi (next step).
+```java
 public SampleServiceWithCustomUi() {
         super(SampleServiceWithCustomUiState.class);
         super.toggleOption(ServiceOption.PERSISTENCE, true);
@@ -93,7 +65,7 @@ public SampleServiceWithCustomUi() {
 ```
 
 **Step 5**: Every time you point your browser to services-using-custom-ui-self-link/ui the host looks for an index.html file. That index.html needs to be placed under resource/ui/your-service-package. Form the SampleServiceWithCustomUi it needs to be under resources/ui/com/vmware/xenon/services/samples/SampleServiceWithCustomUi and it looks like the below:
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -104,15 +76,17 @@ public SampleServiceWithCustomUi() {
 <body>
 <script>
     var pathname = window.location.pathname;
+    // strip the /ui suffix
     pathname = pathname.substring(0, pathname.length - 3);
-    window.location.href = window.location.origin + "/core/ui/custom#" + pathname +
-    "/home";
+
+    // redirect to the shared ui passing the service selfLink as #
+    window.location.href = window.location.origin + "/core/ui/custom/#" + pathname + "/home";
 </script>
 </body>
 </html>
 ```
 
-The index of SampleServiceWithCustomUi will then get extract the self-link of the service from the window location and redirect to the custom UI. The URL for the custom UI would look like: **http://localhost:8000/core/ui/custom#/core/customUiExamples/home** (for factory) or **http://localhost:8000/core/ui/custom#/core/customUiExamples/3668a6c6-fa0f-49fc-8ba7-e3b1e5133a1f/home** (for an instance). In this case, the basic custom UI will look like this: 
+The index of SampleServiceWithCustomUi will then extract the self-link of the service from the window location and redirect to the custom UI. The URL for the custom UI would look like: **http://localhost:8000/core/ui/custom#/core/customUiExamples/home** (for factory) or **http://localhost:8000/core/ui/custom#/core/customUiExamples/3668a6c6-fa0f-49fc-8ba7-e3b1e5133a1f/home** (for an instance). In this case, the basic custom UI will look like this: 
 
 ![custom_ui](./custom_ui.png)
 
