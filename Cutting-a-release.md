@@ -136,3 +136,55 @@ Links:
 * [Download snapshot, release and staged artifacts from staging group](https://oss.sonatype.org/content/groups/staging)
 * [Download snapshot and release artifacts from group](https://oss.sonatype.org/content/groups/public)
 * [See the released artifacts on Maven Central](https://repo1.maven.org/maven2/com/vmware/xenon/)
+
+----
+## Tips
+
+### Setup default username for ssh connection to gerrit
+
+vi ~/.ssh/config
+```
+Host review.ec.eng.vmware.com
+  User ttsuyukubo
+```
+
+### Use maven for resolving gpg passphrase
+
+_The encryption is optional, you can place plain password as well._
+
+**setup master password for maven**
+
+```
+./mvnw -emp <YOUR_MASTER_PASSWORD>
+```
+
+write the output to `~/.m2/settings-security.xml`
+```
+<settingsSecurity>
+  <master> _<OUTPUT OF MASTER PASSWORD>_ </master>
+</settingsSecurity>
+```
+
+**encrypt your nexus password and gpg passphrase**
+
+```
+./mvnw -ep <YOUR_PASSWORD>
+```
+
+Write the output to `~/.m2/settings.xml`
+```
+<server>
+	<id>ossrh</id>
+	<username> _<YOUR_USERNAME>_ </username>
+	<password> _<YOUR_ENCRYPTED_PASSWORD>_ </password>
+</server>
+
+<server>
+	<id>gpg.passphrase</id>
+	<passphrase> _<YOUR_ENCRYPTED_GPG_PASSPHRASE>_</passphrase>
+</server>
+```
+
+Reference: http://stackoverflow.com/questions/14114528/avoid-gpg-signing-prompt-when-using-maven-release-plugin
+
+
