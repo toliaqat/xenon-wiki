@@ -104,6 +104,11 @@ $ mvn clean deploy -P release
 
 (If you get an error like "Could not find artifact com.vmware.xenon:xenon-loader-test:jar:0.3.1 in central (https://repo.maven.apache.org/maven2)", then run "mvn install". This is a dependency failure that we'll fix soon.)
 
+_(I have created a script for deploy steps: [xenon-release-perform.sh](https://gist.github.com/ttddyy/9ee2c5f2c73ad36a1d03)  **Please use with care.** )_
+
+
+----
+
 Release the deployment to maven central: [Full instructions](http://central.sonatype.org/pages/releasing-the-deployment.html) are available on the sonatype web site, but we'll summarize them here. 
 
 First, [login](https://oss.sonatype.org/#stagingRepositories) and navigate to staging repo at the bottom that starts with "comvmware":
