@@ -34,6 +34,10 @@
 * Wait for +1/+2 for **both** commits
 * Merge them at the **same time** (so no other commits can be interleaved)
 
+_(I have created a script to perform above steps: [xenon-release-prepare.sh](https://gist.github.com/ttddyy/45f87408134ae6872d72))_
+
+
+
 ### Deploying a release
 
 **After** both commits have been merged you know the bits you're about to release won't change.
@@ -41,6 +45,9 @@
 * Create a new branch in Gerrit, v0.3.0, using the hash from the corresponding commit for the release (**note**: the commit may be different if Gerrit rebased it upon submitting, so always fetch new changes after submitting the commits!)
   * open xenon project branches page: https://review.ec.eng.vmware.com/#/admin/projects/xenon,branches
   * add new "Branch Name" and "Initial Revision" for creating branch.
+  * Or, from command line:  
+      `$ ssh -p 29418 review.ec.eng.vmware.com gerrit create-branch xenon <BRANCH_NAME> <GIT_REVISION>`
+
 * Checkout the new branch: 
 
 ```
