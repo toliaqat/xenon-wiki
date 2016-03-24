@@ -702,7 +702,265 @@ private void subscribeTask(String taskPath, Consumer<Operation> notificationTarg
 
 For more information on subscriptions, see the description on the [Programming Model](Programming-Model#subscriptions) page. 
 
-# 7.0 Further Reading
+# 7.0 Writing Unit Tests for a Task Service in Java
+
+Unit tests are critical components in software development, and Xenon provides ways to easily implement unit tests to validate your task-specific logic. There are two testing classes you can extend when writing your unit tests:
+
+- [BasicTestCase](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/common/BasicTestCase.java) - This base class supports starting up a VerificationHost before each test is run, and then tearing it down after the test is completed
+- [BasicReusableHostTestCase](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/common/BasicReusableHostTestCase.java) - This base class is similar, but only starts the VerificationHost once in its `@BeforeClass` method (and tears it down after all tests have run via its `@AfterClass` method)
+
+Both methods are viable options; the reusable version will help speed up the running of your unit tests, but you'll need to take extra care that your unit tests are not modifying persisted states that other unit tests rely on.
+
+## The VerificationHost
+
+A crucial component to unit testing Xenon services is the [VerificationHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/common/test/VerificationHost.java). This is a special `ServiceHost` for unit testing that allows developers to create synchronous test contexts around what is usually a completely asynchronous framework.
+
+A `VerificationHost` has plenty of useful methods for unit tests to leverage, including:
+- `testStart(long count)` - starts a "test context" with an expected `count` of iterations. This `count` is the number of iterations the test context expects `completeIteration()` to be called
+- `testWait()` - blocks until all iterations of the "test context" have either completed or failed. `testWait(int)` also takes an integer for timeout seconds.
+- When a "test context" has been started... there are three possible outcomes of each expected iteration:
+  - `completeIteration()` - this means that an iteration of the test context has completed as expected by the creator of the unit test
+  - `failIteration()` - the opposite; an iteration failed, which should be considered a test failure
+  - if neither of the two are called within a specified timeout, then the test context times out (also considered a failure)
+
+There are a ton of other helpful testing methods, which you can examine by looking at the source code.
+
+## TestExampleTaskService
+
+A great way to get a feel for writing unit tests for your task service implementation is to look at the existing [TestExampleTaskService](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleTaskService.java).
+
+### The "happy" path test
+
+Let's write a test to ensure that the `ExampleTaskService` properly deletes all Example ServiceDocuments. To implement this test, we need to:
+
+1. Populate our document index with some ExampleService instances
+2. Send a POST to create an `ExampleTaskService` task
+3. Wait for the task to finish
+4. Verify no Examples are left
+
+> NOTE: The actual test in our repo does some more validation, but for the purposes of this wiki we will only focus on implementing this.
+
+Here's how you could write such a test.
+
+```java
+    @Test
+    public void testExampleTestServices() throws Throwable {
+        // 1. Populate document index with some ExampleService instances
+        createExampleServices();
+
+        // 2. Send a POST to create our task. Verify task contains a URI (was created successfully)
+        String[] taskUri = new String[1];
+        CompletionHandler successCompletion = getCompletionWithUri(taskUri);
+        ExampleTaskServiceState initialState = new ExampleTaskServiceState();
+        sendFactoryPost(ExampleTaskService.class, initialState, successCompletion);
+        assertNotNull(taskUri[0]);
+
+        // 3. Wait for task to finish (ensure it ended up as FINISHED)
+        ExampleTaskServiceState state = waitForFinishedTask(initialState.getClass(), taskUri[0]);
+        assertEquals(TaskState.TaskStage.FINISHED, state.taskInfo.stage);
+
+        // 4. Verify no examples are left
+        validateNoServices();
+    }
+
+    /** Create a set of example services, so we can test that the ExampleTaskService cleans them up */
+    private void createExampleServices() throws Throwable {
+        URI exampleFactoryUri = UriUtils.buildFactoryUri(this.host, ExampleService.class);
+
+        this.host.testStart(this.numServices);
+        for (int i = 0; i < this.numServices; i++) {
+            ExampleServiceState example = new ExampleServiceState();
+            example.name = String.format("example-%s", i);
+            Operation createPost = Operation.createPost(exampleFactoryUri)
+                    .setBody(example)
+                    .setCompletion(this.host.getCompletion());
+            this.host.send(createPost);
+        }
+        this.host.testWait();
+    }
+
+    /** Verify that the task correctly cleaned up all the example services: none should be left. */
+    private void validateNoServices() throws Throwable {
+        URI exampleFactoryUri = UriUtils.buildFactoryUri(this.host, ExampleService.class);
+
+        ServiceDocumentQueryResult exampleServices = this.host.getServiceState(null,
+                ServiceDocumentQueryResult.class,
+                exampleFactoryUri);
+
+        assertNotNull(exampleServices);
+        assertNotNull(exampleServices.documentLinks);
+        assertEquals(exampleServices.documentLinks.size(), 0);
+    }
+```
+
+You can see from above that there are a lot of functionality common to Xenon Task Services that you get for free so you can focus on your task-specific testing logic, including:
+- `getCompletionWithUri` - provides a CompletionHandler that expects a successful response, and also sets the value of the URI (documentSelfLink) of the service instance
+- `sendFactoryPost` - creates a service instance by sending a POST to a Service factory, providing the `state` to use for the body of the POST and the completion handler to use for processing the POST
+- `waitForFinishedTask` - even though this task executes quickly, there is still some waiting we need to do before we can validate the final state. Other related methods include `waitForFailedTask` and `waitForTask`.
+- `getServiceState` - returns the state of a requested Service from the document index
+
+For more details about these helper test methods, see javadocs included in [VerificationHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/common/test/VerificationHost.java).
+
+### The "unhappy" path test
+
+Before a task is successfully created, it needs to be validated. This is logic in the `validateStartPost()` method, and we likely want to write unit tests to ensure it's working properly. For our `ExampleTaskService`, we ensure the client cannot provide values like:
+- a non-null `TaskStage` - such as `CREATED`. This should be set by the task logic itself, not by the body of the POST specified by the client
+- a non-null `SubStage` - same reasons as above
+- a negative value for `taskLifetime` 
+
+Here's how you might want to test that this error handling is working as expected
+
+```java
+    @Test
+    public void handleStartError_taskBody() throws Throwable {
+        ExampleTaskServiceState badState = new ExampleTaskServiceState();
+        badState.taskInfo = new TaskState();
+        badState.taskInfo.stage = TaskState.TaskStage.CREATED;
+        testExpectedHandleStartError(badState, IllegalArgumentException.class, "Do not specify taskBody: internal use only");
+    }
+
+    @Test
+    public void handleStartErrors_subStage() throws Throwable {
+        ExampleTaskServiceState badState = new ExampleTaskServiceState();
+        badState.subStage = ExampleTaskService.SubStage.QUERY_EXAMPLES;
+        testExpectedHandleStartError(badState, IllegalArgumentException.class, "Do not specify subStage: internal use only");
+    }
+
+    @Test
+    public void handleStartErrors_exampleQueryTask() throws Throwable {
+        ExampleTaskServiceState badState = new ExampleTaskServiceState();
+        badState.exampleQueryTask = QueryTask.create(null);
+        testExpectedHandleStartError(badState, IllegalArgumentException.class, "Do not specify exampleQueryTask: internal use only");
+    }
+
+    @Test
+    public void handleStartErrors_taskLifetimeNegative() throws Throwable {
+        ExampleTaskServiceState badState = new ExampleTaskServiceState();
+        badState.taskLifetime = -1L;
+        testExpectedHandleStartError(badState, IllegalArgumentException.class, "taskLifetime must be positive");
+    }
+
+    private void testExpectedHandleStartError(ExampleTaskServiceState badState,
+            Class<? extends Throwable> expectedException, String expectedMessage) throws Throwable {
+        Throwable[] thrown = new Throwable[1];
+        Operation.CompletionHandler errorHandler = getExpectedFailureCompletionReturningThrowable(thrown);
+        sendFactoryPost(ExampleTaskService.class, badState, errorHandler);
+
+        assertNotNull(thrown[0]);
+
+        String message = String.format("Thrown exception [thrown=%s] is not 'instanceof' [expected=%s]", thrown[0].getClass(), expectedException);
+        assertTrue(message, expectedException.isAssignableFrom(thrown[0].getClass()));
+        assertEquals(expectedMessage, thrown[0].getMessage());
+    }
+```
+
+Again, notice how we can leverage a lot of base behavior for free, including:
+- `getExpectedFailureCompletionReturningThrowable` -  provides a CompletionHandler that expects an exception in the response (and does a `failIteration` if the response did not result in an exception). It also sets the value of the exception so you can assert the exception (and message) were what you expected
+- `sendFactoryPost` - notice how we can reuse this method for both "happy" and "unhappy" paths. The important thing to note is we are changing the completion handler we are passing.
+
+### Pitfalls to Avoid
+
+Unit testing distributed and asynchronous Xenon services requires careful understanding of what you can **deterministically** test, and testing scenarios which are **nondeterministic**. This is an important distinction and can lead to intermittent test failures which result from poorly implemented tests. While a "test context" does provide synchronous testing abilities, there are some things it cannot do.
+
+Let's say you wanted to write a unit test to ensure that the `ExampleTaskService.DEFAULT_TASK_LIFETIME` was correctly used when a client didn't specify `taskLifetime`. You might write something like this when you are writing unit test code to create a new task (and then verify the expiration was defaulted correctly):
+
+```java
+    private String buggyCreateTaskAndValidateDefaultExpiration() throws Throwable {
+        URI exampleTaskFactoryUri = UriUtils.buildFactoryUri(this.host, ExampleTaskService.class);
+
+        String[] taskUri = new String[1];
+        long[] initialExpiration = new long[1];
+        ExampleTaskServiceState task = new ExampleTaskServiceState();
+        Operation createPost = Operation.createPost(exampleTaskFactoryUri)
+                .setBody(task)
+                .setCompletion(
+                        (op, ex) -> {
+                            if (ex != null) {
+                                this.host.failIteration(ex);
+                                return;
+                            }
+                            ExampleTaskServiceState taskResponse = op.getBody(ExampleTaskServiceState.class);
+                            taskUri[0] = taskResponse.documentSelfLink;
+                            initialExpiration[0] = taskResponse.documentExpirationTimeMicros;
+                            this.host.completeIteration();
+                        });
+
+        this.host.testStart(1);
+        this.host.send(createPost);
+        this.host.testWait();
+
+        assertNotNull(taskUri[0]);
+
+        // Since our task body didn't set expiration, the default from ExampleTaskService should be used
+        long expectedExpiration = Utils.getNowMicrosUtc() + TimeUnit.SECONDS.toMicros(ExampleTaskService.DEFAULT_TASK_LIFETIME);
+        long wiggleRoom = TimeUnit.SECONDS.toMicros(10); // ensure it's accurate within 10 seconds
+        long minExpectedTime = expectedExpiration - wiggleRoom;
+        long maxExpectedTime = expectedExpiration + wiggleRoom;
+        long actual = initialExpiration[0];
+
+        String msg = String.format(
+                "Task's expiration is incorrect. [minExpected=%tc] [maxExpected=%tc] : [actual=%tc]",
+                minExpectedTime, maxExpectedTime, actual);
+        assertTrue(msg, actual >= minExpectedTime && actual <= maxExpectedTime);
+        return taskUri[0];
+    }
+```
+
+This looks innocent enough: The `createPost`'s completion handler saves what the initial expiration was... and then later asserts that it was set to the correct default. The unit test will likely pass when you run it also! However, this is a great example of a **nondeterministic** test that has a bug in it. This unit test might fail in some environments, which is why it should be avoided when writing tests.
+
+The bug here hinges on the `Operation.complete()` method. `ExampleTaskService` inherits the base `TaskService.handleStart()` method, which looks like this:
+```java
+    public void handleStart(Operation taskOperation) {
+        T task = validateStartPost(taskOperation);
+        if (task == null) {
+            return;
+        }
+        taskOperation.complete();
+
+        initializeState(task, taskOperation); // NOTE: default expiration is set HERE
+        sendSelfPatch(task);
+    }
+```
+
+The POST body did not have any validation errors, so `validateStartPost()` completed successfully. Next, it then marks the operation as `complete()` before initializing its state. This is intentional; initializing state could take some time, and we don't need/want to block the client while state is being initialized since we know the request was valid.
+
+However, once the operation is marked `complete()`, the client can get a response back including the current state of the task (which, in this case, really only has the `documentSelfLink` initialized since `initializeState` hasn't ran yet).
+
+This test is nondeterministic because the test result will be different based on when the completion handler runs.
+
+**Failure Scenario**: CompletionHandler runs immediately after `complete()`, so assert on expiration time will result in a failed test:
+```java
+    public void handleStart(Operation taskOperation) {
+        T task = validateStartPost(taskOperation);
+        if (task == null) {
+            return;
+        }
+        taskOperation.complete();
+        // FAILURE case: CompletionHandler is invoked here. documentExpirationTimeMicros is zero since `initializeState` hasn't defaulted it yet
+
+        initializeState(task, taskOperation); // NOTE: default expiration is set HERE
+        sendSelfPatch(task);
+    }
+```
+
+**Success Scenario**: CompletionHandler runs after the `initializeState()` has run and the Service state has been PATCHed with the correct defaults... leading to a passing test
+```java
+    public void handleStart(Operation taskOperation) {
+        T task = validateStartPost(taskOperation);
+        if (task == null) {
+            return;
+        }
+        taskOperation.complete();
+
+        initializeState(task, taskOperation); // NOTE: default expiration is set HERE
+        sendSelfPatch(task);
+        // SUCCESS case: CompletionHandler is invoked here. documentExpirationTimeMicros has been defaulted because `initializeState` already ran
+    }
+```
+
+Long story short: when writing unit tests for tasks (which often PATCH their state extremely quickly after they've been created), be sure the scenario you are testing is deterministic to avoid headaches of intermittently failing tests.
+
+# 8.0 Further Reading
 
 * [LuceneQueryTaskService](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/LuceneQueryTaskService.java) The implementation of /core/query-tasks. This is a significantly more complicated example of a task service
 * [TestExampleTaskService.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleTaskService.java) Test code for validating the ExampleTestService.
