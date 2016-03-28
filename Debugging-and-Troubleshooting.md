@@ -33,7 +33,7 @@ to get the entire process log for a remote Xenon host, do:
 Or
 
 ```
-dcpc get /core/management/go-dcp-process-log | jq -r .items[]
+xenonc get /core/management/go-dcp-process-log | jq -r .items[]
 ```
 
 ### Using the broadcast and P2P routing
