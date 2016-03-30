@@ -60,5 +60,8 @@ The job uses an API token for a specific user, and creates new items when a test
 
 Please refer to the [debugging page](Debugging-and-Troubleshooting) for information on how to effectively debug a decentralized, 100% asynchronous system like Xenon.
 
+# Code Style
+Please refer to the [Code Style page](Code-Style)
+
 ----
 [maven-wrapper.properties]: https://github.com/vmware/xenon/blob/master/.mvn/wrapper/maven-wrapper.properties
