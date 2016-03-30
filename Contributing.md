@@ -21,7 +21,8 @@ Our public Pivotal Project at https://www.pivotaltracker.com/n/projects/1471320 
 #### Editing Guidelines
 
 The team uses Eclipse or IntelliJ. Formatting style settings for both these editors can be found in the
-[contrib](https://github.com/vmware/xenon/tree/master/contrib) folder.
+[contrib](https://github.com/vmware/xenon/tree/master/contrib) folder.  
+Also, please reference [Code Style page](Code-Style).
 
 #### Building and Testing Changes
 
