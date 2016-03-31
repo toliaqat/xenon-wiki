@@ -326,7 +326,7 @@ All services have a documentSelfLink, so this resource group will specify all se
 _Aside:_ You might think that Xenon will evaluate this query ("find all services") then match see if the desired service is in that list. In fact, the query is used as a filter and is efficient. 
 
 ### 3.3.4 Roles
-A role says: A user group X may do some set of operations (e.g. GET, POST, PATCCH) on the resources defined by a resource group. Let's look at the resource groups we have: 
+A role says: A user group X may do some set of operations (e.g. GET, POST, PATCH) on the resources defined by a resource group. Let's look at the resource groups we have: 
 
 ```
 % curl 'http://localhost:8000/core/authz/roles?expand' -H "x-xenon-auth-token: AUTH-TOKEN"
