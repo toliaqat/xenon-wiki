@@ -321,10 +321,10 @@ We can see the new task service (b7d49734-903e-4b24-9326-0125866ccefb)'s onwer i
 
 ##8. Restart the node you stopped
 
-Now let's restart the node 8002:
+Now let's restart the node 8002 and set the membershipQuorum=2:
 
 ```
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
+% java -Dxenon.NodeState.membershipQuorum=2 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
 ```
@@ -332,8 +332,6 @@ Now let's restart the node 8002:
 ```
 
 You'll see the node 8002's status is AVAILABLE.
-
-**Note**:  node 8002's membershipQuorum is still 3, has not been sycnchronized with other nodes.
 
 ##9. Demonstrate synchronization
 
@@ -358,12 +356,6 @@ Send a GET to the example task factory of the restarted node, that all the tasks
 ```
 
 And the same with node 8000, 8001.
-
-**Note:** sometimes node 8002 will miss the task service which is created in Step.7. After sending a PATCH to update 8002's membershipQuorum=2, that task service will appear on node 8002. But sometimes without updating 8002's membershipQuorum, we can still see that task service is created on node 8002. 
-
-**TODO:** such situation need to be checked more times.
-
-
 
 Check each task service's status, they are all finished.
 
