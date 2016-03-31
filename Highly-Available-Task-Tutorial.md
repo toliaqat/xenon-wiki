@@ -215,7 +215,7 @@ _File:_ query.body
       "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d?documentVersion=0",
       "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081?documentVersion=0"
     ],
-	...
+  ...
     "documentOwner": "hostAtPort8001"
   },
   "documentOwner": "hostAtPort8001",
@@ -333,6 +333,8 @@ Now let's restart the node 8002:
 
 You'll see the node 8002's status is AVAILABLE.
 
+**Note**:  node 8002's membershipQuorum is still 3, has not been sycnchronized with other nodes.
+
 ##9. Demonstrate synchronization
 
 Send a GET to the example task factory of the restarted node, that all the tasks are there:
@@ -356,6 +358,12 @@ Send a GET to the example task factory of the restarted node, that all the tasks
 ```
 
 And the same with node 8000, 8001.
+
+**Note:** sometimes node 8002 will miss the task service which is created in Step.7. After sending a PATCH to update 8002's membershipQuorum=2, that task service will appear on node 8002. But sometimes without updating 8002's membershipQuorum, we can still see that task service is created on node 8002. 
+
+**TODO:** such situation need to be checked more times.
+
+
 
 Check each task service's status, they are all finished.
 
@@ -383,11 +391,3 @@ For example:
   ...
 }
 ```
-
-
-
-TODO:
-
-Sometimes node 8002 will miss one task service?
-
-
