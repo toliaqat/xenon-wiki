@@ -41,13 +41,14 @@ We are going to start the [ExampleServiceHost](https://github.com/vmware/xenon/b
 % java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8001
 
 % java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
-
 ```
 
 Here we use --id=hostAtPort8000 to specify an ID of the host, and use --peerNodes to specify the group members. Also, we specify the membershipQuorum by using a JVM xenon property "-Dxenon.NodeState.membershipQuorum=3". [membershipQuorum](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/NodeState.java) is the minimum number of available nodes required for consensus operations and synchronization, since we need to wait for all nodes to be available when starting a cluster, it's safest to set it to total number of nodes.
 
-TODO: discusses how membershipQuorum is set automatically.
-
+When joining to a group, each node will send a JoinPeerRequest to the peers. Then each peer handles the join post and sets its own membershipQuorum as the maximum of its pre-specified membershipQuorum and other's join request's membershipQuorum:
+```Java
+self.membershipQuorum = Math.max(self.membershipQuorum, joinBody.membershipQuorum);
+```
 Now we can see the node group has been created:
 
 ```
