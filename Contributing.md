@@ -33,3 +33,6 @@ Our developer guide has up to date information on how to set up your development
 After you have made your changes, added the relevant test cases, and made sure they pass, it is time to commit!
 
 Please observe the following guidelines for writing a comprehensive commit message: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+
+## Guideline to write Xenon core code
+Please reference the [Xenon Core Coding Guidelines](Xenon-Core-Coding-Guidelines)
