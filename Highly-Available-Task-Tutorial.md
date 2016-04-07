@@ -13,15 +13,15 @@ While replicated services deployed across multiple nodes should be the default t
 
 Xenon relies on two mechanisms to understand and properly implement the needs of a service:
 
- * Service options - ServiceOption.OWNER_SELECTION and ServiceOption.REPLICATION
- * Node group configuration - Membership quorum
+* Service options - ServiceOption.OWNER_SELECTION and ServiceOption.REPLICATION
+* Node group configuration - Membership quorum
 
 Service instances run on each node but the consensus protocol routes requests to a single node, the one elected as owner, for a particular service.
 
 Using the same underlying protocol the runtime will guarantee that
- * updates happen atomically, service handlers execute only on service instance on owner node
- * periodic handleMaintenance only executes on owner node
- * handleStart only executes on owner node
+* updates happen atomically, service handlers execute only on service instance on owner node
+* periodic handleMaintenance only executes on owner node
+* handleStart only executes on owner node
 
 The service author does not need to know which node is owner. It simply authors logic assuming it only runs on one node, and if nodes come and go, a new node will dynamically take over.
 
@@ -29,11 +29,23 @@ leader election and high availability come "embedded" in the programming model: 
 
 #Demonstration
 
-[TaskService](https://github.com/vmware/xenon/wiki/Task-Service-Tutorial) is kind of service which contains a series of tasks and has its own workflow. Here we use the [ExampleTaskService ](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)which will query and delete all example service documents to demonstrate the scale out, and restart, across nodes. [Task Service Tutorial](https://github.com/vmware/xenon/wiki/Task-Service-Tutorial) tells more about the ExampleTaskService.
+[TaskService](https://github.com/vmware/xenon/wiki/Task-Service-Tutorial) is a kind of service which contains a series of tasks and has its own workflow. Here we use the [ExampleTaskService ](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java)which will query and delete all example service documents to demonstrate the scale out, and restart, across nodes. [Task Service Tutorial](https://github.com/vmware/xenon/wiki/Task-Service-Tutorial) tells more about the ExampleTaskService.
 
-##1. Start a node group
+Here are the main steps for the demonstration:
 
-We are going to start the [ExampleServiceHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleServiceHost.java), which will start the factory service for creating ExampleTaskService. We use three ports: 8000, 8001, 8002 for testing, so open three terminals and use the commands to start each node:
+1. Start a node group.
+2. Start ExampleTaskService.
+3. Examine ExampleTaskService.
+4. Stop one node.
+5. Verify the quorum is enforced.
+6. Relax the quorum.
+7. Verify task creation with relaxed quorum.
+8. Restart node.
+9. Verify synchronization.
+
+##1 Start a node group
+
+We use three ports: 8000, 8001, 8002 for testing, so open three terminals and use the commands to start each node:
 
 ```
 % java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8000 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8000 
@@ -43,12 +55,30 @@ We are going to start the [ExampleServiceHost](https://github.com/vmware/xenon/b
 % java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
-Here we use --id=hostAtPort8000 to specify an ID of the host, and use --peerNodes to specify the group members. Also, we specify the membershipQuorum by using a JVM xenon property "-Dxenon.NodeState.membershipQuorum=3". [membershipQuorum](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/NodeState.java) is the minimum number of available nodes required for consensus operations and synchronization, since we need to wait for all nodes to be available when starting a cluster, it's safest to set it to total number of nodes.
+Here are the explanations for each argument.
 
-When joining to a group, each node will send a JoinPeerRequest to the peers. Then each peer handles the join post and sets its own membershipQuorum as the maximum of its pre-specified membershipQuorum and other's join request's membershipQuorum:
-```Java
-self.membershipQuorum = Math.max(self.membershipQuorum, joinBody.membershipQuorum);
-```
+###1.1 Specify membership quorum 
+
+[membershipQuorum](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/NodeState.java) is the minimum number of available nodes required for consensus operations and synchronization, we can specify the membershipQuorum by using a JVM xenon property "-Dxenon.NodeState.membershipQuorum=3". Since we need to wait for all nodes to be available when starting a cluster, it's the safest to set it to total number of nodes.
+
+###1.2 Specify service host
+
+We can specify the class path "com.vmware.xenon.services.common.ExampleServiceHost" to start the [ExampleServiceHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleServiceHost.java), which will start the factory service for creating ExampleTaskService. 
+
+###1.3 Specify sandbox
+
+We are going to provide an argument for the sandbox (where all service documents are stored), instead of relying on the Java temporary directory. When the host is not running, you can delete the sandbox if you need to get back to "factory settings".
+
+###1.4 Specify peer nodes
+
+Use "--peerNodes" to specify the group members. You can either dynamically join a node group by sending a POST to the local (un-joined) node group service at /core/node-groups/default, or, you can have the xenon host join when it starts, by supplying the --peerNodes argument, with a list of URIs. To make startup scripts simple, you can supply the **same set of URIs, including the IP:PORT of the local host**. Xenon will ignore its self address but concurrently join through the other peer addresses. For more details on node group maintenance, see the [node group service](https://github.com/vmware/xenon/wiki/NodeGroupService)
+
+###1.5 Specify host ID
+
+Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host by providing the argument like "--id=hostAtPort8000".
+
+###1.6 Show group status
+
 Now we can see the node group has been created:
 
 ```
@@ -75,20 +105,20 @@ Now we can see the node group has been created:
       ...
     }
   },
-  "documentOwner": "hostAtPort8000",
   ...
 }
 ```
 
-##2. Start ExampleTaskService 
+##2 Start ExampleTaskService  
 
-At first, start a example service, which will be deleted by the ExampleTaskService later.
+### 2.1 Start example service 
+
+At first, start an example service, which will be deleted by the ExampleTaskService later.
 
 _File:_ example-1.body
 ```
 {
-  "name": "example-1",
-  "counter": 1
+  "name": "example-1"
 }
 ```
 
@@ -99,57 +129,67 @@ _File:_ example-1.body
   "documentLinks": [
     "/core/examples/e6691e79-a9ff-48eb-bd96-953e33e2fc1b"
   ],
-  "documentCount": 1,
-  "queryTimeMicros": 6999,
-  "documentVersion": 0,
-  "documentUpdateTimeMicros": 0,
-  "documentExpirationTimeMicros": 0,
-  "documentOwner": "hostAtPort8000"
+  "documentOwner": "hostAtPort8000",
+  ...
 }
 ```
 
-Then, create two example task services:
+### 2.2 Create the first task service
 
-_File:_ task.body
+Here we specify the life time of the task to 600 seconds for testing. If you want the task to live longer in your test, you can extend it.
+
+_File:_ task-1.body
 ```
 {
-  "taskLifetime": 300
+  "taskLifetime": 600,
+  "documentSelfLink":"task-1"
 }
 ```
 
 ExampleTaskService-1:
 
 ```
-% curl -s -X POST -d@task.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
+% curl -s -X POST -d@task-1.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
 
 {
-  "taskLifetime": 300,
+  "taskLifetime": 600,
   "subStage": "QUERY_EXAMPLES",
   "taskInfo": {
     "stage": "STARTED",
     "isDirect": false
   },
   "documentVersion": 0,
-  "documentSelfLink": "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d",
+  "documentSelfLink": "/core/example-tasks/task-1",
   "documentOwner": "hostAtPort8001"
   ...
+}
+```
+
+### 2.3 Create the second task service
+
+_File:_ task-2.body
+
+```
+{
+  "taskLifetime": 600,
+  "documentSelfLink":"task-2"
 }
 ```
 
 ExampleTaskService-2:
 
 ```
-% curl -s -X POST -d@task.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
+% curl -s -X POST -d@task-2.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
 
 {
-  "taskLifetime": 300,
+  "taskLifetime": 600,
   "subStage": "QUERY_EXAMPLES",
   "taskInfo": {
     "stage": "STARTED",
     "isDirect": false
   },
   "documentVersion": 0,
-  "documentSelfLink": "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081",
+  "documentSelfLink": "/core/example-tasks/task-2",
   "documentOwner": "hostAtPort8000"
   ...
 }
@@ -157,9 +197,9 @@ ExampleTaskService-2:
 
 We can see that the two task services has been started.
 
-##3. ExampleTaskService is working
+##3. Examine ExampleTaskService
 
-In order to show how they go through their stages, we create a query task with INCLUDE_ALL_VERSIONS:
+In order to show how they go through their stages, we create a query task with INCLUDE_ALL_VERSIONS, then the query will execute over all document versions, not just the latest per self link:
 
 _File:_ query.body
 
@@ -207,26 +247,25 @@ _File:_ query.body
   },
   "results": {
     "documentLinks": [
-      "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d?documentVersion=3",
-      "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081?documentVersion=3",
-      "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d?documentVersion=2",
-      "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081?documentVersion=2",
-      "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d?documentVersion=1",
-      "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081?documentVersion=1",
-      "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d?documentVersion=0",
-      "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081?documentVersion=0"
+      "/core/example-tasks/task-1?documentVersion=3",
+      "/core/example-tasks/task-2?documentVersion=3",
+      "/core/example-tasks/task-1?documentVersion=2",
+      "/core/example-tasks/task-2?documentVersion=2",
+      "/core/example-tasks/task-1?documentVersion=1",
+      "/core/example-tasks/task-2?documentVersion=1",
+      "/core/example-tasks/task-1?documentVersion=0",
+      "/core/example-tasks/task-2?documentVersion=0"
     ],
   ...
     "documentOwner": "hostAtPort8001"
   },
-  "documentOwner": "hostAtPort8001",
   ...
 }
 ```
 
-We can see each ExampleTaskService's documentVersion changes from 0 - 3, since when each stage finished, it will send a self-patch to update the documentVersion.
+We can see each ExampleTaskService's documentVersion changes from 0 to 3, since when each stage finished, it will send a self-patch to update the documentVersion.
 
-Now the example service has been deleted by the task:
+Since the main job of [ExampleTaskService](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleTaskService.java) is to query and delete the example services, now the example service has been deleted by the task services:
 
 ```
 % curl http://localhost:8000/core/examples/
@@ -247,28 +286,33 @@ Now the example service has been deleted by the task:
 Either with Ctrl-C, or better, sending a DELETE to /core/management on one of the nodes, here we delete node: 8002.
 
 ```
-curl -X DELETE http://localhost:8002/core/management
+% curl -X DELETE http://localhost:8002/core/management
 ```
 
-##5. Create a new task service fails
+##5. Verify the quorum is enforced
 
-_File:_ task.body
+In order to verify the quorum is enforced, create another task service to see whether it can be created successfully when one node has been stopped.
+
+_File:_ task-3.body
 
 ```
 {
-  "taskLifetime": 300
+  "taskLifetime": 600,
+  "documentSelfLink":"task-3"
 }
 ```
 
 ```
-% curl -s -X POST -d@task.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
+% curl -s -X POST -d@task-3.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
 ```
 
-The treminal shows no response and the process is blocked, because quorum is still set to 3 and only 2 nodes remain, consensus operations and synchronization can't be executed. Creating this new task service fails, so just Ctrl-C to exit.
+The terminal shows no response and the process is blocked, because quorum is still set to 3 and only 2 nodes remain, consensus operations and synchronization can't be executed. Creating this new task service fails, so just Ctrl-C to exit.
 
 ##6. Relax the quorum
 
-Now relax the quorum by sending a UpdateQuorumRequest PATCH to one of the remaining nodes and set membershipQuorum = 2.
+Now relax the quorum by sending a UpdateQuorumRequest PATCH to the [NodeGroupService](https://github.com/vmware/xenon/wiki/NodeGroupService) of one remaining node and set membershipQuorum = 2.
+
+When "isGroupUpdate" is set true, the PATCH will act on the whole group.
 
 _File:_ updateQuorum.body
 
@@ -286,18 +330,18 @@ _File:_ updateQuorum.body
 
 Now we can see node 8000 and 8001's membershipQuorum is 2 and 8002's is still 3.
 
-##7. New task service created
+##7. Verify task creation with relaxed quorum
 
-And we also notice that the previous failure request (create a new task service) works automatically. New task service (/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb) has been created: 
+And we also notice that the previous failure request (create a new task service) works automatically. The service "task-3" has been created: 
 
 ```
 % curl http://localhost:8000/core/example-tasks
 
 {
   "documentLinks": [
-    "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d",
-    "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081",
-    "/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb"
+    "/core/example-tasks/task-1",
+    "/core/example-tasks/task-2",
+    "/core/example-tasks/task-3"
   ],
   "documentCount": 3,
   "queryTimeMicros": 1997,
@@ -308,79 +352,100 @@ And we also notice that the previous failure request (create a new task service)
 }
 ```
 
-Let's see the logs to explore how synchronization occurs automatically:
+##8. Restart node
 
-```
-Node 8000's logs:
-[120][I][1459374473536][8000/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb][handleSynchronizeWithPeersCompletion][isOwner:false e:0 v:3, cause:null]
-
-Node 8001's logs:
-[128][I][1459374472611][8001/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb][handleSynchronizeWithPeersCompletion][isOwner:true e:0 v:3, cause:java.lang.IllegalStateException: PATCH to /core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb failed. Success: 1,  Fail: 1, quorum: 2, threshold: 1]
-```
-
-We can see the new task service (b7d49734-903e-4b24-9326-0125866ccefb)'s onwer is 8001, and it has been synchronized to node 8000. Also, "Success: 1,  Fail: 1" of 8001's log means synchronization is successful with node 8000 but failure with node 8002, since it's closed.
-
-##8. Restart the node you stopped
-
-Now let's restart the node 8002 and set the membershipQuorum=2:
+Now let's restart the node 8002 and set the membershipQuorum = 2:
 
 ```
 % java -Dxenon.NodeState.membershipQuorum=2 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
-```
-% curl http://localhost:8000/core/node-groups/default
-```
-
 You'll see the node 8002's status is AVAILABLE.
 
-##9. Demonstrate synchronization
+```
+% curl http://localhost:8000/core/node-groups/default
+
+{
+  ...
+  "nodes": {
+    "hostAtPort8000": {
+      "status": "AVAILABLE",
+      "membershipQuorum": 2,
+      ...
+    },
+    "hostAtPort8001": {
+      "status": "AVAILABLE",
+      "id": "hostAtPort8001",
+      "membershipQuorum": 2,
+      ...
+    },
+    "hostAtPort8002": {
+      "status": "AVAILABLE",
+      "id": "hostAtPort8002",
+      "membershipQuorum": 2,
+      ...
+    }
+  },
+  ...
+}
+```
+
+##9. Verify synchronization
 
 Send a GET to the example task factory of the restarted node, that all the tasks are there:
 
 ```
-% curl http://localhost:8002/core/example-tasks
+% curl http://localhost:8000/core/example-tasks?expand
 
 {
   "documentLinks": [
-    "/core/example-tasks/97b284e1-5b81-46b6-93c0-181ea346fb2d",
-    "/core/example-tasks/538d8398-0ca1-4af2-b5f6-9be30da56081",
-    "/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb"
+    "/core/example-tasks/task-1",
+    "/core/example-tasks/task-2",
+    "/core/example-tasks/task-3"
   ],
-  "documentCount": 3,
-  "queryTimeMicros": 1997,
-  "documentVersion": 0,
-  "documentUpdateTimeMicros": 0,
-  "documentExpirationTimeMicros": 0,
-  "documentOwner": "hostAtPort8002"
-}
-```
-
-And the same with node 8000, 8001.
-
-Check each task service's status, they are all finished.
-
-For example:
-
-```
-% curl http://localhost:8002/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb
-
-{
-  "taskLifetime": 300,
-  "exampleQueryTask": {
-    "taskInfo": {
-      "stage": "FINISHED",
-      "isDirect": true,
-      "durationMicros": 999
+  "documents": {
+    "/core/example-tasks/task-3": {
+      ...
+      "taskInfo": {
+        "stage": "FINISHED",
+        "isDirect": false
+      },
+      ...
+      "documentOwner": "hostAtPort8000"
     },
-    ...
+    "/core/example-tasks/task-1": {
+      ...
+      "taskInfo": {
+        "stage": "FINISHED",
+        "isDirect": false
+      },
+      ...
+      "documentOwner": "hostAtPort8001"
+    },
+    "/core/example-tasks/task-2": {
+      ...
+      "taskInfo": {
+        "stage": "FINISHED",
+        "isDirect": false
+      },
+      ...
+      "documentOwner": "hostAtPort8000"
+    }
   },
-  "taskInfo": {
-    "stage": "FINISHED",
-    "isDirect": false
-  },
-  "documentSelfLink": "/core/example-tasks/b7d49734-903e-4b24-9326-0125866ccefb",
-  "documentOwner": "hostAtPort8001",
   ...
 }
 ```
+
+Check each task service's status, they are all finished.
+
+#Summary
+
+In this tutorial, we have introduced the following key concepts:
+
+* Service host arguments
+
+
+* Synchronization behaviors
+
+
+* Membership quorum
