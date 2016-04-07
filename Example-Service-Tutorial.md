@@ -3,6 +3,8 @@ This simple tutorial describes a very simple service, and its factory (the way t
 
 # Prerequisites
 
+ * [overview slides](https://github.com/vmware/xenon/blob/master/contrib/docs/Xenon.pptx)
+
  * [programming model](./Programming-Model) for an overview of the Xenon API surface and model.
 
  * [debugging and troubleshooting](./Debugging-and-Troubleshooting#starting-a-host) for more details on starting Xenon, including starting multiple, replicated hosts.
