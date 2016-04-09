@@ -133,6 +133,10 @@ At this point, you'll be able to see the release on the sonatype web site
 It will take a while for it to make it to Maven Central, but they'll eventually be there too
   * [Xenon Release Artifacts on Maven Central](https://repo1.maven.org/maven2/com/vmware/xenon/)
 
+Simple script to check xenon artifacts are available(downloadable) in maven central.
+  * https://gist.github.com/ttddyy/cfc8b94f1128566f54a0a8d7bdfce6e9
+
+
 Done!
 
 Links:
