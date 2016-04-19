@@ -395,7 +395,7 @@ You'll see the node 8002's status is AVAILABLE.
 Send a GET to the example task factory of the restarted node, that all the tasks are there:
 
 ```
-% curl http://localhost:8000/core/example-tasks?expand
+% curl http://localhost:8002/core/example-tasks?expand
 
 {
   "documentLinks": [
