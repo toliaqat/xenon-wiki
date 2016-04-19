@@ -334,6 +334,9 @@ Here are a couple of important points that the `TaskService` base class takes ca
 1. As soon as it does a _quick_ validation, we send our response to the POST by calling _complete()_ on the operation. After that, we will initialize our state and PATCH ourselves. Note that if the client _immediately_ does a GET on the service, they may not see the initialized state yet. This isn't likely in practice for clients, but it may happen for in-process clients. 
 2. Once the state is initialized, we immediately do a self PATCH. That PATCH will trigger the first step of work, and future PATCH's will continue the work. We do the self PATCH before doing any work to ensure that our state is updated.
 3. `TaskService` provides reasonable defaults for validation and initialization of the base `TaskServiceState`-related data (all of which can be easily overridden).
+4. Note that special care should be taken for restartable tasks: A service host might stop, restart, which will initiate
+restart of all persisted services. Task services should check the state passed in the POST in handleStart, and only self patch if the supplied state is in the proper stage. For example, if the task is already marked as **FINISHED**, there is no
+need to self patch and kick of the state machine again.
 
 `TaskService.java` , where `T` is the class of the actual task's state (such as `ExampleTaskService.ExampleTaskServiceState`)
 ```java
@@ -351,6 +354,15 @@ public void handleStart(Operation taskOperation) {
     }
     taskOperation.complete();
 
+    if (!ServiceHost.isServiceCreate(taskOperation)
+                || (task.taskInfo != null && !TaskState.isCreated(task.taskInfo))) {
+        // Skip self patch to STARTED if this is a restart operation, or, task stage is
+        // other than CREATED.
+        // Tasks that handle restart should override handleStart and decide if they should
+        // continue processing on restart, or fail
+        return;
+    }
+
     initializeState(task, taskOperation);
     sendSelfPatch(task);
 }
@@ -360,12 +372,19 @@ public void handleStart(Operation taskOperation) {
  * implementation to also validate their {@code SubStage}.
  */
 protected T validateStartPost(Operation taskOperation) {
+    T task = getBody(taskOperation);
+
     if (!taskOperation.hasBody()) {
         taskOperation.fail(new IllegalArgumentException("POST body is required"));
         return null;
     }
 
-    T task = getBody(taskOperation);
+    if (!ServiceHost.isServiceCreate(taskOperation)) {
+        // we apply validation only on the original, client issued POST, not operations
+        // caused by host restart
+        return task;
+    }
+
     if (task.taskInfo != null) {
         taskOperation.fail(new IllegalArgumentException(
                 "Do not specify taskBody: internal use only"));
@@ -402,15 +421,19 @@ As the javadoc mentions, most task implementations will want to override the `va
 protected ExampleTaskServiceState validateStartPost(Operation taskOperation) {
     ExampleTaskServiceState task = super.validateStartPost(taskOperation);
 
-    if (task.subStage != null) {
-        taskOperation.fail(
-                new IllegalArgumentException("Do not specify subStage: internal use only"));
-        return null;
-    }
-    if (task.exampleQueryTask != null) {
-        taskOperation.fail(
+    if (ServiceHost.isServiceCreate(taskOperation)) {
+        // apply validation only for the initial creation POST, not restart. Alternatively,
+        // this code can exist in the handleCreate method
+        if (task.subStage != null) {
+            taskOperation.fail(
+                    new IllegalArgumentException("Do not specify subStage: internal use only"));
+            return null;
+        }
+        if (task.exampleQueryTask != null) {
+            taskOperation.fail(
                 new IllegalArgumentException("Do not specify taskBody: internal use only"));
-        return null;
+            return null;
+        }
     }
     if (task.taskLifetime != null && task.taskLifetime <= 0) {
         taskOperation.fail(
