@@ -48,11 +48,11 @@ Here are the main steps for the demonstration:
 We use three ports: 8000, 8001, 8002 for testing, so open three terminals and use the commands to start each node:
 
 ```
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8000 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8000 
+% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8000 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8000 
 
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8001
+% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8001
 
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
+% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
 Here are the explanations for each argument.
@@ -306,7 +306,9 @@ _File:_ task-3.body
 % curl -s -X POST -d@task-3.body http://localhost:8000/core/example-tasks -H "Content-Type: application/json"
 ```
 
-The terminal shows no response and the process is blocked, because quorum is still set to 3 and only 2 nodes remain, consensus operations and synchronization can't be executed. Creating this new task service fails, so just Ctrl-C to exit.
+The terminal shows no response and the process is blocked, because quorum is still set to 3 and only 2 nodes remain, consensus operations and synchronization can't be executed. 
+
+If wait for more than 60s, this POST request will expired, otherwise, it will work after the quorum is relaxed.
 
 ##6. Relax the quorum
 
@@ -332,7 +334,7 @@ Now we can see node 8000 and 8001's membershipQuorum is 2 and 8002's is still 3.
 
 ##7. Verify task creation with relaxed quorum
 
-And we also notice that the previous failure request (create a new task service) works automatically. The service "task-3" has been created: 
+If wait for less than 60s, the POST request to create task-3 will still work automatically. Now the service task-3 has been created: 
 
 ```
 % curl http://localhost:8000/core/example-tasks
@@ -357,7 +359,7 @@ And we also notice that the previous failure request (create a new task service)
 Now let's restart the node 8002 and set the membershipQuorum = 2:
 
 ```
-% java -Dxenon.NodeState.membershipQuorum=2 -cp xenon-host/target/xenon-host-0.7.6-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
+% java -Dxenon.NodeState.membershipQuorum=2 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
 You'll see the node 8002's status is AVAILABLE.
@@ -392,7 +394,7 @@ You'll see the node 8002's status is AVAILABLE.
 
 ##9. Verify synchronization
 
-Send a GET to the example task factory of the restarted node, that all the tasks are there:
+Send a GET to the example task factory of the restarted node, we can see all three task services are created. Check each task service's status, they are all finished:
 
 ```
 % curl http://localhost:8002/core/example-tasks?expand
@@ -435,8 +437,6 @@ Send a GET to the example task factory of the restarted node, that all the tasks
   ...
 }
 ```
-
-Check each task service's status, they are all finished.
 
 #Summary
 
