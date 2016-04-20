@@ -67,7 +67,7 @@ We can specify the class path "com.vmware.xenon.services.common.ExampleServiceHo
 
 ###1.3 Specify sandbox
 
-We are going to provide an argument for the sandbox (where all service documents are stored), instead of relying on the Java temporary directory. When the host is not running, you can delete the sandbox if you need to get back to "factory settings".
+We are going to provide an argument "--sandbox=/tmp/xenon" for the sandbox (where all service documents are stored), instead of relying on the Java temporary directory. When the host is not running, you can delete the sandbox if you need to get back to "factory settings".
 
 ###1.4 Specify peer nodes
 
