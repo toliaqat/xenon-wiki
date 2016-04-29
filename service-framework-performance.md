@@ -52,9 +52,17 @@ Note Xenon will pause services to disk and remove all runtime cost, when a servi
 
 The build verification tests used during maven build and test phases can also be used for performance analysis, by supplying various properties that modify service, request and other counts.
 
+### In process client, in memory (not indexed) service
 `
 MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryServicePut -Dxenon.requestCount=500000
 `
+
+### In process client, over OS sockets, HTTP+JSON, in memory (not indexed) service
+`
+MAVEN_OPS="-Xmx8G" mvn test -Dtest=NettyHttpServiceClientTest#throughputPutRemote -Dxenon.requestCount=1000 -Dxenon.serviceCount=128 -Dxenon.isStressTest=true
+`
+**Note** to set the property isStressTest=true, otherwise the test framework will timeout requests
+
 ## Update Operation Throughput
 
 ### Single node
@@ -64,7 +72,7 @@ The parameters supplied to the tests are serviceCount=128, and updateCount over 
 
  * In memory service, in process (no socket I/O) (4G limit): 1,000,000 ops/sec
  * In memory service, in process (no socket I/O) (64MB limit): 500,000 ops/sec
- * In memory service, local sockets: 20,000 ops/sec
+ * In memory service, local sockets: 60,000 ops/sec
  * Durable service, in process (no socket I/O) (4G limit): 250,000 ops/sec
  * Durable service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
 The [lucene document index service](./luceneDocumentIndexService#performance) has more details on indexing and query throughput.
