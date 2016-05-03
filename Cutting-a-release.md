@@ -115,6 +115,9 @@ First, [login](https://oss.sonatype.org/#stagingRepositories) and navigate to st
 
 [[images/cut-release/staging-repo.png]]
 
+* If there are multiple staging repositories show up, this might be due to this issue: https://issues.sonatype.org/browse/OSSRH-19485  
+(This happens on PA office network, and we are working on to resolve this limitation)
+
 Next, verify that the correct binaries have been installed:
 
 [[images/cut-release/verify-staging-repo.png]]
