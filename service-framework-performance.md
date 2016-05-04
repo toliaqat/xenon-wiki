@@ -8,6 +8,16 @@ Tests on the loopback interface are used to quantify the HTTP socket processing 
 
 The framework provides an asynchronous HTTP client, with a connection pool. The connection pool flexes to N concurrent connections to the same service host, based on outbound operations, which naturally creates a multi client test case.
 
+## Critical areas
+
+The Xenon I/O pipeline has the following critical areas that require careful baseline and performance analysis before any changes
+ * Indexing / Query - Please see the [lucene index service](LuceneDocumentIndexService) page
+ * Message passing, in process - This page, for in memory, co-located service tests (stateful and stateless)
+ * Network I/O - HTTP / HTTPS / HTTP2 / Websockets, all operations that are routed across nodes. This page
+ * Replication - Related to network and in process message passing.
+
+This [commit](https://github.com/vmware/xenon/commit/57e0b064a11760089520a55e571f124ffd415ce3) indicates the level of testing required for the 3 out of 4 categories above, see commit summary.
+
 ## Environment
 ### Software
 
