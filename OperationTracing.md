@@ -14,13 +14,13 @@ There is a performance penalty to persisting and indexing each operation passed 
 PATCH /core/management HTTP/1.1
 {
   "enable": "START",
-  "documentKind": "com:vmware:dcp:services:common:ServiceHostManagementService:ConfigureOperationTracingRequest"
+  "kind": "com:vmware:xenon:services:common:ServiceHostManagementService:ConfigureOperationTracingRequest"
 }
 ```
 
 Here is a curl example:
 ```
-curl --request PATCH -H "Content-type: application/json" --data '{"enable": "START","documentKind": "com:vmware:dcp:services:common:ServiceHostManagementService:ConfigureOperationTracingRequest"}' http://127.0.0.1:8000/core/management
+curl --request PATCH -H "Content-type: application/json" --data '{"enable": "START","kind": "com:vmware:xenon:services:common:ServiceHostManagementService:ConfigureOperationTracingRequest"}' http://127.0.0.1:8000/core/management
 ```
 Likewise, setting `enable` to `STOP` will disable the service.
 
@@ -184,5 +184,4 @@ Only `SerializedOperation`s are persisted in the Operation Index.  The query `pr
 Similarly, the operations can be traced from the default UI by visiting http://127.0.0.1:8000/core/ui/default#/core/operationIndex. The query results are visualized in a swim-lane chart. Selecting an area in the top part of the swim-lane chart will displayed a zoomed version in the bottom part of the chart. Additionally, placing your mouse over on the operations mapped on the bottom part of the chart will provide additional information for each indexed operation.
 
 ![Operation Tracing](./tracing.png)
-
 
