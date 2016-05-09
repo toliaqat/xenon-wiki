@@ -74,9 +74,9 @@ MAVEN_OPS="-Xmx8G" mvn test -Dtest=NettyHttpServiceClientTest#throughputPutRemot
 **Note** to set the property isStressTest=true, otherwise the test framework will timeout requests
 
 ### In process, 3 independent hosts, over OS sockets, replication with persistance, owner selection
+
 `
 MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestNodeGroupService#replication -Dxenon.testDurationSeconds=1200 -Dxenon.totalOperationLimit=600000 -Dxenon.serviceCount=1000 -Dxenon.updateCount=33  -Dxenon.isStressTest=true
-
 `
 
 The TestNodeGroupService.replication test method should be run with sufficiently large operation limit and test duration.
