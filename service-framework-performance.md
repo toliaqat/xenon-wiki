@@ -79,16 +79,6 @@ MAVEN_OPS="-Xmx8G" mvn test -Dtest=NettyHttpServiceClientTest#throughputPutRemot
 MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestNodeGroupService#replication -Dxenon.testDurationSeconds=1200 -Dxenon.totalOperationLimit=600000 -Dxenon.serviceCount=1000 -Dxenon.updateCount=33  -Dxenon.isStressTest=true
 `
 
-The TestNodeGroupService.replication test method should be run with sufficiently large operation limit and test duration.
-It logs the throughput, per action, at the end of the test:
-`
-[doReplication][Total operations: 630000]
-[Total ops for POST: 9000, Throughput (ops/sec): 4155.109307]
-[Total ops for PATCH: 297000, Throughput (ops/sec): 7587.162317]
-[Total ops for PUT: 297000, Throughput (ops/sec): 8182.927047]
-[Total ops for DELETE: 9000, Throughput (ops/sec): 6023.717383]
-`
-
 ## Update Operation Throughput
 
 ### Single node
@@ -105,5 +95,16 @@ The [lucene document index service](./luceneDocumentIndexService#performance) ha
 
 ### Multiple node
  * Durable, replicated service, 3 nodes (4GB limit): 7,000 PUT ops/sec
+
+The TestNodeGroupService.replication test method should be run with sufficiently large operation limit and test duration.
+It logs the throughput, per action, at the end of the test:
+
+`
+[doReplication][Total operations: 630000]
+[Total ops for POST: 9000, Throughput (ops/sec): 4155.109307]
+[Total ops for PATCH: 297000, Throughput (ops/sec): 7587.162317]
+[Total ops for PUT: 297000, Throughput (ops/sec): 8182.927047]
+[Total ops for DELETE: 9000, Throughput (ops/sec): 6023.717383]
+`
 
 Detailed throughput numbers are available in the continuous integration tests in Jenkins.
