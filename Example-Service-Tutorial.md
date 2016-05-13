@@ -233,7 +233,7 @@ public class ExampleService extends StatefulService {
         // below.
         ExampleServiceState body = getBody(update);
         ExampleServiceState currentState = getState(update);
-        boolean hasStateChanged = Utils.mergeWithState(getDocumentTemplate().documentDescription,
+        boolean hasStateChanged = Utils.mergeWithState(getStateDescription(),
                 currentState, body);
         // update state
 
