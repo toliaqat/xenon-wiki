@@ -3,7 +3,7 @@ The LoaderService is an extension to Xenon native service hosting model, allowin
 The model allows creation of new loader service instances to load services from other locations, including file system, online repository (TBD), etc. 
 
 ## Project 
-The dcp-loader project source code is located at: https://github.com/vmware/dcp/tree/master/dcp-loader
+The xenon-loader project source code is located at: https://github.com/vmware/xenon/tree/master/xenon-loader
 
 ## Loader Service Host
 Custom Service Host is a simple extension of a service host that starts the LoaderService factory service as well as creates the default instance of the LoaderService service
