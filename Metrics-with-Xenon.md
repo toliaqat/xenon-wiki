@@ -15,7 +15,8 @@ Considering all points specified above, we'll address some topics such as optimi
 Storing 10,000 metrics per second must be fast enough otherwise the server might become unresponsive.
 One aspect we should consider is the metric object size, which might have a significant affect on performance.
 Xenon documents shouldn't be too big otherwise it'll have impact indexing performance. 
-In the other hand Xenon actually adds about 300 bytes of data to the each created service, so it might be very costly to create a tiny service. (Every Xenon objects includes several fields like URI, version, timestamp, etc which have more overhead compared to the service fields).
+
+On the other hand Xenon actually adds about 300 bytes of data to the each created service, so it might be very costly to create a tiny service. (Every Xenon objects includes several fields like URI, version, timestamp, etc which have more overhead compared to the service fields).
 
 # Metric Service
 
@@ -28,6 +29,6 @@ Find more about 3x replication: **https://github.com/vmware/xenon/wiki/NodeSelec
 
 Moreover metric service can become quite large (1B services), Xenon persistent services are being cached on node load and on service creation which means a large amount of services will be loaded in memory. To prevent caching of those services we can use **ON_DEMAND_LOAD** service option that will eventually cause idle services to stop shortly after they created and to be removed from cache.
 
-Moreover another significant point, if you'd like to fetch stored metrics with a query then the query will fetch the services directly from Lucene index and thus they won't be loaded into cache, that means fetching services with Xenon query won't affect memory load.
+Another significant point, if you'd like to fetch stored metrics with a query then the query will fetch the services directly from Lucene index and thus they won't be loaded into cache, that means fetching services with Xenon query won't affect memory load.
 
 **WIP** **WIP** **WIP**
