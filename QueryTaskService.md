@@ -465,7 +465,7 @@ please see the [programming model page](./Programming-Model) and
 
 ## OData filter queries
 
-The document index can also be queried using a subset of the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/#4.5) `$filter` specification.  This is to aid in querying interactively without the use of tools like `dcpc` to form `querySpec` documents.  
+The document index can also be queried using a subset of the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/#4.5) `$filter` specification.  This is to aid in querying interactively without the use of tools like `xenonc` to form `querySpec` documents.  
 
 To use OData `$filter` based queries, issue a `GET` on `/core/odata-queries?$filter(...)` with the appropriate filter parameters.  This will result in a direct query task with equivalent an `querySpec`.  The `DIRECT` query has the `EXPAND` option so results will be embedded in the results.
 
@@ -555,13 +555,13 @@ navigating to the previous page of results.
 For the example, first create a set of example documents:
 
 ```sh
-$ for i in {1..2000}; do dcpc post /core/examples --name "doc-${i}"; done
+$ for i in {1..2000}; do xenonc post /core/examples --name "doc-${i}"; done
 ```
 
 Next, create a query task with `resultLimit` set to 100:
 
 ```sh
-$ dcpc <<EOF
+$ xenonc <<EOF
 action: post
 
 path: /core/query-tasks
@@ -646,7 +646,7 @@ the URI of the first page:
 To see the first page of query results, send a GET request to the `nextPageLink`:
 
 ```sh
-$ dcpc get /277da2e8-f2e4-4ad5-9a8a-ae173f47d853
+$ xenonc get /277da2e8-f2e4-4ad5-9a8a-ae173f47d853
 ```
 
 The response will have 100 *documentLinks* and *nextPageLink* set to the URI of the second page:
@@ -724,7 +724,7 @@ $ function getQueryPages() {
   set -e
   link=$1
 
-  nextLink=$(dcpc get $link | jq -r .results | tee $(basename $link).json | jq -r .nextPageLink)
+  nextLink=$(xenonc get $link | jq -r .results | tee $(basename $link).json | jq -r .nextPageLink)
 
   if [ "$nextLink" != "null" ]; then
     getQueryPages $nextLink
