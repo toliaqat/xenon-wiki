@@ -557,11 +557,13 @@ We assume they are run on '/core/examples'.
 `name eq ABC or ( counter eq 10 and keyValues.myKey eq 'myValue' )`
 
 * Not A and Not B
+
 Works with a factory, not directly on OData query service.
 
 `name ne ABC and name ne XYZ`
 
 * Not A or Not B
+
 Works with a factory, not directly on OData query service.
 
 `name ne ABC or counter ne 20`
