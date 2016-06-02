@@ -530,6 +530,62 @@ HTTP/1.1 200 OK
     }
 }
 ```
+#### OData $filter on Factory Services
+
+In addition to `/core/odata-queries`, OData filters can be applied on all
+factory services. Factory service adds an implicit booleanClause to match
+the field `documentKind` with the child service document type.
+
+For example `/core/examples?$filter=name eq ABC` implicitly adds a booleanClause
+matching `documentKind` to `ExampleServiceState`.
+
+#### OData $filter for complex queries
+
+Following examples demonstrate supported combinations with $filter.
+We assume they are run on '/core/examples'.
+
+1) A and Not B
+
+`name eq ABC and counter ne 20`
+
+2) A and ( B or C )
+
+`name eq ABC and ( counter eq 10 or counter eq 20 )`
+
+3) A or ( B and C )
+
+`name eq ABC or ( counter eq 10 and keyValues.myKey eq 'myValue' )`
+
+4) Not A and Not B
+
+* This works with a factory, not directly on OData query service.
+
+`name ne ABC and name ne XYZ`
+
+5) Not A or Not B
+
+* This works with a factory, not directly on OData query service.
+
+`name ne ABC or counter ne 20`
+
+6) A or Not B
+
+This combination is not supported directly. Instead use "A or (C Not B)"
+
+Use `name eq TEST1 or (name eq TEST* and keyValues.myKey ne myValue)`
+when trying to achieve `name eq TEST1 or keyValues.myKey ne myValue`
+
+When combining any NOT sub-clause with OR, the same applies. 
+Even in case of combining Not A and Not B , Not A or Not B
+use it in a combination with AND.
+
+For example
+1) Use A and (Not B and Not C)
+2) Use A and (Not B or Not C)   
+
+They work on Factory service as mentioned in 4, 5 above simply because the `documentKind` clause is added implicitly.
+ 
+Xenon uses Lucene to index and store documents, and it does not support the combination ( A or Not B).       
 ### Using Pagination 
 
 The `resultLimit` field  is used to enable query  results pagination. By
