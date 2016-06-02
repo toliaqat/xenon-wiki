@@ -566,7 +566,7 @@ Works with a factory, not directly on OData query service.
 
 `name ne ABC or counter ne 20`
 
-6) A or Not B
+* A or Not B
 
 This combination is not supported directly. Instead use "A or (C Not B)"
 
