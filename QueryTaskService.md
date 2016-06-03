@@ -484,6 +484,8 @@ The `odata-queries` service supports only a subset of the OData URI specificatio
 | le | Less than or equal | price le 100 |
 | and | Logical and | Price le 200 and Price gt 3.5 |
 | or |Logical or | name eq instance-1 or counter gt 200 |
+| any | Any of | name any 'instance-1;instance-2' |
+| all | All of | tags.item all 'tag1;tag2' |
 | Grouping Operators | | |
 | ( ) | Precedence grouping | (counter gt 200 and counter lt 100) or name eq instance-150 |
 
@@ -543,6 +545,21 @@ matching `documentKind` to `ExampleServiceState`.
 
 Following examples demonstrate supported combinations with $filter.
 We assume they are run on '/core/examples'.
+
+* All of ( A B C )
+
+`tags.item all 'tag1;tag2'`
+
+This translates to `tags.item eq tag1 and tags.item eq tag2`
+
+Note that Xenon stores collections such as Arrays, Lists and Sets with a special postfix ".item".
+If the service document has `Set<String> tags`, use `tags.item`.
+ 
+* Any of ( A B C )
+
+`name any 'ABC;XYZ'`
+
+This translates to `name eq ABC or name eq XYZ`
 
 * A and Not B
 
