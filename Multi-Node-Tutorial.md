@@ -19,13 +19,58 @@ mvn package -DskipTests=true
 ```
 The above should have produced a host jar that we can now start in the terminal. This host will have just core services plus the example factory service (see example tutorial). Now lets start one host, on port 8000. If that port is not available on your system, use a different one.
 ```
-java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8000 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
+java \
+  -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar \
+  --port=8000 \
+  --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
 ```
 At a different terminal, start a second host, on a different port, making sure you supply the proper port in the peerNodes argument:
 ```
-java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
+java \
+  -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar \
+  --port=8001 \
+  --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
 ```
 Notice we started the second host with --port=8001
+
+## Using HTTPS for Network Communication
+
+Xenon provides the option to use HTTPS for Network Communication. This includes both, when a client communicates with a Xenon Host, and when one Xenon host communicates with another Xenon host (for Group Membership, Forwarding or Replication). This option is useful when running Xenon in an environment with untrusted clients that should be blocked from having direct access to a Xenon host.
+
+To setup a Xenon host with HTTPS you will need the following: 
+* An X.509 certificate chain file in PEM format.    
+* A PKCS#8 private key file in PEM format.
+* The password of the private key file (above), if it's password-protected.
+
+Since each Xenon Host acts as both, a Listener for incoming requests and a Client for making requests to other Xenon-hosts, it is important that the X.509 Certificate(s) used for the rest of the Xenon-Hosts, should be registered with either the default trust-store on the machine, or you can create a custom trust-store and use that at Host start up time. 
+
+For prototyping, you can use the certificate files checked-in in Xenon git-repo (below). These files are also used by Xenon tests:
+* /xenon/xenon-common/src/test/resources/ssl/trustedcerts.jks
+* /xenon/xenon-common/src/test/resources/ssl/server.crt
+* /xenon/xenon-common/src/test/resources/ssl/server.pem
+
+Once you have the files created, you can start a Xenon host with HTTPS communication by running the below commands:
+```
+java \
+  -Djavax.net.ssl.trustStore=./xenon-common/src/test/resources/ssl/trustedcerts.jks \
+  -Djavax.net.ssl.trustStorePassword=changeit \
+  -jar xenon-host/target/xenon-host-*-with-dependencies.jar \
+  --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
+  --port=-1 --securePort=8000 \
+  --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
+  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
+```
+At a different terminal, start a second host, on a different port, making sure you supply the proper port in the peerNodes argument:
+```
+java \
+  -Djavax.net.ssl.trustStore=./xenon-common/src/test/resources/ssl/trustedcerts.jks \
+  -Djavax.net.ssl.trustStorePassword=changeit \
+  -jar xenon-host/target/xenon-host-*-with-dependencies.jar \
+  --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
+  --port=-1 --securePort=8001 \
+  --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
+  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
+```
 
 ## Node join at startup
 
@@ -48,7 +93,7 @@ When a node is starting you will see log output:
 
 Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host:
 ```
-java -jar xenon-host/target/xenon-host-0.5.1-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
+java -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
 ```
 
 ## Dynamic join and custom node groups (post-startup)
