@@ -541,6 +541,11 @@ the field `documentKind` with the child service document type.
 For example `/core/examples?$filter=name eq ABC` implicitly adds a booleanClause
 matching `documentKind` to `ExampleServiceState`.
 
+The filter on Factory services has an additional wildcard property name called `ALL_FIELDS`. It is a convenient way to unfold a query to search all indexed fields of document and their sub-fields nested up to 2 levels, excluding the build-in ServiceDocument fields.
+
+For example `/core/examples?$ALL_FIELDS eq ABC` will return all `ExampleServiceState` documents that match `ABC` in their `name` any item of `tags` any key or value of `keyValues` or any other indexed field of this document (excluding the fields of ServiceDocument). If the `ExampleServiceState` contained another complex object, it's properties would also be unfolded.
+Supported operators for a `ALL_FIELDS` query are `eq`, `ne`, `all` and `any`. It can be used in addition with other queries as any other.
+
 #### OData $filter for complex queries
 
 Following examples demonstrate supported combinations with $filter.
