@@ -26,6 +26,13 @@ we are making:
 * Your **clients** will be able to connect to the new node cluster, e.g. you use
   an external load balancer point it to the new node cluster.
 
+#### Authentication/Authorization
+
+If your cluster has enabled AuthN/AuthX services, in order to seamlessly access both nodes, same user(`documentSelfLink`) needs to exist in both node groups.
+For example, if `example@vmware.com` user with `/core/authz/user-groups/example@vmware.com` documentSelfLink exists in old node group, then same user `/core/authz/user-groups/example@vmware.com` needs to exists in new node group.
+As long as user documentSelfLinks are same, auth token for the user works for both node groups.
+
+
 ## Procedure
 The side-by-side upgrade will proceed in the following steps:
 
