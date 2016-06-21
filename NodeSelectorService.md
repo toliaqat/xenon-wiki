@@ -13,7 +13,7 @@ The description of the hashing algorithm can be found [here](./leaderElectionAnd
 
 ```
 /core/node-selectors/default
-/core/node-selectors/sha1-hash-3x
+/core/node-selectors/default-3x
 ```
 
 ## Selector instances
@@ -32,7 +32,7 @@ The limited replication selector (or any custom selector) is associated with a s
         toggleOption(ServiceOption.REPLICATION, true);
         toggleOption(ServiceOption.INSTRUMENTATION, true);
         toggleOption(ServiceOption.OWNER_SELECTION, true);
-        super.setPeerNodeSelector(ServiceUriPaths.SHA1_3X_NODE_SELECTOR);
+        super.setPeerNodeSelector(ServiceUriPaths.DEFAULT_3X_NODE_SELECTOR);
     }
 
 ```
