@@ -14,16 +14,18 @@ This page contains a few best practices for modeling metrics in Xenon.
 Each metric / stat / log item can be viewed as a document, that is created through a POST to a factory. 
 
 For example consider a factory listening on
-`
-/metrics/firewall-events
-`
 
-and then a client can add a new item using a POST. 
-`
+```
+/metrics/firewall-events
+```
+
+and then a client can add a new item using a POST:
+
+```
 POST /metrics/firewall-events
 {"documentSelfLink":"item0","sourceUri":"http://somehost.com:8000","eventTimeMillis":"1466621098568",...}
 
-`
+```
 ## Using PATCH on the same link instead of POST
 
 Xenon has significantly better throughput for updates on a already created document, vs creating it for the first time. This is because we can avoid some index existence checks. For example on the same system, with a SSD drive, we can do 300,000 indexed PUTs / sec, vs 60,000 POSTs / sec.
@@ -32,16 +34,19 @@ So, to model the same metrics as above, you can simple use the same self link, b
 
 Example:
  * Create the fixed link once, using the fixed hint "event-stream"
-`
+
+```
 POST /metrics/firewall-events
 {"documentSelfLink":"event-stream","sourceUri":"http://somehost.com:8000","eventTimeMillis":"1466621088568",...}
-`
+```
 
  * Append the next metric, as a new version, by using put
-`
+
+```
 PUT /metrics/firewall-events/event-stream
 {"sourceUri":"http://newhost.com:8000","eventTimeMillis":"1466621098568",...}
-`
+```
+
 # Recommended Service Options 
 
 The service representing the metric item should be marked with:
