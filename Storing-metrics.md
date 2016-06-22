@@ -19,3 +19,6 @@ Metrics are often not considered critical data so the overhead of replicating th
 
 # Limit retention of raw data
 The amount of metrics collected over time can be huge, hence it is recommended to use an aggregation & expiration approach: set the documentExpirationTime on stored metrics (e.g. for up to 1 day) an aggregate in units (e.g. hourly, daily, weekly, etc.)
+
+# Stop metrics right after creation
+Xenon cache will stop ON_DEMAND_LOAD services after a period of inactivity in case of memory pressure, however if your incoming metrics rate is particularly high you shouldn't wait for this mechanism to kick-in - consider stopping a metric service right after its creation. That will remove its memory footprint from the host immediately.
