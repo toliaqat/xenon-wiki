@@ -1,13 +1,14 @@
 # Overview
 
-This is a mini tutorial explaining how to store metrics with Xenon (based on Lucene datastore), mainly designed for those who intend to create and handle large amount of services using the Xenon framework.
+Some times you need to store time-series data such as metrics in Xenon. This kind of data has some unique charectaristics:
+* You often need to store a lot of metrics (over time)
+* Each metric data is typically very small
+* Most of the metrics are never or seldom read - a small portion of them need to be fetched on-demand for some analysis
+* The data is not considered critical - losing some of it in case of a catastrophic failure is typically considered OK
+* Metrics are often aggregated so that the size of the raw data can be kept reasonable
 
-There are existing open source and proprietary databases for storing metrics and specifically time series metrics such as: ElasticSearch(based on Lucene), InfluxDB etc.
+This page contains a few best practices for modeling metrics in Xenon.
 
-There are many use cases for storing metrics, for example storing performance metrics such as cpu, memory, network. These metrics are mainly used for monitoring a system's health in various kind of loads.
-Storing metrics usually require handling quite a decent amount of data streamed in a high volume. 10,000 to 50,000 data points per second aren't something unusual. The collected data is mostly relevant on high loads so we need to be sure that storing and searching will work at critical time with high load.
-
-Considering all points specified above, we'll address some topics such as optimizing metric structure, efficient storing, and general tweaking aspects, in order to meet the conditions that the system should support.
 
 # Metric Structure
 
