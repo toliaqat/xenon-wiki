@@ -2,7 +2,26 @@
 
 This document provides suggestions for how to setup xenon based application system in various use cases.
 
-## Hot Standby with different node group
+----
+
+## Blue/Green deployment
+
+TBD
+
+see [[Side-by-Side-Upgrade]]
+
+----
+
+## Multiple GEO system
+
+### Use Case
+- cross datacenter replication (east coast, west coast)
+
+TBD
+
+----
+
+## Active/Standby with different node group
 
 ### Scenario
 Two node groups: ACTIVE and STANDBY.
@@ -28,8 +47,7 @@ Subscribe to a service, then manually replicate to a service associated with the
 
 ### Scenario
 
-### Use Case
-- cross datacenter replication (east coast, west coast)
+
 
 
 ----
