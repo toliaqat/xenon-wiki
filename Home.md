@@ -14,6 +14,7 @@
   * [Authentication and Authorization Tutorial](./Authentication-And-Authorization-Tutorial)
   * [Task Service Tutorial](./Task-Service-Tutorial) Task services manage long-running tasks
   * [Hosting Modern UI Tutorial](./HostYourUi) How to package HTML5/JS UI content and have xenon serve it
+  * [Time series and event data Tutorial](./Storing-metrics) Best practices for storing metrics or supporting high ingestion rate for events / logs / stats
   * [Multiple Node Tutorial](./Multi-Node-Tutorial) Simple example of on how to start N xenon hosts, have them join each other, and verify service and state replication
   * [Restartable Highly Available Task Tutorial](./Highly-Available-Task-Tutorial) Advanced tutorial on core xenon concepts regarding high availability, consensus, restartable work flows
 * [Developer guide](./Developer-Guide) - How to set up your development environment, build & run tests.
