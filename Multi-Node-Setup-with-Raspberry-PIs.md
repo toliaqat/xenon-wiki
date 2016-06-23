@@ -1,5 +1,5 @@
-![](https://lh3.googleusercontent.com/-7ysWshxfHjI/V2uKeeqz7CI/AAAAAAAAKM0/HwbQ1dzzbeMei7L9T22t2ExPVx6fOyixQCL0B/w2620-h1662-no/DSC_1462.JPG)
 ![](https://lh5.googleusercontent.com/-Y_WkxINFo2s/V2uKgMIGZ3I/AAAAAAAAKMw/cB-8XUCIxxw-M1XsGdvNt1OEN3EynJMawCL0B/w2618-h1546-no/DSC_1466.JPG)
+![](https://lh3.googleusercontent.com/-7ysWshxfHjI/V2uKeeqz7CI/AAAAAAAAKM0/HwbQ1dzzbeMei7L9T22t2ExPVx6fOyixQCL0B/w2620-h1662-no/DSC_1462.JPG)
 
 One of the design goals for Xenon is the ability to run in low-cost, memory-constrained environments. To verify this, we have setup a Xenon cluster on 5 Raspberry PIs at VMware that is integrated with Xenon CI and gets used to run Xenon multi-node tests.
 
