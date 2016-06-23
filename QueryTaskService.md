@@ -368,11 +368,11 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
             {
               "term": {
                 "range": {
-                  "percisionStep": "4",
+                  "precisionStep": "4",
                   "isMaxInclusive": "false",
                   "isMinInclusive": "false",
-                  "max": "123.21",
-                  "min": "123.2",
+                  "max": 123.21,
+                  "min": 123.2,
                   "type": "DOUBLE"
                 },
                 "matchType": "TERM",
@@ -398,11 +398,11 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
                 "propertyName": "longValue",
                 "range": {
                     "type": "LONG",
-                    "min": "10.0",
-                    "max": "990.0",
+                    "min": 10.0,
+                    "max": 990.0,
                     "isMinInclusive": "false",
                     "isMaxInclusive": "false",
-                    "percisionStep": "2147483647"
+                    "precisionStep": "2147483647"
                 }
             }
         }
@@ -420,11 +420,11 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
                 "propertyName": "doubleValue",
                 "range": {
                     "type": "DOUBLE",
-                    "min": "123.0",
-                    "max": "173.0",
+                    "min": 123.0,
+                    "max": 173.0,
                     "isMinInclusive": "true",
                     "isMaxInclusive": "false",
-                    "percisionStep": "2147483647"
+                    "precisionStep": "2147483647"
                 }
             }
         }
