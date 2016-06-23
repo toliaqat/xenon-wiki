@@ -12,7 +12,7 @@ see [[Side-by-Side-Upgrade]]
 
 ----
 
-## Multiple GEO system
+## Multiple Geo system
 
 ### Use Case
 - cross datacenter replication (east coast, west coast)
