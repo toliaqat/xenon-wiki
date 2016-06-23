@@ -27,7 +27,9 @@ Once this is done, delete the below two files and reboot the raspberry pi:
 * /var/lib/dhcpcd5/dhcpcd-eth0.lease
 
 ### Setting up NTP
-When running a Xenon cluster, it is _critical_ that all nodes are in-sync with respect to Time. Since a Raspberry Pi does not have a system clock, you will have to rely on NTP or something similar to keep the time updated on the PI. Raspbian Jessie already has NTP installed on it. In-addition we also installed ntpdate through: `apt-get install ntpdate`. NTP relies on UDP port 123, so make sure the port is available on your network and is not blocked by Firewall. If the port is blocked, NTP will not will be able to update the time locally. Also, update the ntp pool servers appropriately based on your location. This can be done by updating the file under `/etc/ntp.conf`. For US, the servers should be set to:
+When running a Xenon cluster, it is important that all nodes are within some time epsilon (order of minutes) in respect to wall clock time. The replication and consensus *does not* rely on timestamps, but higher level validation methods, do use time difference between nodes as an additional sanity check on node stability and availability.
+
+Since a Raspberry Pi does not have a system clock, you will have to rely on NTP or something similar to keep the time updated on the PI. Raspbian Jessie already has NTP installed on it. In-addition we also installed ntpdate through: `apt-get install ntpdate`. NTP relies on UDP port 123, so make sure the port is available on your network and is not blocked by Firewall. If the port is blocked, NTP will not will be able to update the time locally. Also, update the ntp pool servers appropriately based on your location. This can be done by updating the file under `/etc/ntp.conf`. For US, the servers should be set to:
 * server 0.us.pool.ntp.org
 * server 1.us.pool.ntp.org
 * server 2.us.pool.ntp.org
