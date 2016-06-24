@@ -589,7 +589,72 @@ private void makeRole() {
 }
 ```
 
-# 5.0 Commonly asked questions
+# 5.0 AuthorizationSetupHelper Usage
+
+This section outlines some basic usage around [AuthorizationSetupHelper.java](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/common/AuthorizationSetupHelper.java) class.
+
+* Create an administrative user:
+
+```java
+AuthorizationSetupHelper.create()
+    .setHost(this)
+    .setUserEmail(this.args.adminUser)
+    .setUserPassword(this.args.adminUserPassword)
+    .setIsAdmin(true)
+    .start();
+```
+
+* Create a non-administrative user that can access ExampleService documents:
+
+```java
+AuthorizationSetupHelper.create()
+    .setHost(this)
+    .setUserEmail(this.args.exampleUser)
+    .setUserPassword(this.args.exampleUserPassword)
+    .setIsAdmin(false)
+    .setDocumentKind(Utils.buildKind(ExampleServiceState.class))
+    .start();
+```
+
+* To include a set of services using their URI path or to create a role for a stateless service:
+
+```java
+AuthorizationSetupHelper.create()
+    .setHost(this)
+    .setUserEmail(this.args.exampleUser)
+    .setUserPassword(this.args.exampleUserPassword)
+    .setIsAdmin(false)
+    .setDocumentLink(ExampleFactoryService.SELF_LINK))
+    .start();
+```
+
+* Create a role for a stateless service using well known group and role names:
+
+```java
+AuthorizationSetupHelper.create()
+    .setHost(this)
+    .setUserSelfLink(ServiceUriPaths.CORE_AUTHZ_GUEST_USER)
+    .setDocumentLink(ServiceUriPaths.SWAGGER)
+    .setUserGroupName(GUEST_USER_GROUP)
+    .setResourceGroupName(GUEST_RESOURCE_GROUP)
+    .setRoleName(GUEST_ROLE)
+    .setCompletion(authCompletion)
+    .setupRole();
+```
+
+* Create a role for a stateless service using user and resource group queries:
+
+```java
+AuthorizationSetupHelper.create()
+    .setHost(this)
+    .setUserGroupQuery(userQuery)
+    .setResourceQuery(resourceQuery)
+    .setRoleName(GUEST_ROLE)
+    .setCompletion(authCompletion)
+    .setupRole();
+```
+
+# 6.0 Commonly asked questions
 
 ## Is it possible to have authentication without authorization?
 No: authentication and authorization go hand-in-hand. Note that you create users with full access to all services, as we did above.
@@ -600,5 +665,5 @@ No. See the examples above.
 ## How does authorization for helpers (like /stats) work?
 For a service like /foo, there are several helpers, like /foo/stats and /foo/config. These helper URIs have the same authorization policy as the base URI (/foo in this case). If a user can do a GET against /foo, they can also do a GET against /foot/stats.
 
-# 6.0 More Information
+# 7.0 More Information
 * [Authentication and Authorization Design](./Authentication-and-Authorization-Design)
