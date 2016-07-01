@@ -7,6 +7,7 @@ This tutorial will walk through starting a couple of xenon hosts, each in their 
 
 * [Example Tutorial](./Example-Service-Tutorial)
 * [Xenon Clustering deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx)
+* [Replication and Synchronization Algorithms](./Leader-Election-And-Replication-Design)
 * [Multi node test setup, with Raspberry PIs!](./Multi-Node-Setup-with-Raspberry-PIs)
 
 # Starting a host
