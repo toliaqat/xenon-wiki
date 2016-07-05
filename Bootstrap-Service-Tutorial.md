@@ -2,7 +2,7 @@
 
 In multi node environment, it is essential to perform certain logic only once in entire cluster.
 Once the logic is executed, node group change such as adding/deleting/restarting nodes should NOT run the same logic again.  
-This tutorial shows how to create one time execution service in entire cluster, calling it as a bootstrap service.
+This tutorial shows how to create one time execution service in entire cluster, calling it a "bootstrap" service.
 
 ## Use Case
 
@@ -229,7 +229,7 @@ public ServiceHost start() throws Throwable {
 
     // -snip- starting services...
 
-    BootstrapService.performWhenReady(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR, BootstrapService.FACTORY_LINK);
+    BootstrapService.startTask(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR, BootstrapService.FACTORY_LINK);
 
     return this;
 }
