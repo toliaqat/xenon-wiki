@@ -218,7 +218,7 @@ For example, the service information needs to be available after shutting down a
 POST request to the factory needs to be issued.
 The triggering code will be usually placed in your `ServiceHost` implementation for starting the node.
 
-For example, in `ExampleServiceHost`, `start()` can call `BootstrapService.performWhenReady` once all services are created.
+For example, in `ExampleServiceHost`, `start()` can call `BootstrapService.startTask` once all services are created.
 
 ```java
 @Override
@@ -235,5 +235,5 @@ public ServiceHost start() throws Throwable {
 }
 ```
 
-When other nodes start up, it also calls `BootstrapService.performWhenReady()`.
+When other nodes start up, it also calls `BootstrapService.startTask()`.
 Since the service is annotated as *IDEMPOTENT_POST*, the POST call will be converted to the PUT, then get discarded by the `handlePut()` implementation.
