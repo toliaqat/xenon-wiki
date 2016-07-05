@@ -1,5 +1,3 @@
-**_working in progress_**
-
 # Overview
 
 In multi node environment, it is essential to perform certain logic only once in entire cluster.
@@ -15,21 +13,48 @@ This tutorial shows how to create one time execution service in entire cluster, 
 
 # Bootstrap Service
 
+_code: [SampleBootstrapService.java](https://github.com/vmware/xenon/tree/master/xenon-samples/src/main/java/com/vmware/xenon/services/samples/SampleBootstrapService.java)_
+
+
 ```java
-public class BootstrapService extends StatefulService {
+/**
+ * Demonstrate one-time node group setup(bootstrap).
+ *
+ * This service is guaranteed to be performed only once within entire node group, in a consistent
+ * safe way. Durable for owner node or even all nodes restart.
+ */
+public class SampleBootstrapService extends StatefulService {
 
     public static final String FACTORY_LINK = ServiceUriPaths.CORE + "/bootstrap";
     private static final String ADMIN_EMAIL = "admin@vmware.com";
 
     public static FactoryService createFactory() {
-        return FactoryService.create(BootstrapService.class);
+        return FactoryService.create(SampleBootstrapService.class);
     }
 
-    //
-    // Call this in your Host.start() to trigger the service creation.
-    //   BootstrapService.performWhenReady(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR, BootstrapService.FACTORY_LINK);
-    //
-    public static void performWhenReady(ServiceHost host, String selectorPath, String factoryLink) {
+    /**
+     * POST to a fixed self link that starts an initialization task.
+     *
+     * If the task is already in progress, or it has completed, the POST will be ignored.
+     *
+     * This method can be called at your {@link ServiceHost#start()} to trigger the task
+     * at node start up.
+     * The call will happen in every node start, but service options and implementation guarantees
+     * actual logic will be performed only once within entire node group.
+     *
+     * Example how to call this method:
+     * <pre>
+     * {@code
+     *     SampleBootstrapService.startTask(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR,
+     *                                        SampleBootstrapService.FACTORY_LINK);
+     * }
+     * </pre>
+     *
+     * @param host a service host
+     * @param selectorPath node selector url path
+     * @param factoryLink url path to check the service availability in node group
+     */
+    public static void startTask(ServiceHost host, String selectorPath, String factoryLink) {
         CompletionHandler ch = (o, e) -> {
             if (e != null) {
                 // service is not yet available, reschedule
@@ -39,14 +64,14 @@ public class BootstrapService extends StatefulService {
                     throw new IllegalStateException("interrupted", e1);
                 }
 
-                performWhenReady(host, selectorPath, factoryLink);
+                startTask(host, selectorPath, factoryLink);
                 return;
             }
 
-            // create service
+            // create service with fixed link
             ServiceDocument doc = new ServiceDocument();
-            doc.documentSelfLink = "preparation-task";  // use fixed link
-            Operation.createPost(host, BootstrapService.FACTORY_LINK)
+            doc.documentSelfLink = "preparation-task";
+            Operation.createPost(host, SampleBootstrapService.FACTORY_LINK)
                     .setBody(doc)
                     .setReferer(host.getUri())
                     .setCompletion((oo, ee) -> {
@@ -63,7 +88,7 @@ public class BootstrapService extends StatefulService {
         NodeGroupUtils.checkServiceAvailability(ch, host, factoryLink, selectorPath);
     }
 
-    public BootstrapService() {
+    public SampleBootstrapService() {
         super(ServiceDocument.class);
         toggleOption(ServiceOption.IDEMPOTENT_POST, true);
         toggleOption(ServiceOption.PERSISTENCE, true);
@@ -73,9 +98,6 @@ public class BootstrapService extends StatefulService {
 
     @Override
     public void handleStart(Operation post) {
-
-        boolean isServiceCreate = ServiceHost.isServiceCreate(post);
-        logSevere("START CALLED. isServiceCreate=" + isServiceCreate);
 
         if (!ServiceHost.isServiceCreate(post)) {
             // do not perform bootstrap logic when the post is NOT from direct client, eg: node restart
@@ -88,8 +110,16 @@ public class BootstrapService extends StatefulService {
 
     @Override
     public void handlePut(Operation put) {
-        logWarning("PUT has called. Discarding the request.");
-        put.complete();  // discard PUT request, or make operation fail
+
+        if (put.hasPragmaDirective(Operation.PRAGMA_DIRECTIVE_POST_TO_PUT)) {
+            // converted PUT due to IDEMPOTENT_POST option
+            logInfo("Task has already started. Ignoring converted PUT.");
+            put.complete();
+            return;
+        }
+
+        // normal PUT is not supported
+        getHost().failRequestActionNotSupported(put);
     }
 
     private void createAdminIfNotExist(ServiceHost host, Operation post) {
@@ -144,18 +174,16 @@ public class BootstrapService extends StatefulService {
             URI userFactoryUri = UriUtils.buildUri(host, ServiceUriPaths.CORE_AUTHZ_USERS);
             Operation.createPost(userFactoryUri)
                     .setBody(user)
-                    .setReferer(host.getPublicUri())
                     .addRequestHeader(Operation.REPLICATION_QUORUM_HEADER,
                             Operation.REPLICATION_QUORUM_HEADER_VALUE_ALL)
                     .setCompletion(userCreationCallback)
-                    .sendWith(host);
+                    .sendWith(this);
         };
 
         Operation.createPost(queryTaskUri)
                 .setBody(queryTask)
-                .setReferer(host.getPublicUri())
                 .setCompletion(queryUserCallback)
-                .sendWith(host);
+                .sendWith(this);
 
     }
 
