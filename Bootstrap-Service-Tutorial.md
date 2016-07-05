@@ -120,7 +120,7 @@ public class SampleBootstrapService extends StatefulService {
         }
 
         // normal PUT is not supported
-        getHost().failRequestActionNotSupported(put);
+        put.fail(Operation.STATUS_CODE_BAD_METHOD);
     }
 
     private void createAdminIfNotExist(ServiceHost host, Operation post) {
