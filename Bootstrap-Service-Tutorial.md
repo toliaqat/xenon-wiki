@@ -21,7 +21,8 @@ _code: [SampleBootstrapService.java](https://github.com/vmware/xenon/tree/master
  * Demonstrate one-time node group setup(bootstrap).
  *
  * This service is guaranteed to be performed only once within entire node group, in a consistent
- * safe way. Durable for owner node or even all nodes restart.
+ * safe way. Durable for restarting the owner node or even complete shutdown and restarting of all
+ * nodes.
  */
 public class SampleBootstrapService extends StatefulService {
 
