@@ -61,7 +61,7 @@ public class SampleBootstrapService extends StatefulService {
                 // service is not yet available, reschedule
                 host.schedule(() -> {
                     startTask(host, selectorPath, factoryLink);
-                }, 1, TimeUnit.SECONDS);
+                }, host.getMaintenanceIntervalMicros(), TimeUnit.MICROSECONDS);
                 return;
             }
 
