@@ -38,34 +38,39 @@ public class SampleBootstrapService extends StatefulService {
      *
      * If the task is already in progress, or it has completed, the POST will be ignored.
      *
-     * This method can be called at your {@link ServiceHost#start()} to trigger the task
-     * at node start up.
-     * The call will happen in every node start, but service options and implementation guarantees
-     * actual logic will be performed only once within entire node group.
+     * This callback can be registered to
+     *   {@link ServiceHost#registerForServiceAvailability(CompletionHandler, boolean, String...)}.
      *
-     * Example how to call this method:
+     *
+     * The call will happen in every node start, but service options and implementation
+     *  guarantees actual logic will be performed only once within entire node group.
+     *
+     * Example of how to register this callback in ServiceHost:
      * <pre>
      * {@code
-     *     SampleBootstrapService.startTask(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR,
-     *                                        SampleBootstrapService.FACTORY_LINK);
+     *   @Override
+     *   public ServiceHost start() throws Throwable {
+     *     super.start();
+     *     // starts other services
+     *
+     *     registerForServiceAvailability(SampleBootstrapService.startTask(h), true,
+     *                                      SampleBootstrapService.FACTORY_LINK);
+     *     // ...
+     *   }
      * }
      * </pre>
      *
      * @param host a service host
-     * @param selectorPath node selector url path
-     * @param factoryLink url path to check the service availability in node group
      */
-    public static void startTask(ServiceHost host, String selectorPath, String factoryLink) {
-        CompletionHandler ch = (o, e) -> {
+    public static CompletionHandler startTask(ServiceHost host) {
+        return (o, e) -> {
             if (e != null) {
-                // service is not yet available, reschedule
-                host.schedule(() -> {
-                    startTask(host, selectorPath, factoryLink);
-                }, host.getMaintenanceIntervalMicros(), TimeUnit.MICROSECONDS);
+                host.log(Level.SEVERE, Utils.toString(e));
                 return;
             }
 
             // create service with fixed link
+            // POST will be issued multiple times but will be converted to PUT after the first one.
             ServiceDocument doc = new ServiceDocument();
             doc.documentSelfLink = "preparation-task";
             Operation.createPost(host, SampleBootstrapService.FACTORY_LINK)
@@ -81,8 +86,6 @@ public class SampleBootstrapService extends StatefulService {
                     .sendWith(host);
 
         };
-
-        NodeGroupUtils.checkServiceAvailability(ch, host, factoryLink, selectorPath);
     }
 
     public SampleBootstrapService() {
@@ -214,7 +217,29 @@ For example, the service information needs to be available after shutting down a
 POST request to the factory needs to be issued.
 The triggering code will be usually placed in your `ServiceHost` implementation for starting the node.
 
+**v0.9.1~**
+
+`ServiceHost#registerForServiceAvailability` will check remote service availability when target service is configured to be a replicated service.
+
+```java
+public ServiceHost start() throws Throwable {
+     super.start();
+     // -snip- starting services...
+
+     registerForServiceAvailability(SampleBootstrapService.startTask(this), true,
+                                      SampleBootstrapService.FACTORY_LINK);
+     // ...
+}
+```
+
+_The second boolean argument needs to be set to `true` to enable remote availability check_
+
+
+**Before v0.9.1**
+
 For example, in `ExampleServiceHost`, `start()` can call `BootstrapService.startTask` once all services are created.
+
+_ServiceHost:_
 
 ```java
 @Override
@@ -228,6 +253,69 @@ public ServiceHost start() throws Throwable {
     BootstrapService.startTask(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR, BootstrapService.FACTORY_LINK);
 
     return this;
+}
+```
+
+_BootstrapService.startTask:_
+
+```java
+public class SampleBootstrapService extends StatefulService {
+
+    public static final String FACTORY_LINK = ServiceUriPaths.CORE + "/bootstrap";
+
+    /**
+     * POST to a fixed self link that starts an initialization task.
+     *
+     * If the task is already in progress, or it has completed, the POST will be ignored.
+     *
+     * This method can be called at your {@link ServiceHost#start()} to trigger the task
+     * at node start up.
+     * The call will happen in every node start, but service options and implementation guarantees
+     * actual logic will be performed only once within entire node group.
+     *
+     * Example how to call this method:
+     * <pre>
+     * {@code
+     *     SampleBootstrapService.startTask(this, ServiceUriPaths.DEFAULT_NODE_SELECTOR,
+     *                                        SampleBootstrapService.FACTORY_LINK);
+     * }
+     * </pre>
+     *
+     * @param host a service host
+     * @param selectorPath node selector url path
+     * @param factoryLink url path to check the service availability in node group
+     */
+    public static void startTask(ServiceHost host, String selectorPath, String factoryLink) {
+        CompletionHandler ch = (o, e) -> {
+            if (e != null) {
+                // service is not yet available, reschedule
+                host.schedule(() -> {
+                    startTask(host, selectorPath, factoryLink);
+                }, host.getMaintenanceIntervalMicros(), TimeUnit.MICROSECONDS);
+                return;
+            }
+
+            // create service with fixed link
+            ServiceDocument doc = new ServiceDocument();
+            doc.documentSelfLink = "preparation-task";
+            Operation.createPost(host, SampleBootstrapService.FACTORY_LINK)
+                    .setBody(doc)
+                    .setReferer(host.getUri())
+                    .setCompletion((oo, ee) -> {
+                        if (ee != null) {
+                            host.log(Level.SEVERE, Utils.toString(ee));
+                            return;
+                        }
+                        host.log(Level.INFO, "preparation-task triggered");
+                    })
+                    .sendWith(host);
+
+        };
+
+        NodeGroupUtils.checkServiceAvailability(ch, host, factoryLink, selectorPath);
+    }
+
+   // -snip- other methods
 }
 ```
 
