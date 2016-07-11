@@ -234,3 +234,27 @@ _The second boolean argument needs to be set to `true` to enable remote availabi
 
 When other nodes start up, they also call `BootstrapService.startTask()`.  
 Since the service is annotated as *IDEMPOTENT_POST*, the POST call will be converted to the PUT, then get discarded by the `handlePut()` implementation.
+
+### With AuthZ
+
+For authZ enabled system, you have to take AuthZ related services into consideration for `ServiceHost#registerForServiceAvailability`.
+
+- UserService
+- UserGroupService
+- ResourceGroupService
+- RoleService
+
+```java
+public ServiceHost start() throws Throwable {
+   super.start();
+   // -snip- starting services...
+
+   registerForServiceAvailability(SampleBootstrapService.startTask(this), true,
+                                    UserService.FACTORY_LINK,
+                                    UserGroupService.FACTORY_LINK,
+                                    ResourceGroupService.FACTORY_LINK,
+                                    RoleService.FACTORY_LINK,
+                                    SampleBootstrapService.FACTORY_LINK);
+   // ...
+}
+```
