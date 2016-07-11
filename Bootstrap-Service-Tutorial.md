@@ -258,3 +258,9 @@ public ServiceHost start() throws Throwable {
    // ...
 }
 ```
+
+**NOTE:**
+Currently, specifying multiple links will result in multiple completion handler invocations. 
+Therefore, completion handler may need to track number of calls, then perform appropriate logic.
+
+
