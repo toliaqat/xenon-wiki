@@ -57,6 +57,269 @@ To debug high disk or CPU utilization problems look at the following places:
 
 Any values above the active service count are a reason for concern although not always indicating of an issue if the system is truly under load
 
+## Querying the index
+the document index service listens under /core/document-index and is used implicitly by the Xenon framework to manage indexed, durable state. It can be targeted with rich queries by creating a query task through the [query Task Service](./queryTaskService). You can also use it directly for simple prefix queries on document links, to find what services are started, essentially "walking" the URI tree.
+
+The query below returns all services with a path starting with "4":
+```
+curl http://192.168.1.35:8000/core/document-index?documentSelfLink=/4*
+{
+  "documentLinks": [
+    "/46b39b25-739f-428e-b2bd-f896ac10d2e8",
+    "/499bd6b6-3ef8-4a8c-bf0c-6a4e5872a7f2",
+    "/472ee5fb-dcf2-45bd-9b3e-ede0285a19db",
+    "/483c873f-c45e-44cb-a1ec-80f49ebc3abe",
+    "/4561451f-f01b-4caa-b2d9-6dbf68bcabfd",
+    "/4c59994a-04b1-4159-9783-efccbbee0703"
+    ....
+```
+
+This query returns all services with a path starting with "/core/examples/1":
+```
+url http://192.168.1.35:8000/core/document-index?documentSelfLink=/core/examples/4*
+{
+  "documentLinks": [
+    "/core/examples/47e2cb46-5a15-4d71-a717-f0334fa5a37f",
+    "/core/examples/45aa9760-107e-4532-ab23-3f4f854f107f",
+    "/core/examples/4796e909-f0ab-42f2-8f12-7daf3a6fcdef",
+    "/core/examples/44c1c3a8-2d49-41f2-b54b-f86ae5f50352",
+    "/core/examples/4be340ee-969f-4f73-ae3e-01ac3e955426"
+  ],
+  "documents": {},
+  "documentVersion": 0,
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "805d0d3f-0ed4-454c-8711-940fa1ebfb9a"
+}
+```
+
+### Index Stats
+
+Index stats can be enabled either:
+ * at host startup, by creating a instance of the index service and toggling **ServiceOption.INSTRUMENTATION** then calling host.setDocumentIndexService(indexService) before host.start.
+ * dynamically by sending a PATCH with ServiceConfigUpdateRequest with additional options to /core/document-index/config
+
+The index service tracks critical stats to determine how the index is used, performance degradation, etc
+```
+{
+  "kind": "com:vmware:xenon:common:ServiceStats",
+  "entries": {
+    "commitDurationMicros": {
+      "name": "commitDurationMicros",
+      "latestValue": 3,
+      "accumulatedValue": 13372955,
+      "version": 1101840,
+      "lastUpdateMicrosUtc": 1468433599804004,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "maintenanceCompletionDelayedCount": {
+      "name": "maintenanceCompletionDelayedCount",
+      "latestValue": 1074,
+      "accumulatedValue": 0,
+      "version": 1074,
+      "lastUpdateMicrosUtc": 1468433567321000,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "queryDurationMicros": {
+      "name": "queryDurationMicros",
+      "latestValue": 6998,
+      "accumulatedValue": 71920141,
+      "version": 16161,
+      "lastUpdateMicrosUtc": 1468433599838001,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "logHistogram": {
+        "bins": [
+          2509,
+          2,
+          1552,
+          10045,
+          2053,
+          0,
+          ....
+        ]
+      }
+    },
+    "commitCount": {
+      "name": "commitCount",
+      "latestValue": 1101840,
+      "accumulatedValue": 0,
+      "version": 1101840,
+      "lastUpdateMicrosUtc": 1468433599804002,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "indexingDurationMicros": {
+      "name": "indexingDurationMicros",
+      "latestValue": 1,
+      "accumulatedValue": 3922773,
+      "version": 15596,
+      "lastUpdateMicrosUtc": 1468432962868002,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "logHistogram": {
+        "bins": [
+          13540,
+          32,
+          1263,
+          700,
+          61,
+          0,
+          ....
+        ]
+      }
+    },
+    "indexedFieldCount": {
+      "name": "indexedFieldCount",
+      "latestValue": 405709,
+      "accumulatedValue": 0,
+      "version": 15596,
+      "lastUpdateMicrosUtc": 1468432962868007,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "indexSearcherUpdateCount": {
+      "name": "indexSearcherUpdateCount",
+      "latestValue": 2577,
+      "accumulatedValue": 0,
+      "version": 2577,
+      "lastUpdateMicrosUtc": 1468432962876000,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "activePaginatedQueryCount": {
+      "name": "activePaginatedQueryCount",
+      "latestValue": 1,
+      "accumulatedValue": 367872,
+      "version": 1093764,
+      "lastUpdateMicrosUtc": 1468433599803002,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "indexWriterAlreadyClosedFailureCount": {
+      "name": "indexWriterAlreadyClosedFailureCount",
+      "latestValue": 26,
+      "accumulatedValue": 0,
+      "version": 26,
+      "lastUpdateMicrosUtc": 1468425947985002,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "fieldCountPerDocument": {
+      "name": "fieldCountPerDocument",
+      "latestValue": 76,
+      "accumulatedValue": 405709,
+      "version": 15596,
+      "lastUpdateMicrosUtc": 1468432962868008,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "logHistogram": {
+        "bins": [
+          0,
+          15596,
+          ....
+        ]
+      }
+    },
+    "querySingleDurationMicros": {
+      "name": "querySingleDurationMicros",
+      "latestValue": 1,
+      "accumulatedValue": 1172896,
+      "version": 7290,
+      "lastUpdateMicrosUtc": 1468433590556006,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "logHistogram": {
+        "bins": [
+          6325,
+          9,
+          901,
+          50,
+          5,
+          ....
+        ]
+      }
+    },
+    "expiredDocumentForcedMaintenanceCount": {
+      "name": "expiredDocumentForcedMaintenanceCount",
+      "latestValue": 1097221,
+      "accumulatedValue": 0,
+      "version": 1097221,
+      "lastUpdateMicrosUtc": 1468433599803000,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "resultProcessingDurationMicros": {
+      "name": "resultProcessingDurationMicros",
+      "latestValue": 999,
+      "accumulatedValue": 55095663,
+      "version": 16162,
+      "lastUpdateMicrosUtc": 1468433599838002,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "logHistogram": {
+        "bins": [
+          2380,
+          5,
+          3241,
+          9324,
+          1212,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "queryAllVersionsDurationMicros": {
+      "name": "queryAllVersionsDurationMicros",
+      "latestValue": 8000,
+      "accumulatedValue": 8000,
+      "version": 1,
+      "lastUpdateMicrosUtc": 1468362200946003,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "logHistogram": {
+        "bins": [ .... ]
+      }
+    },
+    "indexedDocumentCount": {
+      "name": "indexedDocumentCount",
+      "latestValue": 15596,
+      "accumulatedValue": 15186121153,
+      "version": 1101840,
+      "lastUpdateMicrosUtc": 1468433599804001,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    },
+    "maintenanceCount": {
+      "name": "maintenanceCount",
+      "latestValue": 5959,
+      "accumulatedValue": 0,
+      "version": 5959,
+      "lastUpdateMicrosUtc": 1468433572734003,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat"
+    }
+  },
+  "documentVersion": 0,
+  "documentKind": "com:vmware:xenon:common:ServiceStats",
+  "documentSelfLink": "/core/document-index/stats",
+  "documentUpdateTimeMicros": 0,
+  "documentExpirationTimeMicros": 0,
+  "documentOwner": "7bbbca4a-de4b-4f4b-8a75-9380b28dae53"
+}
+```
+
+### Service document version history
+Durable services have their entire state evolution indexed. This means you can issue a query to document store micro service, using the service selflink as the "key" and retrieve all versions of a service state. This gives the developer a discrete time event history, which can be used to create a timeline of changes and a causal chain. With every state change Xenon also indexes the client URI/IP address and the authorization user.
+
+To look at versions for the same service:
+ * Use a query task and **QueryOption.INCLUDE_ALL_VERSIONS**
+ * directly ask the index service
+  * GET /core/document-index?documentSelflink=<link>&documentVersion=<version>
+
+
+### Index viewer (Lucene Luke)
+Lucene comes with a nice index viewing tool that allows the developer to view what is in the index. The developer should download Luke and point it at the local file directory for the service host
+
+# Logging
+Xenon provides formatted logs that get included in the service host process log files under /var/log. If debugging a host locally, call the <strong>host.toggleDebugMode(true);</strong> method which will enable fine level logging for the host and all services, and delay operation expiration and maintenance.
+
+Process logs are also available through the [log capture service](./ServiceHostLogServiceDocumentation) listening at /core/management/process-log
+
 
 ## Tracing Java code with BTrace
 
@@ -119,56 +382,6 @@ GET /core/operation-index?documentSelfLink=*&expand=documentLinks
 }
 
 ```
-
-
-
-
-## Querying the index
-the document index service listens under /core/document-index and is used implicitly by the Xenon framework to manage indexed, durable state. It can be targeted with rich queries by creating a query task through the [query Task Service](./queryTaskService). You can also use it directly for simple prefix queries on document links, to find what services are started, essentially "walking" the URI tree.
-
-The query below returns all services with a path starting with "4":
-```
-curl http://192.168.1.35:8000/core/document-index?documentSelfLink=/4*
-{
-  "documentLinks": [
-    "/46b39b25-739f-428e-b2bd-f896ac10d2e8",
-    "/499bd6b6-3ef8-4a8c-bf0c-6a4e5872a7f2",
-    "/472ee5fb-dcf2-45bd-9b3e-ede0285a19db",
-    "/483c873f-c45e-44cb-a1ec-80f49ebc3abe",
-    "/4561451f-f01b-4caa-b2d9-6dbf68bcabfd",
-    "/4c59994a-04b1-4159-9783-efccbbee0703"
-    ....
-```
-
-This query returns all services with a path starting with "/core/examples/1":
-```
-url http://192.168.1.35:8000/core/document-index?documentSelfLink=/core/examples/4*
-{
-  "documentLinks": [
-    "/core/examples/47e2cb46-5a15-4d71-a717-f0334fa5a37f",
-    "/core/examples/45aa9760-107e-4532-ab23-3f4f854f107f",
-    "/core/examples/4796e909-f0ab-42f2-8f12-7daf3a6fcdef",
-    "/core/examples/44c1c3a8-2d49-41f2-b54b-f86ae5f50352",
-    "/core/examples/4be340ee-969f-4f73-ae3e-01ac3e955426"
-  ],
-  "documents": {},
-  "documentVersion": 0,
-  "documentUpdateTimeMicros": 0,
-  "documentExpirationTimeMicros": 0,
-  "documentOwner": "805d0d3f-0ed4-454c-8711-940fa1ebfb9a"
-}
-```
-
-## State history
-Durable micro services have their entire state evolution indexed. This means you can issue a query to document store micro service, using the service selflink as the "key" and retrieve all versions of a service state. This gives the developer a discrete time event history, which can be used to create a timeline of changes and a causal chain. With every state change Xenon also indexes the client URI/IP address and the authorization user.
-
-### Index viewer (Lucene Luke)
-Lucene comes with a nice index viewing tool that allows the developer to view what is in the index. The developer should download Luke and point it at the local file directory for the service host
-
-# Logging
-Xenon provides formatted logs that get included in the service host process log files under /var/log. If debugging a host locally, call the <strong>host.toggleDebugMode(true);</strong> method which will enable fine level logging for the host and all services, and delay operation expiration and maintenance.
-
-Process logs are also available through the [log capture service](./ServiceHostLogServiceDocumentation) listening at /core/management/process-log
 
 # Traffic capture for go and go-dcp within a container
 
