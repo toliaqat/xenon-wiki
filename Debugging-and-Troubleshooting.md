@@ -45,15 +45,16 @@ Please see the node selector [forwarding REST API section](./NodeSelectorService
 If the xenon nodes appear slow to respond, either we are dealing with massive scale (good problem) or, more likely, we have some runaway process, usually some periodic task, that keeps creating new instances, etc
 To debug high disk or CPU utilization problems look at the following places:
  * GET /core/management
- ** Check the serviceCount. Is it abnormally high?
-Check the available memory. Is it low? Is heap utilization high?
-GET /core/management/stats
-check pause and resume counts. Indicates memory pressure
-GET /core/document-index/stats
-check the following stats:
-indexedDocumentCount
-expiredDocumentForcedMaintenanceCount
-maintenanceCompletionDelayedCount
+  * Check the serviceCount. Is it abnormally high?
+  * Check the available memory. Is it low? Is heap utilization high?
+ * GET /core/management/stats
+  * check pause and resume counts. Indicates memory pressure
+ * GET /core/document-index/stats
+  * check the following stats:
+  * indexedDocumentCount
+  * expiredDocumentForcedMaintenanceCount
+  * maintenanceCompletionDelayedCount
+
 Any values above the active service count are a reason for concern although not always indicating of an issue if the system is truly under load
 
 
