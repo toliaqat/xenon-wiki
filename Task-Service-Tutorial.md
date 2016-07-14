@@ -723,6 +723,12 @@ private void subscribeTask(String taskPath, Consumer<Operation> notificationTarg
 }
 ```
 
+*NOTE*: If you are subscribing to a task that might finish _extremely_ fast, there's a special "replay-state" flag you should set. Without this special flag, you might subscribe to a task that is already FINISHED (which means your notification target will never be invoked). If you setup your subscription with this "replay-state" flag, you can be guaranteed to get at least one notification with the latest state. The code is slightly different than above:
+
+```java
+    this.host.startSubscriptionService(subscribe, notificationTarget, ServiceSubscriptionState.ServiceSubscriber.create(true));
+```
+
 For more information on subscriptions, see the description on the [Programming Model](Programming-Model#subscriptions) page. 
 
 # 7.0 Writing Unit Tests for a Task Service in Java
