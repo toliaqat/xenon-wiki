@@ -10,7 +10,8 @@
   * [Example Service Tutorial](./Example-Service-Tutorial) - A simple service walk through
   * [Coordinating async operations](./Coordinating-Async-Operations-(and-avoiding-callback-hell))
   * [Introduction to Service Queries](./Introduction-to-Service-Queries)
-  * [Query Task Service Tutorial](./QueryTaskService) - An in-depth tutorial on query tasks
+  * [Query Task Service Tutorial](./QueryTaskService) - API and in-depth tutorial on query tasks
+  * [Graph Query Service](./GraphQueryTaskService) - API and tutorial for graph query tasks
   * [Authentication and Authorization Tutorial](./Authentication-And-Authorization-Tutorial)
   * [Task Service Tutorial](./Task-Service-Tutorial) Task services manage long-running tasks
   * [Hosting Modern UI Tutorial](./HostYourUi) How to package HTML5/JS UI content and have xenon serve it
