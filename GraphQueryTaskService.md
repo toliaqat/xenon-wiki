@@ -73,15 +73,10 @@ GET /resources/compute/de9c3205-b898-4a22-9f4c-b520b0e5d16d
 
 As you can see from the example instances of both documents above, we have now a simple document graph:
 
-Compute -> Compute Description
-        -> Parent Link
+**Computes point to either descriptions or parents** (TODO Add diagram)
 
-
-Some computes dont have parent links or descriptions, so they represent "islands" in the graph. Some descriptions are not referred to by any computes,
+Some computes don't have parent links or descriptions, so they represent "islands" in the graph. Some descriptions are not referred to by any computes,
 once again being isolated nodes that a graph traversal would never encounter.
-
-
-
 
 # REST API
 
