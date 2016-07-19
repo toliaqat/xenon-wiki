@@ -108,6 +108,13 @@ A graph query is composed out of 2 or more stages, where each stage selects a s
 The graph query requires the **QueryOption.SELECT_LINKS** option to be set
 since it uses the selected link values to traverse the logical document graph.
 
+Since the QueryTask PODO is re-used for the query specifications, most query options are supported (sorting, broadcast, etc)
+
+### Pagination
+For pagination examples, see the "tree graph with precomputed initial stage results" section below
+
+### Multi node group graph queries
+Note that the optional **nodeSelectorLink** field, per QueryTask stage specification can direct the query to execute against a specific set of xenon nodes, allowing a graph query to span node groups
 
 # Examples
 
@@ -139,9 +146,6 @@ The initial graph task state, that kicks of the task:
 {
 "stages": [
     {
-      "taskInfo": {
-        "isDirect": true
-      },
       "querySpec": {
         "query": {
           "occurance": "MUST_OCCUR",
@@ -173,14 +177,9 @@ The initial graph task state, that kicks of the task:
         "options": [
           "SELECT_LINKS"
         ]
-      },
-      "indexLink": "/core/document-index",
-      "nodeSelectorLink": "/core/node-selectors/default",
+      }
     },
    {
-      "taskInfo": {
-        "isDirect": true
-      },
       "querySpec": {
         "query": {
           "occurance": "MUST_OCCUR",
@@ -204,14 +203,9 @@ The initial graph task state, that kicks of the task:
         "options": [
           "SELECT_LINKS"
         ]
-      },
-      "indexLink": "/core/document-index",
-      "nodeSelectorLink": "/core/node-selectors/default",
+      }
     },
     {
-      "taskInfo": {
-        "isDirect": true
-      },
       "querySpec": {
         "query": {
           "occurance": "MUST_OCCUR",
