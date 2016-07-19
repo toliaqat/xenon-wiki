@@ -111,3 +111,123 @@ since it uses the selected link values to traverse the logical document graph.
 
 # Examples
 
+## Recursive tree graph (friends of friends)
+
+The following demonstrates a 3 three stage graph query on a social graph like document graph. The query will find all friends related to the initial set of selected nodes, up to 3 degrees of separation (find all friends of friends of friends). Each stage adds some location specific query clauses to direct the graph search.
+
+The query executes over an index that has documents of this type:
+```
+
+```
+The query stage specifications can be summarized as follows:
+ * Stage zero - Filter documents with "documentKind" equal to Person, and State equal Washington State. linkTerms = {"friendLinks"}
+ * Stage one - Filter documents with "city" equal Seattle. linkTerms = {"friendLinks")
+ * Stage two - Filter documents with "employer" equal VMware. linkTerms = {"friendLinks")
+
+The initial graph task state, that kicks of the task:
+```
+{
+"stages": [
+    {
+      "taskInfo": {
+        "isDirect": true
+      },
+      "querySpec": {
+        "query": {
+          "occurance": "MUST_OCCUR",
+          "booleanClauses": [
+            {
+              "occurance": "MUST_OCCUR",
+              "term": {
+                "propertyName": "state",
+                "matchValue": "Washington State",
+                "matchType": "TERM"
+              }
+            },
+            {
+              "occurance": "MUST_OCCUR",
+              "term": {
+                "propertyName": "documentKind",
+                "matchValue": "com:vmware:xenon:services:samples:PersonService:Person",
+                "matchType": "TERM"
+              }
+            }
+          ]
+        },
+        "linkTerms": [
+          {
+            "propertyName": "friendLinks",
+            "propertyType": "STRING"
+          }
+        ],
+        "options": [
+          "SELECT_LINKS"
+        ]
+      },
+      "indexLink": "/core/document-index",
+      "nodeSelectorLink": "/core/node-selectors/default",
+    },
+   {
+      "taskInfo": {
+        "isDirect": true
+      },
+      "querySpec": {
+        "query": {
+          "occurance": "MUST_OCCUR",
+          "booleanClauses": [
+            {
+              "occurance": "MUST_OCCUR",
+              "term": {
+                "propertyName": "city",
+                "matchValue": "Seattle",
+                "matchType": "TERM"
+              }
+            }
+          ]
+        },
+        "linkTerms": [
+          {
+            "propertyName": "friendLinks",
+            "propertyType": "STRING"
+          }
+        ],
+        "options": [
+          "SELECT_LINKS"
+        ]
+      },
+      "indexLink": "/core/document-index",
+      "nodeSelectorLink": "/core/node-selectors/default",
+    },
+    {
+      "taskInfo": {
+        "isDirect": true
+      },
+      "querySpec": {
+        "query": {
+          "occurance": "MUST_OCCUR",
+          "booleanClauses": [
+            {
+              "occurance": "MUST_OCCUR",
+              "term": {
+                "propertyName": "employer",
+                "matchValue": "VMware",
+                "matchType": "TERM"
+              }
+            }
+          ]
+        },
+        "linkTerms": [
+          {
+            "propertyName": "friendLinks",
+            "propertyType": "STRING"
+          }
+        ],
+        "options": [
+          "SELECT_LINKS"
+        ]
+      },
+      "indexLink": "/core/document-index",
+      "nodeSelectorLink": "/core/node-selectors/default",
+    },
+``` 
+
