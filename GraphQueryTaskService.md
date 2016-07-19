@@ -49,7 +49,7 @@ GET /resources/compute-descriptions/on-prem-vm-bronze
 ```
 
 The description above is linked from a different document, the ComputeState that represent the actual compute instance. It has:
- * a **parentLink** - link to a parent (to represent nested relationships of a VM running inside a hypervisor host, or public cloud project"
+ * a **parentLink** - link to a parent (to represent nested relationships of a VM running inside a hypervisor host, or public cloud project)
  * a **descriptionLink** - link to the template used to create the compute instance
  
 An example of a [ComputeState](https://github.com/vmware/photon-model/blob/master/photon-model/src/main/java/com/vmware/photon/controller/model/resources/ComputeService.java#L64)
@@ -60,7 +60,7 @@ GET /resources/compute/de9c3205-b898-4a22-9f4c-b520b0e5d16d
 {
   "id": "c6ef4e54-2b76-43e4-bdf0-2c2520eede6c",
   "hostType": "VIRTUAL",
-  "descriptionLink": "/resources/compute-descriptions/on-prem-vm-bronze",
+  "descriptionLink": "/resources/compute-descriptions/vm-bronze",
   "parentLink" : "/resources/compute/aws-endpoint-east",
   "address": "192.168.1.128",
   "diskLinks": [
