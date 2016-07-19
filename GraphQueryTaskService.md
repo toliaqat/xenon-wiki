@@ -15,6 +15,7 @@ the document index (which is replicated across nodes). Each service state docume
 represents its primary key and its URI path in the REST API. A document graph is formed, when documents have fields
 whose value is a link (or set of links) to some other document.
 
+A document with different fields linking it to other documents:
 ```
 public class ChildState extends ServiceDocument {
         @PropertyOptions(usage = { PropertyUsageOption.REQUIRED })
@@ -29,9 +30,9 @@ public class ChildState extends ServiceDocument {
 
 ```
 
-One example of service documents stored in xenon (in addition configuration, metrics, work flow tasks) is desired state,
-documents that reflect the state of some real world entity. Using examples from [photon model](https://github.com/vmware/photon-model)
-consider a document used as a template, a description used to create compute instances with similar parameters.
+A common type of documents stored in xenon are configuration, or desired state documents.
+Using examples from [photon model](https://github.com/vmware/photon-model)
+consider a document used as a template (description) used to create compute instances with similar parameters.
 
 An example of a [compute description](https://github.com/vmware/photon-model/blob/master/photon-model/src/main/java/com/vmware/photon/controller/model/resources/ComputeDescriptionService.java#L44)
 ```
@@ -41,16 +42,17 @@ GET /resources/compute-descriptions/vm-bronze
   "cpuCount": 1,
   "gpuCount": 0,
   "totalMemoryBytes": 2147483648,
-  ....
   "environmentName": "AWS",
-  "networkId": "vlan3201",
   "costPerMinute": 0.10,
+  ....
   }
 ```
 
 The description above is linked from a different document, the ComputeState that represent the actual compute instance. It has:
  * a **parentLink** - link to a parent (to represent nested relationships of a VM running inside a hypervisor host, or public cloud project)
  * a **descriptionLink** - link to the template used to create the compute instance
+ * a list of **diskLinks** - links to documents describing attached storage
+ * a list of **networkLinks** - links to documents describing attached networks
  
 An example of a [ComputeState](https://github.com/vmware/photon-model/blob/master/photon-model/src/main/java/com/vmware/photon/controller/model/resources/ComputeService.java#L64)
 
@@ -62,7 +64,6 @@ GET /resources/compute/de9c3205-b898-4a22-9f4c-b520b0e5d16d
   "hostType": "VIRTUAL",
   "descriptionLink": "/resources/compute-descriptions/vm-bronze",
   "parentLink" : "/resources/compute/aws-endpoint-east",
-  "address": "192.168.1.128",
   "diskLinks": [
     "/resources/disks/coreos-production"
   ],
@@ -71,12 +72,7 @@ GET /resources/compute/de9c3205-b898-4a22-9f4c-b520b0e5d16d
   }
 ```
 
-As you can see from the example instances of both documents above, we have now a simple document graph:
-
-**Computes point to either descriptions or parents** (TODO Add diagram)
-
-Some computes don't have parent links or descriptions, so they represent "islands" in the graph. Some descriptions are not referred to by any computes,
-once again being isolated nodes that a graph traversal would never encounter.
+For detailed examples on graph queries, see the example section below.
 
 # REST API
 
@@ -104,7 +100,7 @@ The initial state must be an instance of [graph query task PODO](https://github.
 
 ### Query stages
 
-A graph query is composed out of 2 or more stages, where each stage selects a set of documents eligible as inputs for th enext stage query specification.
+A graph query is composed out of 2 or more stages, where each stage selects a set of documents eligible as inputs for the next stage query specification.
 The graph query requires the **QueryOption.SELECT_LINKS** option to be set
 since it uses the selected link values to traverse the logical document graph.
 
@@ -120,26 +116,40 @@ Note that the optional **nodeSelectorLink** field, per QueryTask stage specifica
 
 ## Recursive tree graph (friends of friends)
 
-The following demonstrates a 3 three stage graph query on a social graph like document graph. The query will find all friends related to the initial set of selected nodes, up to 3 degrees of separation (find all friends of friends of friends). Each stage adds some location specific query clauses to direct the graph search.
+The following demonstrates a 3 three stage graph query on a social graph like document graph. The query will find people in Washington State, then select which of their friends live in seattle, and finally, from all employers associated with those friends, which employers have an address in California
 
 The query executes over an index that has documents of this type:
 ```
 public class Person extends ServiceDocument {
         @PropertyOptions(usage = { PropertyUsageOption.REQUIRED })
         public String name;
-
         public String state;
         public String city;
-        public String employer;
+
+        @PropertyOptions(usage = { PropertyUsageOption.LINK })
+        public String employerLink;
 
         @PropertyOptions(usage = { PropertyUsageOption.LINK })
         public List<String> friendLinks;
 }
+
+public class Employer extends ServiceDocument {
+        @PropertyOptions(usage = { PropertyUsageOption.REQUIRED })
+        public String name;
+        public String address;
+}
 ```
 The query stage specifications can be summarized as follows:
- * Stage zero - Filter documents with **documentKind** equal to Person, and **state** equal Washington State. linkTerms = {"friendLinks"}
- * Stage one - Filter documents with **city** equal Seattle. linkTerms = {"friendLinks")
- * Stage two - Filter documents with **employer** equal VMware. linkTerms = {"friendLinks")
+ * Stage zero - Filter by
+   * **documentKind** equal to Person, AND
+   * **state** equal Washington State AND
+   * linkTerms = {"friendLinks"}
+ * Stage one - Filter by
+   * **city** equal Seattle
+   * linkTerms = {"employerLink"}
+ * Stage two - Filter by
+   * **documentKind** equal to Employer, AND
+   * **address** contains California
 
 The initial graph task state, that kicks of the task:
 ```
@@ -196,7 +206,7 @@ The initial graph task state, that kicks of the task:
         },
         "linkTerms": [
           {
-            "propertyName": "friendLinks",
+            "propertyName": "employerLink",
             "propertyType": "STRING"
           }
         ],
@@ -213,22 +223,21 @@ The initial graph task state, that kicks of the task:
             {
               "occurance": "MUST_OCCUR",
               "term": {
-                "propertyName": "employer",
-                "matchValue": "VMware",
+                "propertyName": "address",
+                "matchValue": "*California*",
+                "matchType": "WILDCARD"
+              }
+            },
+            {
+              "occurance": "MUST_OCCUR",
+              "term": {
+                "propertyName": "documentKind",
+                "matchValue": "com:vmware:xenon:services:samples:EmployerService:Employer",
                 "matchType": "TERM"
               }
             }
           ]
-        },
-        "linkTerms": [
-          {
-            "propertyName": "friendLinks",
-            "propertyType": "STRING"
-          }
-        ],
-        "options": [
-          "SELECT_LINKS"
-        ]
+        }
       },
       "indexLink": "/core/document-index",
       "nodeSelectorLink": "/core/node-selectors/default",
