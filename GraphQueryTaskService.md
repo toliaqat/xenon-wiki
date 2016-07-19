@@ -117,12 +117,22 @@ The following demonstrates a 3 three stage graph query on a social graph like do
 
 The query executes over an index that has documents of this type:
 ```
+public class Person extends ServiceDocument {
+        @PropertyOptions(usage = { PropertyUsageOption.REQUIRED })
+        public String name;
 
+        public String state;
+        public String city;
+        public String employer;
+
+        @PropertyOptions(usage = { PropertyUsageOption.LINK })
+        public List<String> friendLinks;
+}
 ```
 The query stage specifications can be summarized as follows:
- * Stage zero - Filter documents with "documentKind" equal to Person, and State equal Washington State. linkTerms = {"friendLinks"}
- * Stage one - Filter documents with "city" equal Seattle. linkTerms = {"friendLinks")
- * Stage two - Filter documents with "employer" equal VMware. linkTerms = {"friendLinks")
+ * Stage zero - Filter documents with **documentKind** equal to Person, and **state** equal Washington State. linkTerms = {"friendLinks"}
+ * Stage one - Filter documents with **city** equal Seattle. linkTerms = {"friendLinks")
+ * Stage two - Filter documents with **employer** equal VMware. linkTerms = {"friendLinks")
 
 The initial graph task state, that kicks of the task:
 ```
