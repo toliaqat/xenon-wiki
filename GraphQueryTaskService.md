@@ -161,7 +161,7 @@ The code, in java, for building the query specification:
                         .build())
                 .build();
 
-        QueryTask stageOne = QueryTask.Builder.create()
+      QueryTask stageOne = QueryTask.Builder.create()
                 .addLinkTerm("employerLink")
                 .setQuery(Query.Builder.create()
                         .addKindFieldClause(Person.class)
