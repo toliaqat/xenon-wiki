@@ -151,7 +151,45 @@ The query stage specifications can be summarized as follows:
    * **documentKind** equal to Employer, AND
    * **address** contains California
 
-The initial graph task state, that kicks of the task:
+The code, in java, for building the query specification:
+```
+        QueryTask stageZero = QueryTask.Builder.create()
+                .addLinkTerm("friendLinks")
+                .setQuery(Query.Builder.create()
+                        .addKindFieldClause(Person.class)
+                        .addFieldClause("state", "Washington")
+                        .build())
+                .build();
+
+        QueryTask stageOne = QueryTask.Builder.create()
+                .addLinkTerm("employerLink")
+                .setQuery(Query.Builder.create()
+                        .addKindFieldClause(Person.class)
+                        .addFieldClause("city", "Seattle")
+                        .build())
+                .build();
+
+      QueryTask stageTwo = QueryTask.Builder.create()
+                .setQuery(Query.Builder.create()
+                        .addKindFieldClause(Employer.class)
+                        .addFieldClause("state", "California")
+                        .build())
+                .build();
+
+      GraphQueryTask initialGraphState = GraphQueryTask.Builder.create(3)
+                .setDirect(true)
+                .addQueryStage(stageZero)
+                .addQueryStage(stageOne)
+                .addQueryStage(stageTwo)
+                .build();
+      Operation createTask = Operation.createPost(this,ServiceUriPaths.CORE_GRAPH_QUERIES)
+                .setBody(initialGraphState)
+                .setCompletion((o,e) -> {.........})
+                .sendWith(this);
+
+```
+
+The JSON serialized view of the initial graph task state, that kicks of the task:
 ```
 {
 "stages": [
