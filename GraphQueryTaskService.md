@@ -104,7 +104,7 @@ The initial state must be an instance of [graph query task PODO](https://github.
 
 ### Query stages
 
-A graph query is composed out of 2 or more stages, where each stage selects a s
+A graph query is composed out of 2 or more stages, where each stage selects a set of documents eligible as inputs for th enext stage query specification.
 The graph query requires the **QueryOption.SELECT_LINKS** option to be set
 since it uses the selected link values to traverse the logical document graph.
 
