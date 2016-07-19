@@ -35,7 +35,7 @@ consider a document used as a template, a description used to create compute ins
 
 An example of a [compute description](https://github.com/vmware/photon-model/blob/master/photon-model/src/main/java/com/vmware/photon/controller/model/resources/ComputeDescriptionService.java#L44)
 ```
-GET /resources/compute-descriptions/on-prem-vm-bronze
+GET /resources/compute-descriptions/vm-bronze
 {
   "hostType": "VM_GUEST",
   "cpuCount": 1,
