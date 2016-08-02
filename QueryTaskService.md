@@ -31,7 +31,7 @@ concurrent execution of independent queries on a per-node basis.
 
 ## Query Specification
 
-The query task behavior is entirely driven by a query specification and a set of properties that govern the result set:
+The query task behavior is entirely driven by a [query specification]() and a set of properties that govern the result set:
 ```
 public static class QuerySpecification {
         public enum QueryOption {
@@ -79,6 +79,29 @@ public static class QuerySpecification {
              * Infrastructure use only. Query originated from a query task service
              */
             TASK,
+
+            /**
+             * Broadcast the query to each node, using the local query task factory.
+             * It then merges results from each node. See related option @{code QueryOption.OWNER_SELECTION}
+             */
+            BROADCAST,
+
+            /**
+             * Filters query results based on the document owner ID.
+             * If the owner ID of the document does not match the ID of the host executing the query,
+             * the document is removed from the result
+             */
+            OWNER_SELECTION,
+
+            /**
+             * Query results include the values for all fields marked with {@code PropertyUsageOption#LINK}
+             */
+            SELECT_LINKS,
+
+            /**
+             * Groups results using the {@link QuerySpecification#groupByTerms}
+             */
+            GROUP_BY
         }
 
         public enum SortOrder {
@@ -90,9 +113,9 @@ public static class QuerySpecification {
          */
         public Query query = new Query();
 
-        public QueryTerm sortTerm;
-
-        public SortOrder sortOrder;
+        ....
+        ....
+        ....
 
         /**
          * The optional resultLimit field is used to enable query results pagination. When
@@ -111,7 +134,7 @@ public static class QuerySpecification {
         public Long expectedResultCount;
         public EnumSet<QueryOption> options = EnumSet.noneOf(QueryOption.class);
         public ServiceOption targetIndex;
-
+}
 
 ```
 
@@ -183,11 +206,111 @@ querySpec.sortTerm.
 In the Java Universe, this would be written as follows:
 
 ```java
-QueryTask.QuerySpecification q = new QueryTask.QuerySpecification();
-q.query.setTermPropertyName("message").setTermMatchValue("*");
-QueryTask task = QueryTask.create(q).setDirect(true);
-// get results using `task.results.documentLinks`
+        Query query = Query.Builder.createDirectTask()
+                .addKindFieldClause(ExampleServiceState.class)
+                .build();
+        QueryTask queryTask = QueryTask.Builder.create()
+                .addOption(QueryOption.EXPAND_CONTENT)
+                .orderAscending(ExampleServiceState.FIELD_NAME_ID, TypeName.STRING)
+                .setQuery(query).build();
+        Operation post = Operation.createPost(queryFactoryURI)
+                .setBody(queryTask)
+                .setCompletion((o, e) -> {
+                     // get results using `rsp.results.documentLinks`
+                     QueryTask rsp = o.getBody(QueryTask.class);
+                }
+        sendRequest(post);
 ```
+
+
+## Grouped Queries
+
+The query task allows for grouping query results based on the discrete values of a given field.
+Using the ExampleServiceState as an example, if you create N documents, and the name field is
+set to the following values:
+```
+        URI exampleFactoryURI = UriUtils.buildUri(targetHost, ExampleService.FACTORY_LINK);
+        String[] groupArray = new String[] { "one", "two", "three", "four" };
+        for (String group : groups) {
+            for (int i = 0; i < this.serviceCount; i++) {
+                ExampleServiceState s = new ExampleServiceState();
+                s.name = group;
+                sendRequest(Operation.createPost(exampleFactoryURI)
+                        .setBody(s));
+            }
+        }
+```
+
+Now, you can specify a query, that will group the example service instances, based on the "name" field, using
+the following query:
+
+```
+        Query query = Query.Builder.create()
+                .addKindFieldClause(ExampleServiceState.class)
+                .build();
+        QueryTask queryTask = QueryTask.Builder.create()
+                .addOption(QueryOption.GROUP_BY)
+                .addOption(QueryOption.EXPAND_CONTENT)
+                .orderAscending(ExampleServiceState.FIELD_NAME_ID, TypeName.STRING)
+                .groupOrder(ExampleServiceState.FIELD_NAME_NAME, TypeName.STRING, SortOrder.ASC)
+                .setQuery(query).build();
+```
+
+The specification, plus results, in JSON:
+```
+  "taskInfo": {
+    "stage": "FINISHED",
+    "isDirect": false
+  },
+  "querySpec": {
+    "query": {
+      "occurance": "MUST_OCCUR",
+      "booleanClauses": [
+        {
+          "occurance": "MUST_OCCUR",
+          "term": {
+            "propertyName": "documentKind",
+            "matchValue": "com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+            "matchType": "TERM"
+          }
+        }
+      ]
+    },
+    "sortTerm": {
+      "propertyName": "id",
+      "propertyType": "STRING"
+    },
+    "groupSortTerm": {
+      "propertyName": "name",
+      "propertyType": "STRING"
+    },
+    "groupByTerm": {
+      "propertyName": "name",
+      "propertyType": "STRING"
+    },
+    "sortOrder": "ASC",
+    "groupSortOrder": "ASC",
+    "options": [
+      "EXPAND_CONTENT",
+      "SORT",
+      "GROUP_BY"
+    ]
+  },
+  "results": {
+    "documentLinks": [],
+    "nextPageLinksPerGroup": {
+      "three": "/core/node-selectors/default/forwarding?peer=host-1&path=/core/query-page/1470166322490000&query=&target=PEER_ID",
+      "two": "/core/node-selectors/default/forwarding?peer=host-1&path=/core/query-page/1470166322490005&query=&target=PEER_ID",
+      "four": "/core/node-selectors/default/forwarding?peer=host-1&path=/core/query-page/1470166322486000&query=&target=PEER_ID",
+      "one": "/core/node-selectors/default/forwarding?peer=host-1&path=/core/query-page/1470166322489003&query=&target=PEER_ID"
+    },
+    "documentVersion": 0,
+    "documentUpdateTimeMicros": 0,
+    "documentExpirationTimeMicros": 0
+  },
+```
+
+A GET on each page link, returns a QueryTask, with results (documents, documentLinks) for the set of services in that group.
 
 ### Using Boolean Clauses
 
