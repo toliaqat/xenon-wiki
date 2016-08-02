@@ -187,6 +187,11 @@ handler invocations with no extra care taken by the service author._
 Its critical to  **avoid service class fields**.  Service classes should
 have no fields, thus no cached values.
 
+Also, ensure that service documents have no fields of **Object** type. 
+Instead store the JSON string representation of the object. Use
+**Utils.toJson(someObject)** and **Utils.fromJson(...)** to convert
+between them. 
+
  The  underlying  document durability  layer  is  multi-versioned  which
  allows for conditional GETs (where a specific version can be specified)
  and conditional updates  (the update will be discarded  if the optional
