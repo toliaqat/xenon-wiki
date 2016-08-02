@@ -31,7 +31,7 @@ concurrent execution of independent queries on a per-node basis.
 
 ## Query Specification
 
-The query task behavior is entirely driven by a [query specification]() and a set of properties that govern the result set:
+The query task behavior is entirely driven by the [query task state](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/QueryTask.java) and a set of properties that govern the result set:
 ```
 public static class QuerySpecification {
         public enum QueryOption {
