@@ -189,7 +189,7 @@ have no fields, thus no cached values.
 
 Also, ensure that service documents have no fields of **Object** type. 
 Instead store the JSON string representation of the object. Use
-** Utils.toJson(someObject) ** and ** Utils.fromJson(...) ** to convert
+`Utils.toJson(someObject)` and `Utils.fromJson(...)` to convert
 between them. 
 
  The  underlying  document durability  layer  is  multi-versioned  which
