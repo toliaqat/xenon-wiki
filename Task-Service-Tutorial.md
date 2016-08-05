@@ -42,6 +42,20 @@ See [task factory service](https://github.com/vmware/xenon/blob/master/xenon-com
 host.startFactory(() -> TaskFactoryService.create(ExampleTaskService.class),
                 ExampleTaskService.FACTORY_LINK);
 ```
+Alternatively, if the task service has a static createFactory() method, the task factory create can be invoked there
+
+```
+super.startFactory(ExampleTaskService.class, ExampleTaskService::createFactory);
+```
+
+and the actual createFactory() method in the task service:
+```
+    public static FactoryService createFactory() {
+        return TaskFactoryService.create(ExampleTaskService.class, ServiceOption.IDEMPOTENT_POST,
+                ServiceOption.INSTRUMENTATION);
+    }
+```
+
 # 1.2 Assumptions
 
 This tutorial assumes that you have gone through the introductory [Example Service Tutorial](Example-Service-Tutorial) as well as the [Introduction to Service Queries](./Introduction-to-Service-Queries). 
