@@ -47,8 +47,8 @@ To debug high disk or CPU utilization problems look at the following places:
  * GET /core/management
   * Check the serviceCount. Is it abnormally high?
   * Check the available memory. Is it low? Is heap utilization high?
- * GET /core/management/stats
-  * check pause and resume counts. Indicates memory pressure
+ * GET [/core/management/stats](./HostManagementService#stats)
+  * check CPU, disk, thread count, and pause and resume counts. Indicates memory pressure
  * GET /core/document-index/stats
   * check the following stats:
   * indexedDocumentCount
