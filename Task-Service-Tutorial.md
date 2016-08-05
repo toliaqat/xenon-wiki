@@ -23,6 +23,19 @@ Task services are good examples of the uniform use of REST throughout Xenon: all
 
 In a strict technical sense, requests are often not using HTTP because when services are running in the same process, they are optimized, in-process communication instead of going on the network/sockets. However, that distinction is transparent to the author of a service: requests are handled identically whether they arrive over an HTTP connection or from another in-process service.
 
+## Direct Task work flow
+
+A client can chose the "synchronous* REST pattern when creating a task:
+ * client POSTs to task factory using POST and body that contains taskInfo.isDirect = true
+ * Assuming task factory service was started using *TaskFactoryService.create(..)*, the default task factory
+   creates a new POST, transfers the body and creates the TaskService instance
+ * The task factory subscribes to the child task, which is operating in asynchronous mode
+ * When the task service (child) is complete, the task factory completes the original client request
+
+To the client, this was a simple POST, where the response is received when the task is done!
+
+See [task factory service](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/TaskFactoryService.java#L95) for implementation details
+
 # 1.2 Assumptions
 
 This tutorial assumes that you have gone through the introductory [Example Service Tutorial](Example-Service-Tutorial) as well as the [Introduction to Service Queries](./Introduction-to-Service-Queries). 
