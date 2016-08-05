@@ -36,6 +36,12 @@ To the client, this was a simple POST, where the response is received when the t
 
 See [task factory service](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/TaskFactoryService.java#L95) for implementation details
 
+## Starting a task factory
+
+```
+host.startFactory(() -> TaskFactoryService.create(ExampleTaskService.class),
+                ExampleTaskService.FACTORY_LINK);
+```
 # 1.2 Assumptions
 
 This tutorial assumes that you have gone through the introductory [Example Service Tutorial](Example-Service-Tutorial) as well as the [Introduction to Service Queries](./Introduction-to-Service-Queries). 
