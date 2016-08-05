@@ -40,7 +40,7 @@ xenonc get /core/management/go-dcp-process-log | jq -r .items[]
 
 Please see the node selector [forwarding REST API section](./NodeSelectorService#forwarding-service)
 
-## High CPU Utilization 
+## Resource Utilization per node
 
 If the xenon nodes appear slow to respond, either we are dealing with massive scale (good problem) or, more likely, we have some runaway process, usually some periodic task, that keeps creating new instances, etc
 To debug high disk or CPU utilization problems look at the following places:
