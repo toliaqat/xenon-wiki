@@ -26,7 +26,7 @@ In a strict technical sense, requests are often not using HTTP because when serv
 ## Direct Task work flow
 
 A client can chose the "synchronous* REST pattern when creating a task:
- * client POSTs to task factory using POST and body that contains taskInfo.isDirect = true
+ * client POSTs to task factory using POST and body that contains **taskInfo.stage=CREATED, taskInfo.isDirect = true**
  * Assuming task factory service was started using *TaskFactoryService.create(..)*, the default task factory
    creates a new POST, transfers the body and creates the TaskService instance
  * The task factory subscribes to the child task, which is operating in asynchronous mode
@@ -186,7 +186,7 @@ Then create the task with a POST. Note that the response tells you that the task
 {
   "taskLifetime": 5,
   "taskInfo": {
-    "stage": "STARTED",
+    "stage": "CREATED",
     "isDirect": false
   },
   "subStage": "QUERY_EXAMPLES",
@@ -286,6 +286,19 @@ If we wait a few more seconds, the task will also be removed because it has expi
 }
 ```
 
+## Direct Task creation
+
+To follow the synchronous REST model, so when the POST response is received, the task is complete, just change the following in the POST body to the task factory
+```
+  ....
+  "taskInfo": {
+    "stage": "CREATED",
+    "isDirect": false
+  },
+```
+Notice that
+ * stage **must be set to CREATED**
+ * isDirect **must be set to true **
 # 5.0 Writing a Task Service in Java
 
 The full code for the task factory and service can be found at:
