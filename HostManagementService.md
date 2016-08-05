@@ -116,3 +116,108 @@ Retrieves status and state.
 
 ### DELETE
 Does an orderly shutdown of the host and all the services 
+
+## Stats
+
+The core management service reports important time series stats on key metrics:
+ * CPU usage
+ * Disk usage
+ * Thread count
+aggregated per hour, per minute, in rolling time series.
+
+```
+GET /core/management/stats
+{
+.....
+"cpuUsagePercentPerDay": {
+      "name": "cpuUsagePercentPerDay",
+      "latestValue": 0.01548839632318137,
+      "accumulatedValue": 116.30780660032818,
+      "version": 141,
+      "lastUpdateMicrosUtc": 1470417944799007,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "timeSeriesStats": {
+        "bins": {
+          "1470416400000": {
+            "avg": 0.8248780609952354,
+            "count": 141.0
+          }
+        },
+        "numBins": 24,
+        "binDurationMillis": 3600000,
+        "aggregationType": [
+          "AVG"
+        ]
+      }
+    },
+    "availableDiskBytesPerHour": {
+      "name": "availableDiskBytesPerHour",
+      "latestValue": 1.26101041152E11,
+      "accumulatedValue": 1.7906572627968E13,
+      "version": 142,
+      "lastUpdateMicrosUtc": 1470417944799002,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "timeSeriesStats": {
+        "bins": {
+          "1470417720000": {
+            "avg": 1.2610271439950769E11,
+            "count": 130.0
+          },
+          "1470417780000": {
+            "avg": 1.26102137856E11,
+            "count": 4.0
+          },
+          "1470417840000": {
+            "avg": 1.26101682176E11,
+            "count": 4.0
+          },
+          "1470417900000": {
+            "avg": 1.26101118976E11,
+            "count": 4.0
+          }
+        },
+        "numBins": 60,
+        "binDurationMillis": 60000,
+        "aggregationType": [
+          "AVG"
+        ]
+      }
+    },
+    "cpuUsagePercentPerHour": {
+      "name": "cpuUsagePercentPerHour",
+      "latestValue": 0.01548839632318137,
+      "accumulatedValue": 116.30780660032818,
+      "version": 141,
+      "lastUpdateMicrosUtc": 1470417944799006,
+      "kind": "com:vmware:xenon:common:ServiceStats:ServiceStat",
+      "timeSeriesStats": {
+        "bins": {
+          "1470417720000": {
+            "avg": 0.8984681879328744,
+            "count": 129.0
+          },
+          "1470417780000": {
+            "avg": 0.0586236815181815,
+            "count": 4.0
+          },
+          "1470417840000": {
+            "avg": 0.025864196283287663,
+            "count": 4.0
+          },
+          "1470417900000": {
+            "avg": 0.016864711445377857,
+            "count": 4.0
+          }
+        },
+        "numBins": 60,
+        "binDurationMillis": 60000,
+        "aggregationType": [
+          "AVG"
+        ]
+      }
+    },
+
+.....
+.....
+}
+```
