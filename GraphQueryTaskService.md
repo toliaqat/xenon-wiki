@@ -109,6 +109,10 @@ Since the QueryTask PODO is re-used for the query specifications, most query opt
 ### Pagination
 For pagination examples, see the "tree graph with precomputed initial stage results" section below
 
+### GraphQueryOption.FILTER_STAGE_RESULTS
+
+When the FILTER_STAGE_RESULTS option is specified, the service will remove links from stages 0 -> N-1, that did not contribute to results in the final stage. In essence, this will leave the "parent" nodes that contributed to "child" results in the final stage, and all the intermediate nodes that are part of the parent->descendant directed graph 
+
 ### Multi node group graph queries
 Note that the optional **nodeSelectorLink** field, per QueryTask stage specification can direct the query to execute against a specific set of xenon nodes, allowing a graph query to span node groups
 
