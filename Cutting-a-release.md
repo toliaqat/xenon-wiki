@@ -6,34 +6,40 @@ As of 6/17/2016. Please see detailed explanation in next section.
   ```
   > git pull --rebase
   ```
+
 - run prepare script  
   ```
   > NEXT_DEV_VERSION=0.9.0-SNAPSHOT  ./contrib/release-prepare.sh
   ```
+
 - create reviews  
   ```
   > git review
   ```
+
 - get reviews +2 and submit them at same time
 - update local code  
-  ```
-  > git checkout master  
-  > git pull --rebase
-  ```
+   ```
+   > git checkout master 
+   > git pull --rebase
+   ```
+
 - create gerrit bracnch and tag using commit id from "Mark x.x.x for release"  
   ```
   > DRY_RUN=false COMMIT=9614b81b9bebcceb7eacfa8577f2d6113af8affc ./contrib/release-tag.sh
   ```
-- **(currently not working, see next workaround)** build and upload artifacts from jenkins
+
+- build and upload artifacts from jenkins
   - https://xn-jenkins-master.adlbg.eng.vmware.com/job/xenon-deploy-ossrh/
   - Build with Parameters
   - specify commit id or tag to `BRANCH parameter`  
     ex) `v0.8.2-release`, `9614b81b9bebcceb7eacfa8577f2d6113af8affc`
--  **(workaround)**: run following in local:  
+-  **(workaround if above jenkins doesn't work)**: run following in local:  
   ```
     > git checkout v0.8.2-release
     > ./mvnw -P release deploy -Dfindbugs.skip=true -Dcheckstyle.skip=true -DskipGO -DskipTests
   ```  
+
   this will deploy to the sonatype and close the staging repo as well.
 
 
