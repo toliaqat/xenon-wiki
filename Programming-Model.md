@@ -1,6 +1,6 @@
 # Programming Model
 
-The following types are the key components of the Xenon framework. Xenon is implemented primarily in Java, but a minimal and useful implementation of the service programming model is also available in Go, running in the go-dcp-* process.
+The following types are the key components of the Xenon framework. Xenon is implemented primarily in Java, but a minimal and useful implementation of the service programming model is also available in Go.
 
  * ServiceHost - Manages the life cycle of micro service instances and is the unit of a Xenon node. Multiple hosts can co-exist within a process although production management hosts should be one per process, and one process per container. A host uses a ServiceRequestListener to receive inbound operations from the network
  * Service - The interface for a service implementation
