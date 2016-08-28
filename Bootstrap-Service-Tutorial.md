@@ -11,6 +11,10 @@ This tutorial shows how to create one time execution service in entire cluster, 
 - Perform transform task only once
 - etc
 
+## Prerequisites
+
+Multi node bootstrap requires proper setting for membership quorum. It is recommended that quorum is set to the node group size, during node group formation, then relaxed.
+
 # Bootstrap Service
 
 _code: [SampleBootstrapService.java](https://github.com/vmware/xenon/tree/master/xenon-samples/src/main/java/com/vmware/xenon/services/samples/SampleBootstrapService.java)_
