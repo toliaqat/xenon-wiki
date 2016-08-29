@@ -377,3 +377,10 @@ Notice that the documentOwner points to node at port 8000. We did a GET earlier 
 ...
 ...
 ```
+# Operational Model
+
+## Node Group Expansion
+
+* Add multiple nodes at a time, setting quorum to new majority, on all nodes (new and old) - This avoids wasteful rebalancing that can occur if a node is added one at a time. For example, if you want to expand a node group of 3 to, 5, add 2 nodes at once, but send an UpdateQuorumRequest to an existing node member first, with quorum set to 3. The new nodes should join with quorum already set to 3, using the JVM argument -Dxenon.NodeState.membershipQuorum
+* Use blue-green update between old and new (bigger) clusters - Adding nodes to an existing cluster will invariably impact performance as rebalancing occurs. To minimize impact, the [live migration tasks](./Side-by-Side-Upgrade) can be used, first transferring state from a production node group, to a new, already established, stable node group.
+
