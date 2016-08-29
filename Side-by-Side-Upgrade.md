@@ -11,7 +11,7 @@ requirements:
 
 * You need **additional resources** to set up a second node cluster.
 * The new node cluster needs to be able to **connect** to the old node cluster.
-* The new node cluster should be fully formed and stable. Its recommended quorum is set to **node group size** so node failures are not masked during upgrade and migration task fails (it can always be retried)
+* The new node cluster should be fully formed and stable. Its recommended quorum is set to **node group size during migration** so node failures are not masked during upgrade and migration task fails (it can always be retried)
 * There might need to be a small time window where requests to the service are queued, at an edge device, or failed (the service appears offline).
 
 ## Assumptions
