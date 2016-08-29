@@ -15,7 +15,7 @@ This tutorial shows how to create one time execution service in entire cluster, 
 
 Multi node bootstrap requires proper setting for membership quorum. It is recommended that quorum is set to the node group size, during node group formation, then relaxed.
 
-See the [operation model section](https://github.com/vmware/xenon/wiki/Multi-Node-Tutorial#operational-model)
+See the [operational model section](https://github.com/vmware/xenon/wiki/Multi-Node-Tutorial#operational-model)
 
 # Bootstrap Service
 
