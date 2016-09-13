@@ -129,19 +129,19 @@ using queries on the Xenon index. Deeper integration of DNS and virtual IP
 works. Until then, a dedicated node (a edge load balancer for example) should be used
 to front the Xenon nodes and randomly select nodes based on incoming client requests
 
-### 13. What will happen to accessing a service when node group is unstable.
+### 13. What will happen to accessing a service when node group is unstable?
 
 If target service is affected by the node group change, any requests to the stateful service will be queued in xenon.
 Xenon internally retries the request from the node originally received the request from client, and if it cannot get successful response within timeout, the original request from client will timeout.
 
-### 14. What will happen to the service when nodes are constantly up and down.
+### 14. What will happen to the service when nodes are constantly up and down?
 
 In cloud scale environment, it is common that constantly some of the nodes in the group join/leave the node group due to network issue, host shutdown, etc. For example, 1000 nodes are in a node group, and constantly 100 of them are up and down. As long as quorum is met(for example quorum=501), service operates without any problem.
 
 When nodes are constantly up and down, the chance a service is rebalanced to a new owner becomes less likely, as the number of nodes increases. So, with small node groups, rebalancing has a severe impact, whereas it has less of an impact with a lot of nodes.
 In addition, node group configuration determines how long each node waits for node stability, before requests are allowed to be forwarded. Operators should set the membership stability duration to a small value.
 
-### 15. How to check OWNER_SELECTED service availability using REST API.
+### 15. How to check OWNER_SELECTED service availability using REST API?
 
 Check target factory service availability on ALL nodes. This can be achieved one request from client using broadcast GET with `/factory/available` endpoint.
 
