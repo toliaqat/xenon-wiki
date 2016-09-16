@@ -15,6 +15,8 @@ This simple tutorial describes a very simple service, and its factory (the way t
 
  * [developer guide](./Developer-Guide) for instructions on how to build, pre reqs, etc
 
+ * [testing guide](./Testing-Guide) for instructions on how to easily, and locally, test on single or multiple nodes
+
 # Starting a Xenon host
 
 Start the example host, which listens on port 8000 (in the xenon-host directory):
