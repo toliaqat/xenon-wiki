@@ -19,7 +19,7 @@
   * [Multiple Node Tutorial](./Multi-Node-Tutorial) Simple example of on how to start N xenon hosts, have them join each other, and verify service and state replication
   * [Restartable Highly Available Task Tutorial](./Highly-Available-Task-Tutorial) Advanced tutorial on core xenon concepts regarding high availability, consensus, restartable work flows
   * [Bootstrap Service Tutorial](./Bootstrap-Service-Tutorial) Performing a logic only once within a cluster(node group)
-
 * [Developer guide](./Developer-Guide) - How to set up your development environment, build & run tests.
+* [Testing guide](./Testing-Guide) - How to test your highly available xenon services, all from a local machine
 * [Contributing](./Contributing) - How to work with revision control and submit changes to Xenon.
 * [Glossary](./Glossary) - commonly used terms and their definitions
