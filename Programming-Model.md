@@ -418,3 +418,12 @@ The forwarding functionality allows a client to send a request to Xenon node, an
 
 ## Coordinating Asynch Operations
 Please reference: [Coordinating-Async-Operations-(and-avoiding-callback-hell)](Coordinating-Async-Operations-(and-avoiding-callback-hell))
+
+
+# Testing
+
+Xenon comes with support for testing.  
+It provides synchronous operation, waiting support, utility methods for nodegroup and auth, etc.
+
+Please reference: [Testing Guide](./Testing-Guide)
+
