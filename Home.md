@@ -1,4 +1,4 @@
-![Xenon Logo](./images/vmw-xenon-logo.png)
+![Xenon Logo](https://raw.githubusercontent.com/wiki/vmware/xenon/images/vmw-xenon-logo.png)
 
 # Documentation
 
@@ -29,4 +29,4 @@
 * [Xenon Client](./Xenon-Client-(xenonc)) - A simple command line interface to Xenon
 services.
 * [Xenon UI](./Xenon-UI) - A built-in application that federates information from nodes across the node groups and visualize them in a single pane of UI.
-![Dashboard](./images/xenon-ui/dashboard.png)
+![Dashboard](https://raw.githubusercontent.com/wiki/vmware/xenon/images/xenon-ui/dashboard.png)
