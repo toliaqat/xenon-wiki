@@ -11,7 +11,7 @@ This simple tutorial describes a very simple service, and its factory (the way t
 
  * [custom host and service creation page](./Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
 
- * [custom UI per service](./HostYourUi)
+ * [custom UI per service](./Host-Your-UI)
 
  * [developer guide](./Developer-Guide) for instructions on how to build, pre reqs, etc
 
@@ -26,9 +26,9 @@ $ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar
 
 ## Xenon Container
 
-Note that Xenon is packaged also a **[container](./Developer-Guide#docker-images)** 
+Note that Xenon is packaged also a **[container](./Developer-Guide#docker-images)**
 
-Building and using Xenon containers will be documented soon. 
+Building and using Xenon containers will be documented soon.
 
 # The service factory
 A client can create new instances of a service through another service, the service factory. A service factory mostly relies on framework for doing all the work and has the following properties:
@@ -108,7 +108,7 @@ The response above means no documents / services are created yet.
 
 ### POST Example
 
-Create a new instance by issuing a POST. If no body is supplied the child service will have a default initial state and a random selflink. 
+Create a new instance by issuing a POST. If no body is supplied the child service will have a default initial state and a random selflink.
 
 ```sh
 $ curl -X POST -H "Content-type: application/json" -d '{"documentSelfLink":"niki","name":"n"}' http://localhost:8000/core/examples

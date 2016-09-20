@@ -41,12 +41,12 @@ Notice we started the second host with --port=8001
 
 Xenon provides the option to use HTTPS for Network Communication. This includes both, when a client communicates with a Xenon Host, and when one Xenon host communicates with another Xenon host (for Group Membership, Forwarding or Replication). This option is useful when running Xenon in an environment with untrusted clients that should be blocked from having direct access to a Xenon host.
 
-To setup a Xenon host with HTTPS you will need the following: 
+To setup a Xenon host with HTTPS you will need the following:
 * An X.509 certificate chain file in PEM format.    
 * A PKCS#8 private key file in PEM format.
 * The password of the private key file (above), if it's password-protected.
 
-Since each Xenon Host acts as both, a Listener for incoming requests and a Client for making requests to other Xenon-hosts, it is important that the X.509 Certificate(s) used for the rest of the Xenon-Hosts, should be registered with either the default trust-store on the machine, or you can create a custom trust-store and use that at Host start up time. 
+Since each Xenon Host acts as both, a Listener for incoming requests and a Client for making requests to other Xenon-hosts, it is important that the X.509 Certificate(s) used for the rest of the Xenon-Hosts, should be registered with either the default trust-store on the machine, or you can create a custom trust-store and use that at Host start up time.
 
 For prototyping, you can use the certificate files checked-in in Xenon git-repo (below). These files are also used by Xenon tests:
 * /xenon/xenon-common/src/test/resources/ssl/trustedcerts.jks
@@ -102,16 +102,16 @@ java -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar --po
 
 ## Dynamic join and custom node groups (post-startup)
 
-You can also create custom node groups after host startup, and have hosts dynamically join. This is useful if you want to have your Xenon services replicated (and be able to scale) independently from other Xenon services. 
+You can also create custom node groups after host startup, and have hosts dynamically join. This is useful if you want to have your Xenon services replicated (and be able to scale) independently from other Xenon services.
 
-For this section, we will assume you have two `Hosts` running locally; one on port 8000 (id: `hostAtPort8000`) and the other on 8001 (id: `hostAtPort8001`). This example will show you how to create a new `hello-node-group`, and have `hostAtPort8000` be a PEER, and have `hostAtPort8001` join as an OBSERVER. See the [NodeGroupService wiki](./NodeGroupService) if you're unfamiliar with these concepts. 
+For this section, we will assume you have two `Hosts` running locally; one on port 8000 (id: `hostAtPort8000`) and the other on 8001 (id: `hostAtPort8001`). This example will show you how to create a new `hello-node-group`, and have `hostAtPort8000` be a PEER, and have `hostAtPort8001` join as an OBSERVER. See the [NodeGroupService wiki](./NodeGroupService) if you're unfamiliar with these concepts.
 
 ### Create a custom node group
 
 Issue a `POST` against the `/core/node-groups` factory (just like any other Xenon service factory). You will need to create this service on both hosts.
 
 ```bash
-$ cat hello-node-group.json 
+$ cat hello-node-group.json
 {
   "config": {
     "nodeRemovalDelayMicros": 3600000000,
@@ -132,14 +132,14 @@ $ curl -H "Content-Type: application/json" -X POST http://localhost:8001/core/no
 Next, you'll need to issue a `JoinPeerRequest`. We will have `hostAtPort8001` join `hostAtPort8000`'s group as an OBSERVER via a `POST` on the local `hello-node-service`.
 
 ```bash
-$ cat observer-join.json 
+$ cat observer-join.json
 {
     "kind": "com:vmware:xenon:services:common:NodeGroupService:JoinPeerRequest",
     "memberGroupReference": "http://127.0.0.1:8000/core/node-groups/hello-node-group",
     "membershipQuorum": 1,
     "localNodeOptions": [ "OBSERVER" ]
 }
-$ curl -H "Content-Type: application/json" -X POST http://localhost:8001/core/node-groups/hello-node-group --data @observer-join.json 
+$ curl -H "Content-Type: application/json" -X POST http://localhost:8001/core/node-groups/hello-node-group --data @observer-join.json
 ```
 
 If this was successful, both `hostAtPort8000` and `hostAtPort8001` should return the same details for `nodes`. Also notice that `hostAtPort8001` joined as an OBSERVER.
@@ -386,3 +386,8 @@ Notice that the documentOwner points to node at port 8000. We did a GET earlier 
 * Add multiple nodes at a time, setting quorum to new majority, on all nodes (new and old) - This avoids wasteful rebalancing that can occur if a node is added one at a time. For example, if you want to expand a node group of 3 to, 5, add 2 nodes at once, but send an UpdateQuorumRequest to an existing node member first, with quorum set to 3. The new nodes should join with quorum already set to 3, using the JVM argument -Dxenon.NodeState.membershipQuorum
 * Use blue-green update between old and new (bigger) clusters - Adding nodes to an existing cluster will invariably impact performance as rebalancing occurs. To minimize impact, the [live migration tasks](./Side-by-Side-Upgrade) can be used, first transferring state from a production node group, to a new, already established, stable node group.
 
+# Browse Nodes via Xenon UI
+
+Using [Xenon UI's Node Selector](./Xenon-UI#node-selector), you can get a quick overview of the node groups' topology and examine each node's current status, membership quorum, system info, etc. You can also select a specific node so the UI shows all the information relevant to this node.
+
+![Node Selector](./images/xenon-ui/node-selector.png)

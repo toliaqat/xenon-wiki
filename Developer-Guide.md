@@ -10,7 +10,7 @@ See the [Implementors Guide](Implementors-Guide) for more information on the tut
  * Git for source code management.
  * [Find bugs](http://findbugs.sourceforge.net/) for static code analysis. Please run before check-in.
 
- 
+
 ## Maven
 
 Maven is used to build and test the project. Use the Maven Wrapper (`mvnw`) which comes with project, or install maven to your local system. Reference the [maven-wrapper.properties][] file for required version.
@@ -41,7 +41,7 @@ Resulting JAR goes to `xenon-host/target/xenon-host-*-with-dependencies.jar`.
 
 # Building a service
 
-After reading more on the [programming model](Programming-Model) and how a service works, please refer to the [example service tutorial](Example-Service-Tutorial) to learn about a simple service that is already started as part of the production service host, and enables you to interact with the system. In addition you can follow the guide for [serving your service with a default or custom user interface](HostYourUi).
+After reading more on the [programming model](Programming-Model) and how a service works, please refer to the [example service tutorial](Example-Service-Tutorial) to learn about a simple service that is already started as part of the production service host, and enables you to interact with the system. In addition you can follow the guide for [serving your service with a default or custom user interface](./Host-Your-UI).
 
 To create a new service host, that starts custom services, in its own jar, please see the [custom service hosting tutorial](Hosting-Custom-Services-On-Xenon)
 

@@ -37,7 +37,7 @@ reported by  Xenon runtime  (see below),  per
  * `service/ui` - Custom, per service, UI rendered using either default JS + HTML
  files,  or files  found on  disk. UI  files should  be named  after the
  service name and be available on the local file system. For more, check
- the [UI info](./HostYourUi.markdown).
+ the [UI info](./Host-Your-UI).
 
  * `service/config` - Ability to change service options, and other configuration,
  at runtime.
@@ -187,10 +187,10 @@ handler invocations with no extra care taken by the service author._
 Its critical to  **avoid service class fields**.  Service classes should
 have no fields, thus no cached values.
 
-Also, ensure that service documents have no fields of **Object** type. 
+Also, ensure that service documents have no fields of **Object** type.
 Instead store the JSON string representation of the object. Use
 `Utils.toJson(someObject)` and `Utils.fromJson(...)` to convert
-between them. 
+between them.
 
  The  underlying  document durability  layer  is  multi-versioned  which
  allows for conditional GETs (where a specific version can be specified)
@@ -233,7 +233,7 @@ audit trails.
  * version - a long value incremented atomically on all successful updates
  * updateTimeMicros - last update timestamp
  * expirationTimeMicros - optional expiration time. Document and service will be deleted if expiration passes
- * contentSignature - optional SHA256 signature of serialized content 
+ * contentSignature - optional SHA256 signature of serialized content
  * kind - a structured identifier that names the PODO type
  * owner - the node id of the node assigned to work on this document. Set by Xenon if ServiceOption.OWNER_SELECTION is enabled
  * sourceLink - Optional link to a document acting as the source for this document. Used when creating a new service through a POST to a factory that supports cloning
@@ -243,7 +243,7 @@ and any language implementing the Xenon  programming model, it should be a
 PLAIN-OLD-DATA_TYPE (only data fields, no methods)
 
 ```
-    // An example service state PODO. 
+    // An example service state PODO.
     // The framework takes care of JSON transforms
     public class SampleServiceState extends ServiceDocument {
             public String uniqueId;
@@ -294,7 +294,7 @@ service instances.  If a developer wants  to create a new   service
 that  provides additional  functionality  to an  existing service,  they
 simply  create  a new  PODO,  add  the new  properties  and  then add  a
 link property,  a string, to the  existing  service that  has the
-existing fields.  A client can  issue a GET  to the new,  advanced 
+existing fields.  A client can  issue a GET  to the new,  advanced
 service, and  add a $expand directive,  and they will get  back one PODO
 that includes both the old and the new fields.
 
@@ -322,7 +322,7 @@ For example, imagine service A with the following document:
 
 ```
     GET virtual-machines/<guid>
-    
+
     {
         name : "web server",
         status : "active",
@@ -335,7 +335,7 @@ following PODO:
 
 ```
     GET advanced-virtual-machines/<guid>
-    
+
     {
         storageNode : "http://somehost.org",
         vmLink : "/virtual-machines/<guid>"
@@ -417,10 +417,10 @@ should follow these naming conventions depending on PODO property type:
        "enumerationAgentReference":"jsonrpc://172.20.0.221:62042",
        "systemInfo":{  
           "properties":{  
-    
+
           },
           "environmentVariables":{  
-    
+
           },
           "availableProcessorCount":0,
           "freeMemoryByteCount":0,
@@ -441,7 +441,7 @@ should follow these naming conventions depending on PODO property type:
     }
 ```
 ### Collection GET (no expand)
-``` 
+```
     {  
        "documentLinks":[  
           "/common/node-groups/default/87084a1d-8d77-4295-aef4-f6bb957995d1",
