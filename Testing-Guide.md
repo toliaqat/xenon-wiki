@@ -16,7 +16,6 @@ All of these classes are packaged in `xenon-common-[version]-tests.jar`.
 
 **Sample code**
 
-- [TestExampleWithMultiNode][TestExampleWithMultiNode]
 - [TestExampleService][TestExampleService]
 - [TestExampleTaskService][TestExampleTaskService]
 
@@ -189,7 +188,7 @@ ServiceHost peer = nodeGroup.getHost();
 TestRequestSender sender = new TestRequestSender(peer);
 ```
 
-See more example in [TestExampleWithMultiNode][TestExampleWithMultiNode].
+See more example in [TestExampleService][TestExampleService].
 
 ## Authentication/Authorization
 
@@ -197,12 +196,11 @@ When `ServiceHost` has protected with auth(`host#setAuthorizationEnabled(true)`)
 `AuthTestUtils` provides methods for login, logout, or set system auth context.  
 So, use those methods appropriately to interact with protected resources.
 
-See concrete example for `AuthTestUtils` usage in `authorization()` method in [TestExampleWithMultiNode][TestExampleWithMultiNode].
+See concrete example for `AuthTestUtils` usage in `authorization()` method in [TestExampleService][TestExampleService].
 
 
 
 [awaitility]: https://github.com/awaitility/awaitility
-[TestExampleWithMultiNode]: https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleWithMultiNode.java
 
 [TestExampleService]: https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/TestExampleService.java
 
