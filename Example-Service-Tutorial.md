@@ -7,6 +7,10 @@ This simple tutorial describes a very simple service, and its factory (the way t
 
  * [programming model](./Programming-Model) for an overview of the Xenon API surface and model.
 
+ * [service author guidelines](./service-implementation-guidelines)
+
+ * [design patterns](./Service-Design-Patterns)
+
  * [debugging and troubleshooting](./Debugging-and-Troubleshooting#starting-a-host) for more details on starting Xenon, including starting multiple, replicated hosts.
 
  * [custom host and service creation page](./Hosting-Custom-Services-On-Xenon) if you want to create and host custom services.
