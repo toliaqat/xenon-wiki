@@ -50,11 +50,48 @@ To create a new service host, that starts custom services, in its own jar, pleas
 
 Core xenon changes are validated through tests running on a jenkins instances, across several VMs. The tests run for every gerrit patch and periodically (over 1000 full tests passes a day, single node, multi node, etc).
 
-Any failures are reported to the Pivotal Tracker xenon project using a specific Jenkins job:
-https://enatai-jenkins.eng.vmware.com/view/All/job/failures-to-pivotal-dcp/
-
+Any failures are reported to the Pivotal Tracker xenon project.  
 The job uses an API token for a specific user, and creates new items when a test fails
 
+## Developer Workflow
+
+![Developer workflow](images/developer-guide/dev-workflow.png)
+
+We use gerrit as a review tool as well as authoritative git repository.  
+Jenkins is setup to perform test(pre,post check-in), release, and publishing.  
+All changes are publicly available in github.  
+Released versions and snapshots are synched to maven central.
+
+
+
+## Testing
+
+Xenon build infrastructure is setup on jenkins and run tests at pre-check-in, post-check-in, and per developer request.
+
+
+### Pre check-in
+
+Gerrit triggers jenkins test job that runs all tests with new changeset developer submitted.
+This is a requirement for the changeset to be merged into the master branch.
+Successful build will post +1 on gerrit code review.
+
+### Post check-in
+
+Periodically, jenkins triggers test jobs to run ALL tests in the latest master.
+
+Currently, we have following jobs:
+
+* High frequency - run all tests every 15min on 6 jenkins nodes
+* Windows machine - run all tests on windows machine
+* Raspberry pie cluster - 10 node clustered physical raspberry pie machines
+* Scenario based configuration - configured to run specific test with long running, pause-resume, servicehost restart, etc.
+
+
+### Per developer request
+
+Jenkins also have jobs to run tests per developer's request.  
+This is mainly used for debugging issues, pre-check the impact before critical changes, etc.  
+This job can be enabled/disabled per developers request.
 
 # Debugging
 
