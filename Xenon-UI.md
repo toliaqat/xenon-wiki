@@ -7,7 +7,7 @@ Xenon provides a built-in application which federates information from nodes acr
 - Extract logs that are specific to each node.
 
 ## Availability
-Xenon UI comes with every Xenon jar after 0.9.5 and is available in [http://localhost:8000/core/ui/default](http://localhost:8000/core/ui/default).
+Xenon UI comes with every Xenon jar after 0.9.6 and is available in [http://localhost:8000/core/ui/default](http://localhost:8000/core/ui/default).
 
 **Note** It is still in its early stage of development and is expected to iterate/change rapidly.
 
