@@ -1,3 +1,5 @@
+![Queries](./images/xenon-ui/queries.png)
+
 # Overview
 
 The query  task service provides  a task-based  REST API to  specify and
@@ -582,7 +584,7 @@ The following query sorts the documents of kind ExampleServiceState based on the
 }
 ```
 note: In order for a property to be enabled for sorting, it must have indexingOption `SORT` enabled.
-please see the [programming model page](./Programming-Model) and 
+please see the [programming model page](./Programming-Model) and
 [example service page](./Example-Service-Tutorial) for more information.
 
 
@@ -623,34 +625,34 @@ HTTP/1.1 200 OK
 
 {
  ...
-    "indexLink": "/core/document-index", 
+    "indexLink": "/core/document-index",
     "querySpec": {
         "options": [
             "EXPAND_CONTENT"
-        ], 
+        ],
         "query": {
-            "occurance": "MUST_OCCUR", 
+            "occurance": "MUST_OCCUR",
             "term": {
-                "matchType": "TERM", 
-                "matchValue": "instance-1", 
+                "matchType": "TERM",
+                "matchValue": "instance-1",
                 "propertyName": "name"
             }
-        }, 
+        },
         "resultLimit": 2147483647
-    }, 
+    },
     "results": {
 ...
         "documentLinks": [
             "/core/examples/a703f44a-ab33-4451-87b2-6554160ed1e0"
-        ], 
+        ],
 ...
         "documents": {
-            "/core/examples/a703f44a-ab33-4451-87b2-6554160ed1e0": { 
+            "/core/examples/a703f44a-ab33-4451-87b2-6554160ed1e0": {
 ...
-        }, 
-    }, 
+        },
+    },
     "taskInfo": {
-        "isDirect": true, 
+        "isDirect": true,
         "stage": "FINISHED"
     }
 }
@@ -682,7 +684,7 @@ This translates to `tags.item eq tag1 and tags.item eq tag2`
 
 Note that Xenon stores collections such as Arrays, Lists and Sets with a special postfix ".item".
 If the service document has `Set<String> tags`, use `tags.item`.
- 
+
 * Any of ( A B C )
 
 `name any 'ABC;XYZ'`
@@ -720,7 +722,7 @@ This combination is not supported directly. Instead use "A or (C Not B)"
 Use `name eq TEST1 or (name eq TEST* and keyValues.myKey ne myValue)`
 when trying to achieve `name eq TEST1 or keyValues.myKey ne myValue`
 
-When combining any NOT sub-clause with OR, the same applies. 
+When combining any NOT sub-clause with OR, the same applies.
 Even in case of combining Not A and Not B , Not A or Not B
 use it in a combination with AND.
 
@@ -729,9 +731,9 @@ For example
 * Use A and (Not B or Not C)   
 
 They work on Factory service as mentioned above because the `documentKind` clause is added implicitly.
- 
+
 Xenon uses Lucene to index and store documents, and it does not support the combination ( A or Not B).       
-### Using Pagination 
+### Using Pagination
 
 The `resultLimit` field  is used to enable query  results pagination. By
 default  a query  will return  all results  in a  single document.  When
