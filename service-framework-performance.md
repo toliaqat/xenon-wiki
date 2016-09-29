@@ -88,21 +88,23 @@ The parameters supplied to the tests are serviceCount=128, and updateCount over 
 
  * In memory service, in process (no socket I/O) (4G limit): 1,000,000 ops/sec
  * In memory service, in process (no socket I/O) (64MB limit): 500,000 ops/sec
- * In memory service, local sockets: 60,000 ops/sec
- * Durable service, in process (no socket I/O) (4G limit): 250,000 ops/sec
- * Durable service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
+ * In memory service, local sockets: 84,000 ops/sec
+ * PUT Persisted service, in process (no socket I/O) (4G limit): 250,000 ops/sec
+ * PUT Persisted service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
+ * POST (service creation) Persisted service, in process (no socket I/O) (4G limit): 30,000 ops/sec
+ * POST (service creation) Persisted, Immutable service, in process (no socket I/O) (4G limit): 30,000 ops/sec
 The [lucene document index service](./luceneDocumentIndexService#performance) has more details on indexing and query throughput.
 
 ### Multiple node
- * Durable, replicated service, 3 nodes (4GB limit): 7,000 PUT ops/sec
+ * Durable, replicated service, 3 nodes (4GB limit): 12,000 PUT ops/sec
 
 The TestNodeGroupService.replication test method should be run with sufficiently large operation limit and test duration.
 It logs the throughput, per action, at the end of the test:
 
 `
 [doReplication][Total operations: 630000]
-[Total ops for POST: 9000, Throughput (ops/sec): 4155.109307]
-[Total ops for PATCH: 297000, Throughput (ops/sec): 7587.162317]
+[Total ops for POST: 9000, Throughput (ops/sec): 7032.109307]
+[Total ops for PATCH: 297000, Throughput (ops/sec): 8082.162317]
 [Total ops for PUT: 297000, Throughput (ops/sec): 8182.927047]
 [Total ops for DELETE: 9000, Throughput (ops/sec): 6023.717383]
 `
