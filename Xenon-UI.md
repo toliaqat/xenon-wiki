@@ -2,7 +2,7 @@
 Xenon provides a built-in application which federates information from nodes across the node groups and visualize them in a single pane of UI. It also offers a rich set of features that can help you:
 - Navigate to any node within the node groups and browse node-specific document contents.
 - Add/Edit/Delete instances with test payloads.
-- (WIP) Generate query tasks interactively.
+- Generate query tasks interactively.
 - (WIP) Trace operations.
 - Extract logs that are specific to each node.
 
@@ -40,11 +40,17 @@ Since logs are specific to each node, the UI provides an easy way to browse the 
 ![Logs](./images/xenon-ui/logs.png)
 
 ## Queries
-(WIP) Interactive query builder for generating simple queries (up to one level of nested boolean clauses).
+Interactive query builder for generating simple queries (up to one level of nested boolean clauses).
 
-![Logs](./images/xenon-ui/queries.png)
+![Queries](./images/xenon-ui/queries.png)
 
 If you are really savvy with the queries, try out the "Advanced" query.
+
+![Queries Advanced](./images/xenon-ui/queries-advanced.png)
+
+Query results will be displayed on the same page for further review.
+
+![Query Result](./images/xenon-ui/query-results.png)
 
 # Documentation
 Refer to [Xenon UI Readme](https://github.com/vmware/xenon/blob/master/xenon-ui/src/main/ui/README.md)
