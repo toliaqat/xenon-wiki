@@ -16,7 +16,7 @@ be useful for readers to refresh themselves with the following **prerequisites**
  * [Multi-Node Tutorial](./Multi-Node-Tutorial)
 
 # Problem Statement
-When a _**new node joins the node-group**_, it is important for Xenon to replicate the
+When a **new node joins the node-group**, it is important for Xenon to replicate the
 necessary state to the new node so that it can start serving user requests.  
 Depending on the amount of state and number of service instances involved, this 
 could be a very I/O intensive process (both disk and network). The synchronization
@@ -28,7 +28,7 @@ service instances, so the synchronization process is also required to replicate
 the latest state to the new node. 
 
 But what if the joining node is not a new node? What if this was an existing node
-that got split because of _**Networking Partitioning**_, and is now joining back 
+that got split because of **Networking Partitioning**, and is now joining back 
 to the node-group. It is also possible that the node joining the node-group
 may have more latest state than the rest of the nodes. So, the synchronization 
 process is also required to make sure to update the existing peer nodes in the 
