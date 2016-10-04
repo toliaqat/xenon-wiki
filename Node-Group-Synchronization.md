@@ -168,23 +168,30 @@ SynchronizationTaskService.
 
 a) The FactoryService at start-up time creates the synchronization-task in
 CREATED state.
+
 b) The Synchronization-task receives a PUT request everytime a node-group
 change event occurs. This will move the task from CREATED to STARTED state
 and QUERY sub-stage
+
 c) In the QUERY sub-stage, the Synchronization-task does a broadcast query to
 all peer nodes to determine the union of documentSelfLinks for that factory
 service. The query performed is paginated. If there are no results returned,
 the Synchronization-task jumps to the FINISHED state.
+
 d) If we do find child-services, the Synchronization-task moves to the next
 sub-stage SYNCHRONIZE. In the SYNCHRONIZE sub-stage the task sends out
 SYNCH-POST requests to all OWNER nodes as discussed in the previous section.
+
 e) After the task has sent SYNCH-POST requests for each child-service self-link
 in the current page, it checks if there are more pages to process for the
 broadcast query ran in step c.
+
 f) If there are no more pages to process, the task jumps to the FINISHED state.
+
 g) As discussed earlier, the synchronization-task is restartable for new
 node-group change events. If a new node-group change event occurs, the
 synch-task moves back to STARTED-QUERY stage.
+
 h) It is possible that while the task is STARTED, a new node-group change event
 may occur and request synchronization. In that case, the PUT request resets
 the task back to RESTART sub-stage. The next time the task self-patches
