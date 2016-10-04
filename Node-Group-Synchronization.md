@@ -67,7 +67,7 @@ for the same service.
 Also, notice that even though Node "E" just joined the node-group and will most
 likely not have any state for the child2, still receives the SYNCH-POST request.
 This is because child service synchronization always considers the latest state
-of the child service by querying each node in the node-group. This will become 
+of the child service by querying each node in the node-group. This will become
 more clear in the coming discussion.
 
 Once the child service owner has received the SYNCH-POST request, it starts
@@ -81,23 +81,23 @@ it will go over the results to compute the latest state. The process of computin
 latest state is critical for Xenon to recover service state reliably in the
 face of errors and network partitions. To do this, Xenon uses documentVersion
 and documentEpoch per Service Document. The documentVersion field in a monotonically
-increasing number indicating the number of updates the local service instance has 
-processed since creation. The documentEpoch field is also a monotonically 
-increasing number that gets incremented each time a child service owner changes. 
+increasing number indicating the number of updates the local service instance has
+processed since creation. The documentEpoch field is also a monotonically
+increasing number that gets incremented each time a child service owner changes.
 Given the above details, the algorithm of compute best state is as follows:
  * Select the document(s) with the highest documentEpoch.
- * If there are more than one documents with the highest epoch, select the 
+ * If there are more than one documents with the highest epoch, select the
    document(s) with the highest documentVersion.
- * If there are more than one document with the highest epoch and highest 
+ * If there are more than one document with the highest epoch and highest
    documentVerison, then xenon picks one of the documents randomly. Although,
    we could still have scenarios because of Network splits that two different
    documents may exist with the same epoch and document version, Xenon currently
    does not solve this problem.
 
-Once owner node has computed the latest state of the child service, it will 
+Once owner node has computed the latest state of the child service, it will
 broadcast the new state to all peer nodes in the node-group (Fig-g). Also, if the
 latest state is different than the local state of the owner node, it will update
-it's state. 
+it's state.
 
 After each child-service has finished synchronization, the SynchronizationTaskService
 for will complete execution and mark the Factory service's stats as AVAILABLE (Fig-h).
@@ -106,43 +106,63 @@ for will complete execution and mark the Factory service's stats as AVAILABLE (F
 
 The above approach for Synchronization provides the following **benefits**:
 
- * Synchronization work-load gets uniformly distributed across all nodes in the 
+ * Synchronization work-load gets uniformly distributed across all nodes in the
    node-group. This increases concurrency and reduces the overall amount of time
    taken for synchronization.
- * Each child service synchronization request goes through the owner nodes as 
-   discussed above. This ensures that any in-flight update requests for the 
+ * Each child service synchronization request goes through the owner nodes as
+   discussed above. This ensures that any in-flight update requests for the
    child services get serialized without running into state conflicts.
  * The latest state of each child service gets computed and replicated to all
    peer nodes thus ensuring that the entire state of node-group becomes consistent.
 
 # Synchronization Scenarios
- 
+
 The process of synchronization also gets invoked in scenarios other than node-group
 changes. These include:
 
- * **Node Restarts**: Generally speaking, for replicated services a node restart 
-   is no different than a node leaving and joining a Xenon node-group. However, 
+ * **Node Restarts**: Generally speaking, for replicated services a node restart
+   is no different than a node leaving and joining a Xenon node-group. However,
    for non-replicated services, xenon still needs to make sure that all locally
-   stored child services get start. To handle this scenario, Xenon uses the 
+   stored child services get start. To handle this scenario, Xenon uses the
    same Synchronization process, with the caveat that the SYNCH-POST request in
    Figure d (above) always gets sent to the local node. Also the local node skips
    steps outlined in Figures f and g to avoid querying other nodes for the latest
-   state and just considers the local state to start the service. 
-   
- * **On-demand Synchronization**: It is possible that while the synchronization 
+   state and just considers the local state to start the service.
+
+ * **On-demand Synchronization**: It is possible that while the synchronization
    process was running a child service that has not been synchronized yet, receives
    an update request (PATCH, PUT or DELETE). Instead of blocking the write request
    or failing it, Xenon detects that the local service needs to be synchronized
    at that time and kicks-off synchronization right away i.e. steps outlined by
-   Figures f and g. After the service has been synchronized and the owner node 
+   Figures f and g. After the service has been synchronized and the owner node
    has the latest state, xenon replays the original write request.
-   
+
  * **Synchronizing OnDemandLoad Services**: OnDemandLoad Services in Xenon only
    get started as a result of user requests. If not accessed, Xenon stops these
    services to reduce the memory footprint of the Xenon host. Synchronization for
-   these services is a little complicated such that these services never get 
+   these services is a little complicated such that these services never get
    synchronized as part of node-group changes. Instead, when an OnDemandLoad service
    is requested, at that time very similar to On-demand synchronization, Xenon
    performs synchronization for that child-service and then replays the original
    write request.
 
+# SynchronizationTaskService
+
+As discussed earlier, the SynchronizationTaskService is responsible for
+orchestrating synchronization of all child-services for a given FactoryService.
+The SynchronizationTaskService is a Stateful, in-memory service. An instance of
+the task is created per FactoryService. The FactoryService itself creates this
+instance when the FactoryService starts, usually as part of host start-up. The
+created task instance represents a never expiring service.
+
+The SynchronizationTaskService represents a long-running preemptable task.
+Preemptability is important here because while the task is running, a new node-group
+change event may arrive that will require either the task to get cancelled or
+to get restarted. The task may get cancelled because the node is no longer the
+synchronization OWNER for the Factory Service. The task may get restarted if
+the node continues to be the owner of the FactoryService, however because the
+node-group configuration has changed, the task needs to be restarted to consider
+the new set of nodes in the node-group. The below diagram describes the
+state-machine of the SynchronizationTaskService.
+
+![](https://lh3.googleusercontent.com/2EctYbDlMDE8Hjh7SGB38NUzfwA_7G0125VJJYPcBEwm46XHRL1l43CPwQNOTWc3i_FRPKjoKl53c5lo1WwevcG34WPOmym7-aboM5VuJC89F0PGMEGUrue_ZagAW7OB0W_qf52-hA64X9ayBgoKLCCj7_XDotMrL3xf5_koGp0jTG2MMs_LAPJmeAQfCssLCzQuQiru_yo7LP7H8TuP62KKblSIz3tcAlrP2ZwxJSGzjpnQYaM_tfpcVsdihPK8GXgvqOrvIj9kELq2HeqO9AT1YB-mNvcwEtWlXg9SZZAWvL_WZi9BzQLuVEUPl9L5TfiSLh6DqNz5MKmyY1s-z47tOm9yyK73QHwJHrHgBBkej90uqPA59fx1ekya4WVg6g7Mv36P8Lbw4xWzJVwanVfsfSyOsp0zlIcSUOCeI-eDDUFowW4rG_GopmadQ51Xnr2eDNmI11XlYsv2sSRODMvSyQ18er7vHXvPTYl_dz7JP2TexY8PsKOpRXTMTTpuhsfmudBaKXhVTJW_UIUwzIOj4ORWztPIjyMMFmVN_eQymRZKxqYHOVk9XrrlYGrvqun8pvHLOSFgzhCMEdc9rTue79FLF24Eadrt3cC74wEU297a=w1838-h1860-no)
