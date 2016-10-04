@@ -22,7 +22,7 @@ Synchronization gets kicked-off when a node joins or leaves the xenon node
 group (**Figure A** below). Technically speaking, synchronization is triggered
 whenever a node-group converges after going through a change i.e. node(s)
 getting added or removed. The process of node-group convergence is described
-in more detail here (todo).
+in more detail here: [Node-Group Convergence](./NodeGroupService#node-group-convergence).
 
 Each node in the node-group runs synchronization and goes through all
 factory services to determine the synchronization OWNERs for that factory
