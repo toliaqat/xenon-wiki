@@ -104,7 +104,8 @@ for will complete execution and mark the Factory service's stats as AVAILABLE (F
 
 ![](https://lh3.googleusercontent.com/Zm2TZjiE2P_Kif1JprLAC0f0j_6R0o3QqsOvaISXle92OvibfxHEsqrh2jL270mLqPXx72kmgSCEH4PZ7TyE4-Uk3XSMmx0gyC4_GBZ0xnhEcxAIbi_c87_iyVgJA5Wtzlt6gaGi_6hIE1-HO4V1ws584E9zK1XwjiKfb12kcMoyueEov8sAGaGbBtGQQf3mPrmY_818jkWPtUStCUEOAabK6B-sO268jqbya-kDliFJdpAkgncR5907t3a0IJSHfr8AHD6SHWsU2ITdARnA5LoVSVxceCv6kY-xj2Hf-HjmlvPQaUmHbKT2kqG3uuaKYLaPfzHVJu5qGndfZYssyKLP9v_hinBAN0Y8SRDUxmlcRQu7F_LymAslmR4QG6jLNaNm-Chr-DUUtF7OsLo1CLywZoYygXdLnogbKqrffEVMkXHTYqgMuu2fxYw7ptKNLlZpIEh6AktDIE9vnL0xz-vJI2aZNKcDq3dZAZINCPLNlBNz17Y9v6AuPLKeaJvE-RjqFJ0xUd9trAsGGTKC2cgj5lEp8HKkJXV8bOyP09L8eipOcBcbLHDamyGGUmqBXDhRr2AKSmbnjY0JBoJ__JMNH9W5lnhDKMZYRtSJz0rWlPNc=w2048-h956-no)
 
-The above approach for Synchronization provides the following benefits:
+The above approach for Synchronization provides the following **benefits**:
+
  * Synchronization work-load gets uniformly distributed across all nodes in the 
    node-group. This increases concurrency and reduces the overall amount of time
    taken for synchronization.
@@ -136,4 +137,12 @@ changes. These include:
    Figures f and g. After the service has been synchronized and the owner node 
    has the latest state, xenon replays the original write request.
    
- * **Synchronizing OnDemandLoad Services**: Because 
+ * **Synchronizing OnDemandLoad Services**: OnDemandLoad Services in Xenon only
+   get started as a result of user requests. If not accessed, Xenon stops these
+   services to reduce the memory footprint of the Xenon host. Synchronization for
+   these services is a little complicated such that these services never get 
+   synchronized as part of node-group changes. Instead, when an OnDemandLoad service
+   is requested, at that time very similar to On-demand synchronization, Xenon
+   performs synchronization for that child-service and then replays the original
+   write request.
+
