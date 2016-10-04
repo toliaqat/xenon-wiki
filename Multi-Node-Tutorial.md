@@ -8,6 +8,7 @@ This tutorial will walk through starting a couple of xenon hosts, each in their 
 * [Example Tutorial](./Example-Service-Tutorial)
 * [Xenon Clustering deck](https://github.com/vmware/xenon/blob/master/contrib/docs/XenonClustering.pptx)
 * [Replication and Synchronization Algorithms](./Leader-Election-And-Replication-Design)
+* [Synchronization Internals](./Synchronization-Internals)
 * [Multi node test setup, with Raspberry PIs!](./Multi-Node-Setup-with-Raspberry-PIs)
 * [13. What will happen to accessing a service when node group is unstable?](FAQ#13-what-will-happen-to-accessing-a-service-when-node-group-is-unstable)
 * [14. What will happen to the service when nodes are constantly up and down?](FAQ#14-what-will-happen-to-the-service-when-nodes-are-constantly-up-and-down)
