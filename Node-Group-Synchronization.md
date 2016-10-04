@@ -75,3 +75,32 @@ processing it by making a broadcast query to all peer nodes to get the latest
 version of the Sevice (Fig-f).
 
 ![](https://lh3.googleusercontent.com/w-KCQPuiQf-JxWgOrKUO0PoRUurVagAveLd9990UdcJ8t4sAD4iGhPw5SFPbML6jNEjGAYLu8gD6zqRQO6uEVUb-NKd0o8E_qwdkRb5f4-AUppVawXOB9UAulewMk9ppoF2-hHWMur3r1ELoatc2SOUG1mdTtnEpOAmYBWhK1PAy_9M5vePv1mCmH8fYjjPwBBY0bmCyz-Sbk-d9CO0eDT4nQKKml0sGkw2DNppsNHlrNyn8wbGwG-O9bDQSdv5E9e2Enmqs2iUdcCucGkdrzdakIhJVXtLbT0Cuz6FZqhAaHTHKWyMUFM2VX6Z4F3ID7Hd5kXUbMAKu4ZLOYW_gwDwFMIOXkVnWFZc2UCq8YrK5qrcAHfnNigbYpdfqN7vYHFAWX8YGm6yyscTirFmgSKAo58-_AVOXv1zisBUmTWicenMnpBHHuomYgNnfCs5vgbW8QVQTtphHL81AKEeKNG3vxdndDA_Ge_MVsGSEkIMFZVviAnjkSbwpl4fqu3MbtpP35jBNrLZhWeCLIfPtsHM8CQa0H9IzTmYyJtrWnjkxB9g18oVGHyu_m-mkc8JaVhBiXzqzz4RRmb2ZZWLt0SHKxxTP293dKRBLmOI6Dy4svsrK=w2048-h945-no)
+
+After the child service owner has received the latest state from it's peers,
+it will go over the results to compute the latest state. The process of computing
+latest state is critical for Xenon to recover service state reliably in the
+face of errors and network partitions. To do this, Xenon uses documentVersion
+and documentEpoch per Service Document. The documentVersion field in a monotonically
+increasing number indicating the number of updates the local service instance has 
+processed since creation. The documentEpoch field is also a monotonically 
+increasing number that gets incremented each time a child service owner changes. 
+Given the above details, the algorithm of compute best state is as follows:
+ * Select the document(s) with the highest documentEpoch.
+ * If there are more than one documents with the highest epoch, select the 
+   document(s) with the highest documentVersion.
+ * If there are more than one document with the highest epoch and highest 
+   documentVerison, then xenon picks one of the documents randomly. Although,
+   we could still have scenarios because of Network splits that two different
+   documents may exist with the same epoch and document version, Xenon currently
+   does not solve this problem.
+
+Once owner node has computed the latest state of the child service, it will 
+broadcast the new state to all peer nodes in the node-group (Fig-g). Also, if the
+latest state is different than the local state of the owner node, it will update
+it's state. 
+
+After each child-service has finished synchronization, the SynchronizationTaskService
+for will complete execution and mark the Factory service's stats as AVAILABLE (Fig-h).
+
+![](https://lh3.googleusercontent.com/Zm2TZjiE2P_Kif1JprLAC0f0j_6R0o3QqsOvaISXle92OvibfxHEsqrh2jL270mLqPXx72kmgSCEH4PZ7TyE4-Uk3XSMmx0gyC4_GBZ0xnhEcxAIbi_c87_iyVgJA5Wtzlt6gaGi_6hIE1-HO4V1ws584E9zK1XwjiKfb12kcMoyueEov8sAGaGbBtGQQf3mPrmY_818jkWPtUStCUEOAabK6B-sO268jqbya-kDliFJdpAkgncR5907t3a0IJSHfr8AHD6SHWsU2ITdARnA5LoVSVxceCv6kY-xj2Hf-HjmlvPQaUmHbKT2kqG3uuaKYLaPfzHVJu5qGndfZYssyKLP9v_hinBAN0Y8SRDUxmlcRQu7F_LymAslmR4QG6jLNaNm-Chr-DUUtF7OsLo1CLywZoYygXdLnogbKqrffEVMkXHTYqgMuu2fxYw7ptKNLlZpIEh6AktDIE9vnL0xz-vJI2aZNKcDq3dZAZINCPLNlBNz17Y9v6AuPLKeaJvE-RjqFJ0xUd9trAsGGTKC2cgj5lEp8HKkJXV8bOyP09L8eipOcBcbLHDamyGGUmqBXDhRr2AKSmbnjY0JBoJ__JMNH9W5lnhDKMZYRtSJz0rWlPNc=w2048-h956-no)
+
