@@ -166,7 +166,7 @@ SynchronizationTaskService.
 
 ![](https://lh3.googleusercontent.com/Tm5hFYxbePSs6X9ERcdc7rzWN6zEjwA4OfFx-ECuI-bNVDUsLqr8IgOj0GDPHppWEERxpc82CxVqrFIMTcRKftJwa7uPepMfGPJFjrZF0uU2OPbJBubZp2wq7AQfQzcxrwdNWGlAAZebCu6ZhP-bl7swAEpQyT6yvzxu3x00M05fxs1JZRrbONNRnSSYLeZI2Fc88YJtsRN9YBPBktATxy_dtaKQ6J2MJ3vLkrcmBFK28jP4qe-yi7_GY8Jkh5NxLCzU689X7dkRP2C0WRWPWDplYENTYwMGxEIHzU9krgWmmTXaXoohDb6JzqmcKI5-5nBjJ-f6T3ZhJp24AF85M5ifopgiOaGFTcFxPljjchV0xHL19Zm42C1WP23erlyOGQnX22cIj5k3K9holsjN-I5sWyGsWwFWCoMa5Mmigm7lx_l4mxuEa-c_CrHY1m1Coh06s61Dn8R7n72ob9qKRjNNAoocT7iNWxzTIwrEvOH1glako4iGU2FDK0JW9RzJY-ZnrX5_9jUdL-RsdMZ0jpzo5_CWBdkf_d_L0qqNrbPF7L7KrNpSS_DMP0QSjZQjkbNIreMhfUnh71pbgEY8PP1Umk0v2MvzVEDZhDVk3s9Ia1Li=w2048-h1784-no)
 
-a. The FactoryService at start-up time creates the synchronization-task in
+**a)** The FactoryService at start-up time creates the synchronization-task in
    CREATED state.
 
 b. The Synchronization-task receives a PUT request everytime a node-group
