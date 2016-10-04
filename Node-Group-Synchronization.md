@@ -20,7 +20,7 @@ Synchronization gets kicked-off when a node joins or leaves the xenon node
 group (Fig-a below). Technically speaking, synchronization is triggered
 whenever a node-group converges after going through a change i.e. node(s)
 getting added or removed. The process of node-group convergence is described
-in a lot of detail here. TODO
+in more detail here (todo).
 
 Each node in the node-group runs synchronization and goes through all
 factory services to determine the synchronization OWNERs for that factory
@@ -104,3 +104,36 @@ for will complete execution and mark the Factory service's stats as AVAILABLE (F
 
 ![](https://lh3.googleusercontent.com/Zm2TZjiE2P_Kif1JprLAC0f0j_6R0o3QqsOvaISXle92OvibfxHEsqrh2jL270mLqPXx72kmgSCEH4PZ7TyE4-Uk3XSMmx0gyC4_GBZ0xnhEcxAIbi_c87_iyVgJA5Wtzlt6gaGi_6hIE1-HO4V1ws584E9zK1XwjiKfb12kcMoyueEov8sAGaGbBtGQQf3mPrmY_818jkWPtUStCUEOAabK6B-sO268jqbya-kDliFJdpAkgncR5907t3a0IJSHfr8AHD6SHWsU2ITdARnA5LoVSVxceCv6kY-xj2Hf-HjmlvPQaUmHbKT2kqG3uuaKYLaPfzHVJu5qGndfZYssyKLP9v_hinBAN0Y8SRDUxmlcRQu7F_LymAslmR4QG6jLNaNm-Chr-DUUtF7OsLo1CLywZoYygXdLnogbKqrffEVMkXHTYqgMuu2fxYw7ptKNLlZpIEh6AktDIE9vnL0xz-vJI2aZNKcDq3dZAZINCPLNlBNz17Y9v6AuPLKeaJvE-RjqFJ0xUd9trAsGGTKC2cgj5lEp8HKkJXV8bOyP09L8eipOcBcbLHDamyGGUmqBXDhRr2AKSmbnjY0JBoJ__JMNH9W5lnhDKMZYRtSJz0rWlPNc=w2048-h956-no)
 
+The above approach for Synchronization provides the following benefits:
+ * Synchronization work-load gets uniformly distributed across all nodes in the 
+   node-group. This increases concurrency and reduces the overall amount of time
+   taken for synchronization.
+ * Each child service synchronization request goes through the owner nodes as 
+   discussed above. This ensures that any in-flight update requests for the 
+   child services get serialized without running into state conflicts.
+ * The latest state of each child service gets computed and replicated to all
+   peer nodes thus ensuring that the entire state of node-group becomes consistent.
+
+# Synchronization Scenarios
+ 
+The process of synchronization also gets invoked in scenarios other than node-group
+changes. These include:
+
+ * **Node Restarts**: Generally speaking, for replicated services a node restart 
+   is no different than a node leaving and joining a Xenon node-group. However, 
+   for non-replicated services, xenon still needs to make sure that all locally
+   stored child services get start. To handle this scenario, Xenon uses the 
+   same Synchronization process, with the caveat that the SYNCH-POST request in
+   Figure d (above) always gets sent to the local node. Also the local node skips
+   steps outlined in Figures f and g to avoid querying other nodes for the latest
+   state and just considers the local state to start the service. 
+   
+ * **On-demand Synchronization**: It is possible that while the synchronization 
+   process was running a child service that has not been synchronized yet, receives
+   an update request (PATCH, PUT or DELETE). Instead of blocking the write request
+   or failing it, Xenon detects that the local service needs to be synchronized
+   at that time and kicks-off synchronization right away i.e. steps outlined by
+   Figures f and g. After the service has been synchronized and the owner node 
+   has the latest state, xenon replays the original write request.
+   
+ * **Synchronizing OnDemandLoad Services**: Because 
