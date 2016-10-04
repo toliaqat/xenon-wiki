@@ -166,3 +166,27 @@ public class NodeState extends ServiceDocument {
     public int membershipQuorum = 1;
 }
 ```
+
+# Node-Group Convergence
+When a node-group goes through changes i.e. node(s) get added or removed, the
+gossip protocol as it learns about these changes, may generate a lot of node-group
+change events. This is due to the nature of the protocol, as nodes learn and 
+propagate their information through peers. One interesting challenge that arises 
+is to determine reliably when the node-group has converged i.e. all nodes in the
+node-group are in sync and reflect the same view of the node-group. This is 
+important because, many critical tasks in Xenon are dependent on node-group 
+changes, for example Synchronization. 
+
+To determine node-group convergence, Xenon uses the property membershipUpdateTimeMicros
+in the NodeGroupState PODO. This property reflects the maximum value among all 
+reported update times from peer nodes. As gossip propagates information about each
+peer to remaining nodes, this property settles to the same value across all peers.
+So, to check for node-group convergence, xenon queries the node-group service on
+each peer to check if everyone reports the same value for membershipUpdateTimeMicros.
+If they do, the node-group is considered converged. 
+
+Node-Group convergence is driven by the associated Node-Selector, which receives
+node-group change notifications. The node-selector checks for convergence on these
+updates and when the node-group has converged, notifies the Xenon host. For 
+reference, see method NodeGroupUtils.checkConvergence that is used by the 
+Node-Selector to verify convergence.
