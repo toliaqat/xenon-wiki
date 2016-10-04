@@ -206,10 +206,10 @@ to the STARTED-QUERY stage.
 
 While the node-group converges, it is possible that multiple node-group change
 events can occur, and sometimes even in the wrong order. So it is critical to
-only restart the Synchronization-task to restart itself only if the node-group
-change event it just received is actually newer. To detect this, the Synchronization
-task uses the membershipUpdateTimeMicros property that is an increasing number
-set through NodeGroupService and acts as a version number of the node-group change
+only restart the Synchronization-task if the node-group change event it just 
+received is actually newer. To detect this, the Synchronization-task uses the 
+**membershipUpdateTimeMicros** property that is an increasing number set through 
+NodeGroupService and acts as a version number of the node-group change
 event. The SynchronizationTaskService stores the membershipUpdateTimeMicros
 that caused the task to trigger. Only if the incoming request is for a higher
 membershipUpdateTimeMicros, the task will get reset to RESTART sub-stage.
