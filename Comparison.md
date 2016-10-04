@@ -14,4 +14,4 @@ Xenon is not comparable with Mesosphere. Mesosphere/DOCS and Mesos Scheduler/RM 
 
 ## How does Xenon compare against Zookeeper?
 
-Xenon is comparable to some extent with Zookeeper in that it helps with coordination and implementation of consensus. It differs from Xenon in that it does not host code, does not support indexing, requires client libraries, etc. Xenon developer do not need Zookeeper as Xenon provides leader election, consensus and persistence as available (opt-in) features in its REST services (see design page and programming model for a list of service options) 
+Xenon is comparable to some extent with Zookeeper in that it helps with coordination and implementation of consensus. It differs from Xenon in that it does not host code, does not support indexing, requires client libraries, etc. Xenon developer do not need Zookeeper as Xenon provides leader election, consensus and persistence as available (opt-in) features in its REST services (see Implementors Guide and Programming Model for a list of service options) 
