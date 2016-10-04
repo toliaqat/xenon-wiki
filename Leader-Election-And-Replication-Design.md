@@ -195,8 +195,7 @@ Synchronization occurs when new nodes are added to a node group, or existing nod
 
 The steady state protocol outlined below will also trigger a per service resynchronization if it notices disagreement on epoch, owner or version.
 
-Please see  the  [synchronization page](./NodeSelectorService#synchronization).
-
+For more details about the Synchronization process in Xenon, please refer to the page [Synchronization Internals](./Synchronization-Internals)
 
 ## Replication protocol
 (Implemented by service client and service host inbound queuing logic)
