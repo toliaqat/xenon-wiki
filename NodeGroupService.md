@@ -1,7 +1,7 @@
 # Overview
 The node group service tracks a group of Xenon nodes. It does failure detection and membership update between all nodes using an implementation of the SWIM protocol. 
 
-The role of this service is described in the [design page](./Design#active-update-replication) and [replication protocol page](./Leader-Election-And-Replication-Design)
+The role of this service is described in the [design page](./Implementors-Guide) and [replication protocol page](./Leader-Election-And-Replication-Design)
 
 Multiple groups can co exist and run independently of each other. A service is implicitly associated with a group, through a [node selector service](./NodeSelectorService)
 
@@ -82,21 +82,6 @@ Several important stats including gossip attempts are tracked in real time by th
       "documentKind": "com:vmware:xenon:services:common:NodeState",
       "documentSelfLink": "/core/node-groups/default/host-3",
       "documentUpdateTimeMicros": 1454693063410098,
-      "documentExpirationTimeMicros": 0
-    },
-    "host-4": {
-      "groupReference": "http://127.0.0.1:63740/core/node-groups/default",
-      "status": "AVAILABLE",
-      "options": [
-        "PEER"
-      ],
-      "id": "host-4",
-      "membershipQuorum": 1,
-      "synchQuorum": 2,
-      "documentVersion": 3,
-      "documentKind": "com:vmware:xenon:services:common:NodeState",
-      "documentSelfLink": "/core/node-groups/default/host-4",
-      "documentUpdateTimeMicros": 1454693064465049,
       "documentExpirationTimeMicros": 0
     }
   },
@@ -181,6 +166,3 @@ public class NodeState extends ServiceDocument {
     public int membershipQuorum = 1;
 }
 ```
-
-
-
