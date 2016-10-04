@@ -26,9 +26,7 @@ service options  declared in the  service class. Please  see programming
 model for details. This page relates to the following two options:
 
  * ServiceOption.OWNER_SELECTION
- * ServiceOption.ENFORCE_QUORUM
-
-Both of the above options _require_ ServiceOption.REPLICATION
+ * ServiceOption.REPLICATION
 
 ### CAP Spectrum using Service Options
 
@@ -52,14 +50,14 @@ owner, per service,  to see all updates first, then  replicate if update
 is  valid.  Since updates  are  serialized  within a  service  instance,
 clients will observe ordered updates on the owner node.
 
-This  level, and  the  next  use (i)  a  _consensus  protocol_ and  (ii)
+This  level uses (i)  a  _consensus  protocol_ and  (ii)
 _synchronous_ replication: the client does  not see a response until the
 consensus protocol executes.
 
 The handleStart and handle PATCH/PUT/DELETE/GET handlers only get
 invoked on the service instance running on the owner node.
 
-#### Level 3 ServiceOption.REPLICATION + ServiceOption.OWNER_SELECTION + ServiceOption.ENFORCE_QUORUM
+#### Level 3 ServiceOption.REPLICATION + ServiceOption.OWNER_SELECTION with majority quorum
 
 This combination is identical to level 2, with one crucial difference
 : if the number of available nodes is below the quorum level, the
