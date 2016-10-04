@@ -166,33 +166,33 @@ SynchronizationTaskService.
 
 ![](https://lh3.googleusercontent.com/Tm5hFYxbePSs6X9ERcdc7rzWN6zEjwA4OfFx-ECuI-bNVDUsLqr8IgOj0GDPHppWEERxpc82CxVqrFIMTcRKftJwa7uPepMfGPJFjrZF0uU2OPbJBubZp2wq7AQfQzcxrwdNWGlAAZebCu6ZhP-bl7swAEpQyT6yvzxu3x00M05fxs1JZRrbONNRnSSYLeZI2Fc88YJtsRN9YBPBktATxy_dtaKQ6J2MJ3vLkrcmBFK28jP4qe-yi7_GY8Jkh5NxLCzU689X7dkRP2C0WRWPWDplYENTYwMGxEIHzU9krgWmmTXaXoohDb6JzqmcKI5-5nBjJ-f6T3ZhJp24AF85M5ifopgiOaGFTcFxPljjchV0xHL19Zm42C1WP23erlyOGQnX22cIj5k3K9holsjN-I5sWyGsWwFWCoMa5Mmigm7lx_l4mxuEa-c_CrHY1m1Coh06s61Dn8R7n72ob9qKRjNNAoocT7iNWxzTIwrEvOH1glako4iGU2FDK0JW9RzJY-ZnrX5_9jUdL-RsdMZ0jpzo5_CWBdkf_d_L0qqNrbPF7L7KrNpSS_DMP0QSjZQjkbNIreMhfUnh71pbgEY8PP1Umk0v2MvzVEDZhDVk3s9Ia1Li=w2048-h1784-no)
 
-a) The FactoryService at start-up time creates the synchronization-task in
+a. The FactoryService at start-up time creates the synchronization-task in
 CREATED state.
 
-b) The Synchronization-task receives a PUT request everytime a node-group
+b. The Synchronization-task receives a PUT request everytime a node-group
 change event occurs. This will move the task from CREATED to STARTED state
 and QUERY sub-stage
 
-c) In the QUERY sub-stage, the Synchronization-task does a broadcast query to
+c. In the QUERY sub-stage, the Synchronization-task does a broadcast query to
 all peer nodes to determine the union of documentSelfLinks for that factory
 service. The query performed is paginated. If there are no results returned,
 the Synchronization-task jumps to the FINISHED state.
 
-d) If we do find child-services, the Synchronization-task moves to the next
+d. If we do find child-services, the Synchronization-task moves to the next
 sub-stage SYNCHRONIZE. In the SYNCHRONIZE sub-stage the task sends out
 SYNCH-POST requests to all OWNER nodes as discussed in the previous section.
 
-e) After the task has sent SYNCH-POST requests for each child-service self-link
+e. After the task has sent SYNCH-POST requests for each child-service self-link
 in the current page, it checks if there are more pages to process for the
 broadcast query ran in step c.
 
-f) If there are no more pages to process, the task jumps to the FINISHED state.
+f. If there are no more pages to process, the task jumps to the FINISHED state.
 
-g) As discussed earlier, the synchronization-task is restartable for new
+g. As discussed earlier, the synchronization-task is restartable for new
 node-group change events. If a new node-group change event occurs, the
 synch-task moves back to STARTED-QUERY stage.
 
-h) It is possible that while the task is STARTED, a new node-group change event
+h. It is possible that while the task is STARTED, a new node-group change event
 may occur and request synchronization. In that case, the PUT request resets
 the task back to RESTART sub-stage. The next time the task self-patches
 it detects that it was reset and the task ends up restarting it-self by going
