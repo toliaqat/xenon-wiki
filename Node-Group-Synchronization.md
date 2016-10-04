@@ -152,19 +152,62 @@ As discussed earlier, the SynchronizationTaskService is responsible for
 orchestrating synchronization of all child-services for a given FactoryService.
 The SynchronizationTaskService is a Stateful, in-memory service. An instance of
 the task is created per FactoryService. The FactoryService itself creates this
-instance when the FactoryService starts, usually as part of host start-up. The
-created task instance represents a never expiring service.
+instance when the FactoryService starts, usually during host start-up. The created
+task instance represents a never expiring service.
 
 The SynchronizationTaskService represents a long-running preemptable task.
 Preemptability is important here because while the task is running, a new node-group
 change event may arrive that will require either the task to get cancelled or
-to get restarted. The task may get cancelled because the node is no longer the
-synchronization OWNER for the Factory Service. The task may get restarted if
-the node continues to be the owner of the FactoryService, however because the
-node-group configuration has changed, the task needs to be restarted to consider
-the new set of nodes in the node-group. The below diagram describes the
-state-machine of the SynchronizationTaskService.
+to get restarted. The task should be cancelled because the node is no longer the
+synchronization OWNER for the Factory Service. The task will get restarted if
+the node-group configuration changed but the node continues to be the owner of
+the FactoryService. The below diagram describes the state-machine of the
+SynchronizationTaskService.
 
 ![](https://lh3.googleusercontent.com/Tm5hFYxbePSs6X9ERcdc7rzWN6zEjwA4OfFx-ECuI-bNVDUsLqr8IgOj0GDPHppWEERxpc82CxVqrFIMTcRKftJwa7uPepMfGPJFjrZF0uU2OPbJBubZp2wq7AQfQzcxrwdNWGlAAZebCu6ZhP-bl7swAEpQyT6yvzxu3x00M05fxs1JZRrbONNRnSSYLeZI2Fc88YJtsRN9YBPBktATxy_dtaKQ6J2MJ3vLkrcmBFK28jP4qe-yi7_GY8Jkh5NxLCzU689X7dkRP2C0WRWPWDplYENTYwMGxEIHzU9krgWmmTXaXoohDb6JzqmcKI5-5nBjJ-f6T3ZhJp24AF85M5ifopgiOaGFTcFxPljjchV0xHL19Zm42C1WP23erlyOGQnX22cIj5k3K9holsjN-I5sWyGsWwFWCoMa5Mmigm7lx_l4mxuEa-c_CrHY1m1Coh06s61Dn8R7n72ob9qKRjNNAoocT7iNWxzTIwrEvOH1glako4iGU2FDK0JW9RzJY-ZnrX5_9jUdL-RsdMZ0jpzo5_CWBdkf_d_L0qqNrbPF7L7KrNpSS_DMP0QSjZQjkbNIreMhfUnh71pbgEY8PP1Umk0v2MvzVEDZhDVk3s9Ia1Li=w2048-h1784-no)
 
-WIP .... 
+ a. The FactoryService at start-up time creates the synchronization-task in
+    CREATED state.
+ b. The Synchronization-task receives a PUT request everytime a node-group
+    change event occurs. This will move the task from CREATED to STARTED state
+    and QUERY sub-stage
+ c. In the QUERY sub-stage, the Synchronization-task does a broadcast query to
+    all peer nodes to determine the union of documentSelfLinks for that factory
+    service. The query performed is paginated. If there are no results returned,
+    the Synchronization-task jumps to the FINISHED state.
+ d. If we do find child-services, the Synchronization-task moves to the next
+    sub-stage SYNCHRONIZE. In the SYNCHRONIZE sub-stage the task sends out
+    SYNCH-POST requests to all OWNER nodes as discussed in the previous section.
+ e. After the task has sent SYNCH-POST requests for each child-service self-link
+    in the current page, it checks if there are more pages to process for the
+    broadcast query ran in step c.
+ f. If there are no more pages to process, the task jumps to the FINISHED state.
+ g. As discussed earlier, the synchronization-task is restartable for new
+    node-group change events. If a new node-group change event occurs, the
+    synch-task moves back to STARTED-QUERY stage.
+ h. It is possible that while the task is STARTED, a new node-group change event
+    may occur and request synchronization. In that case, the PUT request resets
+    the task back to RESTART sub-stage. The next time the task self-patches
+    it detects that it was reset and the task ends up restarting it-self by going
+    to the STARTED-QUERY stage.
+
+While the node-group converges, it is possible that multiple node-group change 
+events can occur, and sometimes even in the wrong order. So it is critical to
+only restart the Synchronization-task to restart itself only if the node-group
+change event it just received is actually newer. To detect this, the Synchronization
+task uses the membershipUpdateTimeMicros property that is an increasing number
+set through NodeGroupService and acts as a version number of the node-group change
+event. The SynchronizationTaskService stores the membershipUpdateTimeMicros
+that caused the task to trigger. Only if the incoming request is for a higher
+membershipUpdateTimeMicros, the task will get reset to RESTART sub-stage.
+
+While the synchronization-task is running on one node, a node-group change event 
+can occur that ends up making a different node the owner for the FactoryService.
+When this happens there is a chance that the new owner and the old owner both
+start running the synchronization for the same FactoryService. To avoid the 
+old owner to keep executing synchronization, the task re-checks ownership
+everytime it starts processing a new broadcast query result page. If the task
+discovers that it is no longer the owner, the task cancels itself.
+
+# Code-Map
+
