@@ -20,12 +20,11 @@ It will be useful for readers to refresh themselves with the following
 # Synchronization Process
 Synchronization gets kicked-off when a node joins or leaves the xenon node
 group (**Figure A** below). Technically speaking, synchronization is triggered
-whenever a node-group converges after going through a change i.e. node(s)
-getting added or removed. The process of node-group convergence is described
-in more detail here: [Node-Group Convergence](./NodeGroupService#node-group-convergence).
+whenever a node-group converges after going through a change. The process of 
+node-group convergence is described in more detail here: [Node-Group Convergence](./NodeGroupService#node-group-convergence).
 
 Each node in the node-group runs synchronization and goes through all
-factory services to determine the synchronization OWNERs for that factory
+factory services to determine if the node is the synchronization OWNER for that factory
 (**Figure B** below). Ownership here is determined by consistent-hashing through the
 factory self-link. After each node has established independently the factory
 services it owns, it tries to establish consensus by contacting other nodes in the
@@ -48,17 +47,17 @@ To synchronize the child services, each node kicks off an instance of the
 SynchronizationTaskService per factory. The Synchronization Task starts by
 making a broadcast query to compute the union of all documentSelfLinks for
 the child services of that factory (**Figure D** below). The broadcast query ensures
-that each child service known to any node in the node-group gets synchronized
-to its latest state.
+that each child service known to any node in the node-group is considered 
+during the synchronization process.
 
 ![](https://lh3.googleusercontent.com/lLozKpDUeY2n_pCWUImHAW_VDTwjanR7tFbQrOndLAoFghSit6VSzHB2iFnq_lktu-rW3WlcHBkmTEFDoYOGAcwTaz_bxaPiiMU6psTzPBXNfzJZF1Z7Q4Ja0s6iyO0RmtkCHbWh2dDCbu7aHapvgggG-QGzNZijNnWi2l2IJY2vn_UU80iddX1sxIgTaWnQ-7Dltcr7G9Z6cbBLjxKBNzkaybuNEjpQNe3QjZs9jSTIHYIcat4F2rC9KTnfU9lTSUjD4Zl1vWq23aWFJOwWE-Clc-8IzJVXyEIrgzpAvHbsxG42xQT33AaVi44morolpbpf3-QiyUdyhAkedZ2uBLblLnjGlwOVu23WGh8Xz159y-zln4QsAFKef0nKgVQlHv0Xvb34BgVTEi-Oiy2sHAhR0N2KDv2dldW1J-35D5ZfouZbJWe_HL1Rujd84Wu5M_upr9pvYR_TbGio6W_V-W6RNXvm6g-dgiCJ9tbIGnhcwitQzfuWyESo7AhXRE4UAz2FgY8H6TO9LOCjbvpRblzvPJkYfwSQDCSw4VIlDcvL02Y27qiFw8rtLWGcYmvcTOBvb64FCkkkdlvMZNYNQ7vsuV_qeysY0-n-hrKCYTMj0ktw=w2048-h916-no)
 
-After computing the child service documentSelfLinks for each a given factory,
-the synchronization task starts making SYNCH-POST requests to owner nodes of
+After computing the child service documentSelfLinks for the factory, the 
+synchronization task starts making SYNCH-POST requests to owner nodes of
 these child services. SYNCH-POST is a HTTP POST request tagged with a specific
-pragma to indicate to the child service owner node that it needs to synchronize
+pragma header to indicate to the child service owner node that it needs to synchronize
 this child service. **Figure E** indicates that Node "C" sent SYNCH-POST requests
-to A and E for child1 and child2.
+to A and E for child1 and child2, respectively.
 
 The requests are forwarded to the owner nodes to ensure that the synchronization
 request goes through the same Operation processing pipeline that is used to
@@ -67,9 +66,9 @@ and reduces chances of conflict because of different nodes processing updates
 for the same service.
 
 Also, notice that even though Node "E" just joined the node-group and will most
-likely not have any state for the child2, still receives the SYNCH-POST request.
+likely not have any state for the child2, still it receives the SYNCH-POST request.
 This is because child service synchronization always considers the latest state
-of the child service by querying each node in the node-group. This will become
+of the child service from all peer nodes in the node-group. This will become
 more clear in the coming discussion.
 
 Once the child service owner has received the SYNCH-POST request, it starts
@@ -89,35 +88,34 @@ processed since creation. The documentEpoch field is also a monotonically
 increasing number that gets incremented each time a child service owner changes.
 Given the above details, the **algorithm to compute best state** is as follows:
 
- * Select the document(s) with the highest **documentEpoch**.
+ * Select the documents from peer nodes that use the highest documentEpoch. 
 
- * If there are more than one documents with the highest epoch, select the
-   document(s) with the highest **documentVersion**.
+ * From the filtered documents, select the documents with the highest **documentVersion**.
 
- * If there are more than one document with the highest epoch and highest
-   documentVerison, then xenon picks one of the documents randomly. Although,
+ * If there are more than one documents using the highest documentEpoch and highest
+   documentVersion, then xenon currently picks one of the documents randomly. Although,
    we could still have scenarios because of Network splits that two different
    documents may exist with the same epoch and document version, Xenon currently
    does not solve this problem.
 
-Once the owner node has computed the latest state of the child service, it will
+Once the owner node has selected the latest state of the child service, it will
 broadcast the new state to all peer nodes in the node-group (**Figure g**). Also, if the
 latest state is different than the local state of the owner node, it will update
 it's state.
 
-After each child-service has finished synchronization, the SynchronizationTaskService
-for will complete execution and mark the Factory service's stats as AVAILABLE (**Figure h**).
+After each child-service has finished synchronizing, the SynchronizationTaskService
+will complete execution and mark the Factory service as AVAILABLE (**Figure h**).
 
 ![](https://lh3.googleusercontent.com/Zm2TZjiE2P_Kif1JprLAC0f0j_6R0o3QqsOvaISXle92OvibfxHEsqrh2jL270mLqPXx72kmgSCEH4PZ7TyE4-Uk3XSMmx0gyC4_GBZ0xnhEcxAIbi_c87_iyVgJA5Wtzlt6gaGi_6hIE1-HO4V1ws584E9zK1XwjiKfb12kcMoyueEov8sAGaGbBtGQQf3mPrmY_818jkWPtUStCUEOAabK6B-sO268jqbya-kDliFJdpAkgncR5907t3a0IJSHfr8AHD6SHWsU2ITdARnA5LoVSVxceCv6kY-xj2Hf-HjmlvPQaUmHbKT2kqG3uuaKYLaPfzHVJu5qGndfZYssyKLP9v_hinBAN0Y8SRDUxmlcRQu7F_LymAslmR4QG6jLNaNm-Chr-DUUtF7OsLo1CLywZoYygXdLnogbKqrffEVMkXHTYqgMuu2fxYw7ptKNLlZpIEh6AktDIE9vnL0xz-vJI2aZNKcDq3dZAZINCPLNlBNz17Y9v6AuPLKeaJvE-RjqFJ0xUd9trAsGGTKC2cgj5lEp8HKkJXV8bOyP09L8eipOcBcbLHDamyGGUmqBXDhRr2AKSmbnjY0JBoJ__JMNH9W5lnhDKMZYRtSJz0rWlPNc=w2048-h956-no)
 
 The above approach for Synchronization provides the following **benefits**:
 
  * Synchronization work-load gets uniformly distributed across all nodes in the
-   node-group. This increases concurrency and reduces the overall amount of time
-   taken for synchronization.
- * Each child service synchronization request goes through the owner nodes as
-   discussed above. This ensures that any in-flight update requests for the
-   child services get serialized without running into state conflicts.
+   node-group. This increases concurrency and reduces the total amount of time
+   taken for sychronization.
+ * Each child service synchronization request goes through the owner nodes. 
+   This ensures that any in-flight update requests for the child services get 
+   serialized without running into state conflicts.
  * The latest state of each child service gets computed and replicated to all
    peer nodes thus ensuring that the entire state of node-group becomes consistent.
 
