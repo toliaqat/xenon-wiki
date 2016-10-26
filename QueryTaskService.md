@@ -750,4 +750,32 @@ $ ls -1 *.json
 
 ## Other examples
 
-TODO: Add examples with filters
+### Processing homogeneus query results.
+
+When querying a factory or using a QueryTask that filter on the documentKind the resulting list contains
+service documents of the same kind. To process such results with a minimal amount of code you can use `QueryResultsProcessor` class. It
+offers the same view over a `QueryTask`, `ServiceDocumentQueryResults` results and even an `Operation` whose body is either of those types:
+
+```java
+QueryTask task = ...
+Operation op = Operation.createPost(...)
+    .setBody(task)
+    .setCompletion((o, e) -> {
+      if (e != null) {
+        handleError(e);
+        return;
+      }
+
+      // let the processor convert the body from the operation
+      QueryResultsProcessor processor = QueryResultsProcessor.create(o);
+
+      // processor will convert every result to desired type if needed
+      for(MyDocumentType doc: processor.documents(MyDocumentType.class)) {
+        // linked documents will also be converted to the desired type
+        OtherDocumentType linked = processor.linkedDocument(doc.someLink, OtherDocumentType.class);
+
+        handleDocuments(doc, linked);
+      }
+    });
+
+```
