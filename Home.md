@@ -24,6 +24,7 @@
 * [Testing Guide](./Testing-Guide) - How to test your highly available xenon services, all from a local machine
 * [Contributing](./Contributing) - How to work with revision control and submit changes to Xenon.
 * [Glossary](./Glossary) - Commonly used terms and their definitions
+* [Releases](./Releases-And-Support) - Releases and support policies
 
 # Tools
 * [Xenon Client](./Xenon-Client-(xenonc)) - A simple command line interface to Xenon
