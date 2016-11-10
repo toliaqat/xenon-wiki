@@ -27,6 +27,15 @@ POST /metrics/firewall-events
 
 ```
 
+# Real time processing (live aggregations)
+
+The raw metric values are persisted using a POST to a metric document factory, but time series, aggregations can
+be computed and updated in real time, using a simple subscription to the metric factory. On every POST notification,
+an in-memory service tracking the time series can increment counts, run a live algorithm, etc.
+
+Another option is subscribing to a **continuous** query task to watch the index for updates, using a query specification to
+filter updates of interest
+
 # Service Options
 
 The service representing the metric item should be marked with:
