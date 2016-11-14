@@ -58,31 +58,43 @@ For constrained environment throughput examples use:
 
 Note Xenon will pause services to disk and remove all runtime cost, when a service is not in use. So its only limited by access patterns and disk size, not memory size.
 
-## Running performance tests
+# Running performance tests
 
 The build verification tests used during maven build and test phases can also be used for performance analysis, by supplying various properties that modify service, request and other counts.
 
-### In process client, in memory (not indexed) service
+Please **always specify the performance profile** otherwise maven default profile will restrict the JVM to 256M of heap
+
 `
-MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestStatefulService#throughputInMemoryServicePut -Dxenon.requestCount=500000
+mvn test -DskipAnalysis=true -DskipGO -P performance -Dxenon.isStressTest=true
 `
 
-### In process client, over OS sockets, HTTP+JSON, in memory (not indexed) service
-`
-MAVEN_OPS="-Xmx8G" mvn test -Dtest=NettyHttpServiceClientTest#throughputPutRemote -Dxenon.requestCount=1000 -Dxenon.serviceCount=128 -Dxenon.isStressTest=true
-`
 **Note** to set the property isStressTest=true, otherwise the test framework will timeout requests
 
-### In process, 3 independent hosts, over OS sockets, replication with persistance, owner selection
+
+## Single node
+### Stateful service, in memory (not persisted)
+
+#### in process client
+`
+mvn test -DskipAnalysis=true -DskipGO -P performance -Dtest=TestStatefulService#throughputInMemoryServicePut -Dxenon.serviceCount=64 -Dxenon.requestCount=50000 -Dxenon.isStressTest=true
+`
+
+#### In process client, over OS sockets, HTTP+JSON, HTTP+BINARY(KRYO)
+`
+mvn test -DskipAnalysis=true -DskipGO -P performance -Dtest=NettyHttpServiceClientTest#throughputPutRemote -Dxenon.requestCount=1000 -Dxenon.serviceCount=128 -Dxenon.isStressTest=true
+`
+
+## Multi node
+### Stateful, persisted service, in process, 3 nodes, over OS sockets
 
 `
-MAVEN_OPS="-Xmx8G" mvn test -Dtest=TestNodeGroupService#replication -Dxenon.testDurationSeconds=1200 -Dxenon.totalOperationLimit=600000 -Dxenon.serviceCount=1000 -Dxenon.updateCount=33  -Dxenon.isStressTest=true
+mvn test -DskipAnalysis=true -DskipGO -P performance -Dtest=TestNodeGroupService#replication -Dxenon.testDurationSeconds=200 -Dxenon.totalOperationLimit=600000 -Dxenon.serviceCount=1000 -Dxenon.updateCount=33  -Dxenon.isStressTest=true
 `
 
 ## Update Operation Throughput
 
 ### Single node
-Using a payload that serializes to 636 bytes (JSON). For the durable service tests, throughput includes indexing cost, and commit to disk which occurs every 5 seconds.
+Using a payload that serializes to 330 bytes (JSON). For the durable service tests, throughput includes indexing cost, and commit to disk which occurs every 5 seconds.
 
 The parameters supplied to the tests are serviceCount=128, and updateCount over 100,000 for in memory tests and over 10,000 for socket tests.
 
@@ -93,14 +105,15 @@ The parameters supplied to the tests are serviceCount=128, and updateCount over 
  * PUT Persisted service, in process (no socket I/O) (64MB limit): 50,000 ops/sec
  * POST (service creation) Persisted service, in process (no socket I/O) (4G limit): 30,000 ops/sec
  * POST (service creation) Persisted, Immutable service, in process (no socket I/O) (4G limit): 30,000 ops/sec
+
+## Index/Query Throughput
 The [lucene document index service](./luceneDocumentIndexService#performance) has more details on indexing and query throughput.
 
 ### Multiple node
- * Durable, replicated service, 3 nodes (4GB limit): 12,000 PUT ops/sec
+ * Durable, replicated service, 3 nodes (4GB limit): 8,000 PUT ops/sec
 
 The TestNodeGroupService.replication test method should be run with sufficiently large operation limit and test duration.
 It logs the throughput, per action, at the end of the test:
-
 `
 [doReplication][Total operations: 630000]
 [Total ops for POST: 9000, Throughput (ops/sec): 7032.109307]
