@@ -13,6 +13,7 @@
   * [Query Task Service Tutorial](./QueryTaskService) - API and in-depth tutorial on query tasks
   * [Graph Query Service](./GraphQueryTaskService) - API and tutorial for graph query tasks
   * [Authentication and Authorization Tutorial](./Authentication-And-Authorization-Tutorial)
+  * [External Authentication Tutorial](./External-Authentication)
   * [Task Service Tutorial](./Task-Service-Tutorial) - Task services manage long-running tasks
   * [Hosting Modern UI Tutorial](./Host-Your-UI) - How to package HTML5/JS UI content and have xenon serve it
   * [Time Series and Event Data Tutorial](./Storing-metrics) - Best practices for storing metrics or supporting high ingestion rate for events / logs / stats
