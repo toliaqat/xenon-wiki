@@ -117,3 +117,21 @@ customUiApp.config(['$routeProvider', function ($routeProvider) {
 }]);
 ```
 In more detail, if you pointed your browser to [http://localhost:8000/core/ui/custom#](http://localhost:8000/core/ui/custom#) you would be redirected to the home.html (in the first when clause above). If you wanted to add an additional service you can add a link to your html views that will take you there. The link would look like [http://localhost:8000/core/ui/custom#/core/customUiExamples/addService](http://localhost:8000/core/ui/custom#/core/customUiExamples/addService) (the fourth when clause in the above config). In similar fashion, you can extend as needed.
+
+## Host UI in the root namespace
+
+The built-in `UiFileContentService` provides a similar but slightly simpler implementation which better handles situations in which you may need to host a custom UI in the root of the application. The resources need to be placed under `resources/ui/service-package-name` like in the steps described above.
+
+```java
+package com.vmware.xenon.services.samples;
+
+import com.vmware.xenon.common.UriUtils;
+import com.vmware.xenon.services.common.UiFileContentService;
+
+/**
+ * Just serve the static resources at a location.
+ */
+public class SampleServiceWithRootUi extends UiFileContentService {
+    public static final String SELF_LINK = UriUtils.URI_PATH_CHAR;
+}
+```
