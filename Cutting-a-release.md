@@ -42,7 +42,7 @@ As of 6/17/2016. Please see detailed explanation in next section.
 
   this will deploy to the sonatype and close the staging repo as well.
 
-
+- send email to [xenon-notif@vmware.com](mailto:xenon-notif@vmware.com) and update the [Releases page](Releases-And-Support).
 
 ### Prerequisites
 
