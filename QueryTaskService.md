@@ -203,7 +203,8 @@ or have been marked as deleted
 * INCLUDE_ALL_VERSIONS: will  include results  from a  version that  is
 either created after the query was started, or, is the latest version
 * SORT: will sort the results based on querySpec.sortOrder and
-querySpec.sortTerm.
+querySpec.sortTerm. More sort fields can be provided using `additionalSortTerms`
+and `additionalGroupSortTerms`.
 
 In the Java Universe, this would be written as follows:
 
@@ -587,6 +588,54 @@ note: In order for a property to be enabled for sorting, it must have indexingOp
 please see the [programming model page](./Programming-Model) and
 [example service page](./Example-Service-Tutorial) for more information.
 
+### Sorting using multiple fields.
+The following query sorts the documents of kind ExampleServiceState based on the property `sortedCounter`
+in DESC order and then based on the property `name` in ASC order.
+
+Use `additionalSortTerms` or  `additionalGroupSortTerms` as appropriate to represent additional fields.
+
+```json
+{
+    "taskInfo":{
+        "isDirect":true
+    },
+    "querySpec":{
+        "query":{
+            "occurance":"MUST_OCCUR",
+            "booleanClauses":[
+                {
+                    "occurance":"MUST_OCCUR",
+                    "term":{
+                        "propertyName":"documentKind",
+                        "matchValue":"com:vmware:xenon:services:common:ExampleService:ExampleServiceState",
+                        "matchType":"TERM"
+                    }
+                }
+            ]
+        },
+        "sortTerm":{
+            "propertyName":"sortedCounter",
+            "propertyType":"LONG"
+        },
+        "additionalSortTerms":[
+            {
+                "propertyName":"name",
+                "propertyType":"STRING",
+                "sortOrder":"ASC"
+            }
+        ],
+        "sortOrder":"DESC",
+        "options":[
+            "SORT"
+        ]
+    },
+    "indexLink":"/core/document-index"
+}
+```
+
+note: When either of `sortTerm` and `groupSortTerm` is not provided, the additional
+sort fields are ignored. The `sortOrder` for the additional fields should be provided
+along with the `propertyName` and `propertyType`.
 
 ## OData filter queries
 
