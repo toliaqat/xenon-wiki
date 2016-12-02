@@ -97,7 +97,9 @@ url http://192.168.1.35:8000/core/document-index?documentSelfLink=/core/examples
 
 Index stats can be enabled either:
  * at host startup, by creating a instance of the index service and toggling **ServiceOption.INSTRUMENTATION** then calling host.setDocumentIndexService(indexService) before host.start.
- * dynamically by sending a PATCH with ServiceConfigUpdateRequest with additional options to /core/document-index/config
+ * dynamically by sending a PATCH with ServiceConfigUpdateRequest with additional options to /core/document-index/config:
+
+   `curl -X PATCH -H 'Content-type: application/json' -d '{"kind": "com:vmware:xenon:common:ServiceConfigUpdateRequest", "addOptions": ["INSTRUMENTATION"]}' http://192.168.1.35:8000/core/document-index/config`
 
 The index service tracks critical stats to determine how the index is used, performance degradation, etc
 ```
