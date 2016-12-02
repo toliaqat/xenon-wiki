@@ -14,6 +14,12 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.3.2
+
+Xenon 1.3.2 contains performance enhancements and bug fixes.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#132).
+
 ### v1.3.1
 
 Xenon 1.3.1 contains new features, performance enhancements, and bug fixes. Notably, this change adds support for delegating authentication to an external service.
