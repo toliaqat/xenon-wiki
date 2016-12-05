@@ -1,6 +1,23 @@
-## with `Operation#nestCompletion()`
+# Overview
 
-`nestCompletion()` can control existing *completion-handler(s)* to be invoked or not.
+The framework offers sender (client) coordination primitives that enable concurrent, multi-stage
+processing, of request / responses. For the various options, see below.
+
+## Strong typing, functional style, with `DeferredResult`
+See the [tutorial](./DeferredResult-Tutorial) on using the functional pattern for
+coordinating sequence of operations and chaining their results.
+
+```java
+ Operation operation = Operation.createGet(...);
+    this.sendWithDeferredResult(operation, ExpectedType.class)  // returns DeferredResult<ExpectedType>
+            .thenApply(this::processResult)
+            .thenAccept(response -> get.setBody(response))
+            .whenCompleteNotify(get);
+```
+
+## Completion stacks with `Operation#nestCompletion()`
+
+`nestCompletion()` can control the order existing *completion-handler(s)* are invoked
 
 
 ```java
@@ -40,7 +57,7 @@ op1.nestCompletion((o,e) -> {   // let's call this "nested-1"
 
 
 
-## with `OperationJoin`
+## Concurrent processing with `OperationJoin`
 
 ```java
 Operation op1 = Operation
@@ -76,16 +93,16 @@ OperationJoin.create(op1, op2).setCompletion(jh).sendWith(this);
 
 *Invocation Order*
 
-- op1 - op2 - joined  
+- op1 - op2 - joined
 - op2 - op1 - joined
 
 
-op1 and op2 will run in parallel.  
+op1 and op2 will run in parallel.
 Once both completion handlers are called, then joined completion handler will be called.
 
 
 
-## with `OperationSequence`
+## Sequencing with `OperationSequence`
 
 ```java
 Operation op1 = Operation
