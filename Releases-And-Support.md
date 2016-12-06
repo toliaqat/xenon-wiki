@@ -14,6 +14,12 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.3.3
+
+Xenon 1.3.3 contains bug fixes.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#133).
+
 ### v1.3.2
 
 Xenon 1.3.2 contains performance enhancements and bug fixes.
