@@ -1,8 +1,8 @@
 # 1 Overview
-Authentication and authorization is built into Xenon and controls access to services. 
+Authentication and authorization is built into Xenon and controls access to services.
 
 When authentication and authorization are enabled, all request to a stateful Xenon service will be subject to two additional checks:
- 
+
  1. Is the request on behalf of a valid user?
  2. Is that user authorized to perform the desired action the service?
 
@@ -10,7 +10,7 @@ Any unauthorized access will result in a 403 (Forbidden) response from Xenon.
 
 Note that we do not have any authorization checks on stateless services at this time (it is in the works). Stateless services typically interact with other stateful services and that access is subject to authorization checks.
 
-Also, FactoryService instances are stateless services which can be invoked by any user. POSTs to factories result in a stateful service instance being created and that operation will complete successfully only if the user who invoked the factory service has the right privileges on the resulting stateful service. Any user can query a factory service, but the the response will only include services they are authorized to access. 
+Also, FactoryService instances are stateless services which can be invoked by any user. POSTs to factories result in a stateful service instance being created and that operation will complete successfully only if the user who invoked the factory service has the right privileges on the resulting stateful service. Any user can query a factory service, but the the response will only include services they are authorized to access.
 
 # 2 Authentication and Authorization Concepts
 
@@ -77,28 +77,51 @@ Note that if a user is authorized to access a service, they are also authorized 
 It is possible to implement tenancy on top of the entities and interactions described in this document. Every tenant will have its own set of roles, that allow users who belong to that tenant (through the user group specific to that tenant) access to resources that belong to that same tenant. This can be expressed by adding query terms to the queries for the user group and resource group.
 
 # 4 Privileged Services
-Privileged services are services that can execute operations in a 'system context'. When running in the system context we bypass the regular security checks and allow access to all services. Think of running in the system context as running as root on unix and a privileged service as a process with the setuid bit set. 
+Privileged services are services that can execute operations in a 'system context'. When running in the system context we bypass the regular security checks and allow access to all services. Think of running in the system context as running as root on unix and a privileged service as a process with the setuid bit set.
 
 In order to control what services can run as privileged, it must be explicitly marked as privileged before it is started by the host. For example if we need to start the ‘UserInitializationService’ as privileged, we would do the following in ServiceHost:
 
 ```java
 host.addPrivilegedService(UserInitializationService.class);
 host.startService(Operation.createPost(UriUtils.buildUri(host, UserInitializationService.class)),
-                  new UserInitializationService()); 
+                  new UserInitializationService());
 ```
 
-`addPrivilegedService` is a protected method and hence can be invoked only by the ServiceHost instance (or its subclasses). 
+`addPrivilegedService` is a protected method and hence can be invoked only by the ServiceHost instance (or its subclasses).
 
-# 5 Notes
+# 5 Authorization token cache
+
+Every xenon service host maintains a cache of a logged in user’s authorization context instance keyed off the auth token. This helps associate an incoming user request with the right security context very quickly. The authorization context is created as part of request dispatch flow in cases when the cache does not have an entry for the token associated with an incoming request. All subsequent requests on behalf of the user reuse the authorization context. 
+
+The authorization context obviously becomes invalid whenever any property of the service representing the user, UserGroupService, RoleService or ResourceGroupService changes. When that happens, all auth token cache instances that are potentially impacted by the change are invalidated.
+
+The logic to clear the cache must kick in after the change to the service has been replicated and the document index updated on all nodes. This is achieved by triggering the cache clear logic via the processCompletionStageUpdateAuthzArtifacts() method. This method is invoked by the framework for any stateful service after the update has been replicated to all nodes and the index updated. Additionally, any update to auth artifacts must be done with the replication quorum head set to “all” to ensure the updates are propagated to all nodes irrespective of what the quorum is set to.
+
+All authz services override processCompletionStageUpdateAuthzArtifacts() and are responsible for identifying the users who are impacted by the change in the service. This typically means traversing the relationship between the authz service back to the user and triggering the code to clear the auth token cache. For example, if there was a change in a ResourceGroupService instance, all RoleService instances that have a reference to the ResourceGroupService identified, all UserGroupService instances that are referenced by the RoleService instances followed, and finally all user service instances that are referenced by the UserGroupService instances identified to build out the target set of authorization context cache entries that needs to be cleared. This logic runs on every node in a node group
+
+Helper methods in AuthorizationCacheUtils helps implement this logic for the various authz service types.
+
+Once the target set of user service instances affected by an authz service update has been identified, the actual task of clearing out the cache lies with AuthorizationTokenCacheService. This service is a stateful singleton service that is in-memory, non-replicated and started up as a core service along with the authorization service as part of service host start. This service can be PATCHed with the payload being the user service link for which the cache needs to be invalidated. The patch handler in turn calls out to AuthorizationContextService with the “xn-clear-auth-cache” pragma set so that the service host cache can be cleared.  AuthorizationTokenCacheService delegates the actual cache clear to AuthorizationContextService so that the cache clear operation can be coordinated with any in-flight operations to populate the cache to ensure we do not end up with stale auth token cache entries - if there is a request to populate the cache for a user and a cache clear request comes in for that user, the request in flight is aborted and the process of creating a cache entry for the user restarted.
+
+This sequence of events can be represented by the following sequence diagram:
+
+[[images/developer-guide/auth-token.png]]
+
+Any service (within the same node group or externally) that is interested in being updated on an auth token cache clear event can register to be notified on an update to the singleton AuthorizationTokenCacheService instance. For example, if external auth is being used by a xenon node group and it wants to ensure its local auth token cache is updated based on any changes to the remote auth xenon node group, it can register for notifications from AuthorizationTokenCacheService on the auth provider and act as a relay clearing out the its own auth token cache by invoking a PATCH on the local AuthorizationTokenCacheService instance.
+
+
+# 6 Notes
 
 * Forwarding logic is to be executed **before** authorization logic (resources in the resource group may not be present on the entry node)
 
-* Authentication and authorization are turned off by default at this time and can be turned on by passing in the flag —-isAuthorizationEnabled=true to the ServiceHost (or it's subclasses) during startup. If you subclass ServiceHost, you can enable it with the ServiceHost.setAuthorizationEnabled method. 
+* Authentication and authorization are turned off by default at this time and can be turned on by passing in the flag —-isAuthorizationEnabled=true to the ServiceHost (or it's subclasses) during startup. If you subclass ServiceHost, you can enable it with the ServiceHost.setAuthorizationEnabled method.
 
 * The [ExampleServiceHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleServiceHost.java) has an example of creating users so you can use them "out of the box"
 
-* Today, only the BasicAuthorizationService has been implemented. This can authenticate local users using password. In the future, other authentication services will be implemented, including services that can interact with external authentication systems such as ActiveDiredtory. 
+* Today, only the BasicAuthorizationService has been implemented. This can authenticate local users using password. In the future, other authentication services will be implemented, including services that can interact with external authentication systems such as ActiveDiredtory.
 
-# 6 More Information
+# 7 More Information
 
-The [./Authentication-and-Authorization-Tutorial](Authentication and Authorization Tutorial) has examples that walk you through using authentication and service from the command-line as well as examples of creating users, user groups, resource groups and roles in Java. 
+The [./Authentication-and-Authorization-Tutorial](Authentication and Authorization Tutorial) has examples that walk you through using authentication and service from the command-line as well as examples of creating users, user groups, resource groups and roles in Java.
+
+This [presentation] (https://github.com/vmware/xenon/blob/master/contrib/docs/xenon-authz.pptx) gives an example of authz in action

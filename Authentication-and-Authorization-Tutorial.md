@@ -667,3 +667,5 @@ For a service like /foo, there are several helpers, like /foo/stats and /foo/con
 
 # 7.0 More Information
 * [Authentication and Authorization Design](./Authentication-and-Authorization-Design)
+
+* This [presentation] (https://github.com/vmware/xenon/blob/master/contrib/docs/xenon-authz.pptx) gives an example of authz in action
