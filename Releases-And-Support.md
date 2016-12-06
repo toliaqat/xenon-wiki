@@ -10,7 +10,7 @@ Since the framework is still fairly early in its lifecycle, releases come at a f
 
 The following releases are supported by the development team, including the creation of new critical releases as issues are identified, for a period of one year following initial release.
 
-* Xenon 1.1 -- the latest release is [v1.1.0-CR2](https://github.com/vmware/xenon/releases/tag/v1.1.0-CR2-release)
+* Xenon 1.1 -- the latest release is [v1.1.0-CR3](https://github.com/vmware/xenon/releases/tag/v1.1.0-CR3-release)
 
 ## Releases
 
