@@ -22,7 +22,7 @@ For a full description of the changes in this release, please consult the [chang
 
 #### Major Changes
 
-* **Implicit Query Result Limits** -- this release adds an implicit result limit to Lucene index queries which are not paginated and do not specify an explicit result limit. The default value is 10,000 results. Well-behaved clients shoudl not be impacted, but queries which return more results than the implicit limit will be **failed** by the framework. For more details, see the [tracker issue](https://www.pivotaltracker.com/story/show/130467457).
+* **Implicit Query Result Limits** -- this release adds an implicit result limit to Lucene index queries which are not paginated and do not specify an explicit result limit. The default value is 10,000 results. Well-behaved clients should not be impacted, but queries which return more results than the implicit limit will be **failed** by the framework. For more details, see the [tracker issue](https://www.pivotaltracker.com/story/show/130467457).
 
 ### v1.3.3
 
