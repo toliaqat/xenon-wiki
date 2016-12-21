@@ -14,6 +14,16 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.3.4
+
+Xenon 1.3.4 contains new features, performance enhancements, and bug fixes. Notably, this change adds an implicit result limit for queries.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#134).
+
+#### Major Changes
+
+* **Implicit Query Result Limits** -- this release adds an implicit result limit to Lucene index queries which are not paginated and do not specify an explicit result limit. The default value is 10,000 results. Well-behaved clients shoudl not be impacted, but queries which return more results than the implicit limit will be **failed** by the framework. For more details, see the [tracker issue](https://www.pivotaltracker.com/story/show/130467457).
+
 ### v1.3.3
 
 Xenon 1.3.3 contains bug fixes.
