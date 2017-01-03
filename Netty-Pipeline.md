@@ -16,7 +16,9 @@ Netty has good documentation, including a handy [user guide](http://netty.io/wik
 
 Although the [HTTP/2 RFC](https://tools.ietf.org/html/rfc7540#section-3.3) does not require the use of TLS, the RFC does enforce requirements if TLS is in use. Most notably, HTTP/2 requires the use of [ALPN](https://tools.ietf.org/html/rfc7301), application-level protocol negotiation, which is not supported by the JDK even in Java 8. Netty strongly recommends the use of OpenSSL for transport security; Java libraries for ALPN support within the JVM exist, but are significantly slower and have other limitations when compared to OpenSSL.
 
-For a full discussion of the issues and options, see Netty's [wiki discussion](http://netty.io/wiki/requirements-for-4.x.html#transport-security-tls) of the subject.
+Using OpenSSL requires that you include a version of [netty-tcnative](https://github.com/netty/netty-tcnative) in your classpath. The xenon-common submodule runs tests using the netty-tcnative-boringssl-static module for easy portability across environments and OS architectures, but Xenon will **not** pull in a netty-tcnative library in projects which consume Xenon artifacts; callers must choose and include the appropriate version of this library from the options are described on the netty-tcnative [wiki page](http://netty.io/wiki/forked-tomcat-native.html) in order to enable HTTP/2 over SSL, or else Xenon will fall back to using HTTP 1.1 for communication with secure endpoints.
+
+For a full discussion of the issues associated with HTTP/2 over SSL, see Netty's [wiki discussion](http://netty.io/wiki/requirements-for-4.x.html#transport-security-tls) of the subject.
 
 ## Xenon's I/O Pipelines
 
