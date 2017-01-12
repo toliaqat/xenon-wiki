@@ -14,6 +14,20 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.3.5
+
+Xenon 1.3.5 contains new features, performance enhancements, and bug fixes.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#135).
+
+#### Major Changes
+
+* **Support for HTTP/2 over TLS** -- this release supports HTTP/2 connection sharing to secure endpoints. Making use of this feature requires that client projects make use of OpenSSL for ALPN support through inclusion of a Netty tcnative library in the classpath; without this library, the system will fall back to HTTP 1.1 for connections to secure endpoints. For details, see the [wiki page](Netty-Pipeline#http2-and-tls-with-netty).
+
+* **Gateway service** —- this release adds a native gateway service which can be used to facilitate blue/green upgrades of Xenon node groups. The gateway service can be used during upgrades to pause incoming traffic while data is being migrated to the new node group. Once data has been migrated, the gateway can be resumed to point all incoming traffic to the new node group.
+
+* **Version lookup caching** -- this release implements version lookup caching inside the document index service. This is a significant optimization for general queries which return many of results over documents with multiple versions. This change is transparent to clients and does not change the document query API.
+
 ### v1.3.4
 
 Xenon 1.3.4 contains new features, performance enhancements, and bug fixes. Notably, this change adds an implicit result limit for queries.
