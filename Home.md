@@ -26,6 +26,7 @@
 * [Contributing](./Contributing) - How to work with revision control and submit changes to Xenon.
 * [Glossary](./Glossary) - Commonly used terms and their definitions
 * [Releases](./Releases-And-Support) - Releases and support policies
+* [Workshop](./Workshop) - Xenon workshops
 
 # Tools
 * [Xenon Client](./Xenon-Client-(xenonc)) - A simple command line interface to Xenon
