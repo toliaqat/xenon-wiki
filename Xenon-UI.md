@@ -3,7 +3,7 @@ Xenon provides a built-in application which federates information from nodes acr
 - Navigate to any node within the node groups and browse node-specific document contents.
 - Add/Edit/Delete instances with test payloads.
 - Generate query tasks interactively.
-- (WIP) Trace operations.
+- Trace operations.
 - Extract logs that are specific to each node.
 
 ## Availability
@@ -54,6 +54,11 @@ If you are really savvy with the queries, try out the "Advanced" query.
 Query results will be displayed on the same page for further review.
 
 ![Query Result](./images/xenon-ui/query-results.png)
+
+## Operation Tracing
+Provides a visual way for you to see what operation hits which service at what time. This is very helpful when debugging Xenon’s asynchronous operations.
+
+![Operation Tracing](./images/xenon-ui/operation-tracing.png)
 
 # Documentation
 Refer to [Xenon UI Readme](https://github.com/vmware/xenon/blob/master/xenon-ui/src/main/ui/README.md)

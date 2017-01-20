@@ -1,3 +1,5 @@
+![Operation Tracing](./images/xenon-ui/operation-tracing.png)
+
 # Operation Tracing
 
 [Services](./Programming-Model) in Xenon use a [REST API](./REST-API) with asynchronous operations to interact with one another.  To aid in debugging, the Operation Tracing Index Service can be used to index each operation sent or received by a service host instance (also referred to as a node).  
@@ -29,7 +31,7 @@ Starting the service will create a separate Lucene backed index in `dcp/8000/luc
 **NOTE** - You should stop the operation index on all nodes after the debugging sessions is complete. Otherwise, due to periodic operations, it will use up disk space.
 
 (\*) - We maintain a blacklist of chatty services which will *not* be persisted and indexed in order to save some disk space and indexing time.  Some Xenon services are very chatty by nature and are of marginal importance when debugging a standard Stateful or Stateless service.  This list currently includes all of the node group services, the UI service, and the document index service.  We'll make this list configurable in the future to add/remove services to ignore.
-  
+
 ## Example Query
 
 The following query will query the Operation Index (specified by the `indexLink`) for all operations POSTed to `resources/*` from a specific resource allocation task (specified by the `referer` parameter).  The results will include all resources created by the allocation task (computes, disks, etc).  The query itself is posted to the same `core/query-tasks` factory used to query service documents.
@@ -181,7 +183,4 @@ Only `SerializedOperation`s are persisted in the Operation Index.  The query `pr
 
 ## Operation Tracing UI
 
-Similarly, the operations can be traced from the default UI by visiting http://127.0.0.1:8000/core/ui/default#/core/operationIndex. The query results are visualized in a swim-lane chart. Selecting an area in the top part of the swim-lane chart will displayed a zoomed version in the bottom part of the chart. Additionally, placing your mouse over on the operations mapped on the bottom part of the chart will provide additional information for each indexed operation.
-
-![Operation Tracing](./tracing.png)
-
+Similarly, the operations can be traced from [Xenon UI](https://github.com/vmware/xenon/wiki/Xenon-UI) by visiting http://127.0.0.1:8000/core/ui/default/#/main/operation-tracing. You can use the query builder to create query clauses and run against operation index. The query results are visualized in an interactive timeline. Selecting a dot in the timeline will open a modal dialog with detailed information for the indexed operation.
