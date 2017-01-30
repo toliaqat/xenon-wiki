@@ -14,6 +14,20 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.3.6
+
+Xenon 1.3.6 contains new features, performance enhancements, and bug fixes.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#136).
+
+#### Major Changes
+
+* **Support for Operation Tracing in Xenon UI** -- Introduce "Operation Tracing" feature to Xenon UI that allows users to trace operations sent or received by a service host instance via an interactive query builder and examine results visually.
+
+* **GroupBy query fixes for Numeric Fields** -- Fix groupBy on numeric fields. When annotated with PropertyIndexingOption.SORT, add a SortedDocValuesField for the numeric property. The change has no impact on how query specification is written. However a blue-green update is necessary in order for previously indexed documents to be queried using groupBy on a numeric field. Documents which match the query but have the groupBy term missing are returned under a special group "DocumentsWithoutResults".
+
+* **Index upgrade support for Xenon v1.1.1 and older** -- Added support for index upgrade from pre 1.1.1 version. Should be used only as a last resort. If the xenon.kryo.handleBuiltInCollections system property is set to false, index contents can be read back ONLY from pre-1.1.1 created indeces. If documents don't hold instances created by Collections.emptyList() and friends upgrade will still be possible without using this property.
+
 ### v1.3.5
 
 Xenon 1.3.5 contains new features, performance enhancements, and bug fixes.
