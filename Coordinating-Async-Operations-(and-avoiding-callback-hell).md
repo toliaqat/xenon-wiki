@@ -102,6 +102,55 @@ Once both completion handlers are called, then joined completion handler will be
 
 
 
+## Sequencing with `Operation#appendCompletion()`
+
+```java
+Operation op = Operation.createGet(...);
+
+// initial handler
+op.setCompletion((o, e) -> {
+    ...
+    // calling "o.complete()" or "o.fail()" will invoke next chain
+    o.complete();  // trigger next chain
+});
+
+// append-1 handler
+op.appendCompletion((o, e) -> {
+  if (e != null) {
+    // invokes next handler with passed exception
+    // o.fail(e);
+
+    // invokes next handler with NEW exception
+    // o.fail(new RuntimeException(...));
+
+    // invokes next handler with success
+    // o.complete();
+
+    // just calling "return" will NOT invoke next handler
+    return;
+  }
+  ...
+  o.complete();  // trigger next chain
+});
+
+// append-2 handler
+op.appendCompletion((o, e) -> {
+  if (e != null) {
+    o.fail(e);
+    return;
+  }
+  ...
+  o.complete();
+});
+```
+
+*Invocation Order*
+
+- initial -> append-1 -> append-2  
+*(Order is guaranteed)*
+
+
+
 ## Sequencing with `OperationSequence`
 
 ```java
