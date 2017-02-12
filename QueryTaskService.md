@@ -104,6 +104,11 @@ public static class QuerySpecification {
              * Groups results using the {@link QuerySpecification#groupByTerms}
              */
             GROUP_BY
+
+            /**
+             * Query will return latest versions of documents before {@link QuerySpecification#timeSnapshotBoundaryMicros}
+             */
+            TIME_SNAPSHOT
         }
 
         public enum SortOrder {
@@ -135,7 +140,12 @@ public static class QuerySpecification {
          */
         public Long expectedResultCount;
         public EnumSet<QueryOption> options = EnumSet.noneOf(QueryOption.class);
-        public ServiceOption targetIndex;
+
+        /**
+         * Used with {@link QueryOption#TIME_SNAPSHOT}
+         */
+        @Since(ReleaseConstants.RELEASE_VERSION_1_3_6)
+        public Long timeSnapshotBoundaryMicros;
 }
 
 ```
@@ -205,6 +215,8 @@ either created after the query was started, or, is the latest version
 * SORT: will sort the results based on querySpec.sortOrder and
 querySpec.sortTerm. More sort fields can be provided using `additionalSortTerms`
 and `additionalGroupSortTerms`.
+* TIME_SNAPSHOT: will return matching documents that are latest as of
+provided querySpec.timeSnapshotBoundaryMicros.
 
 In the Java Universe, this would be written as follows:
 
@@ -636,6 +648,12 @@ Use `additionalSortTerms` or  `additionalGroupSortTerms` as appropriate to repre
 note: When either of `sortTerm` and `groupSortTerm` is not provided, the additional
 sort fields are ignored. The `sortOrder` for the additional fields should be provided
 along with the `propertyName` and `propertyType`.
+
+## Performing a snapshot query
+If a document with link `/core/examples/1234` has multiple versions 0
+at time `t0`, 1 at `t1` and 2 at `t2`. When QueryOption#TIME_SNAPSHOT
+is set and QuerySpecification#timeSnapshotBoundaryMicros is set to
+`t1 + ∆` the response will include only version `1` of the document.
 
 ## OData filter queries
 
