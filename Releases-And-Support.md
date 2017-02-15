@@ -14,6 +14,21 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.3.7
+
+Xenon 1.3.7 contains new features, performance enhancements, and bug fixes.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#137).
+
+#### Major Changes
+
+* **Purge all document versions for recreation** -- When deleted self link is recreated with POST + PRAGMA_FORCE_INDEX_UPDATE, the index service will purge all previous documents. This avoids duplicate versions, for the same self link appearing in the index, which can happen due to synchronization or migration (even if the runtime does do a best effort to increment the version when a self is recreated)
+
+* **Support for QueryOption#TIME_SNAPSHOT** -- The new query option will return results that contain latest versions of documents as on a given time. QuerySpecification#timeSnapshotBoundaryMicros will allow specifying the time.
+
+* **Remove LuceneBlobIndexService** -- The service was originally used for binary serializing service context in pause / resume, which now uses a custom file based service (since 1.2.0)
+
+
 ### v1.3.6
 
 Xenon 1.3.6 contains new features, performance enhancements, and bug fixes.
