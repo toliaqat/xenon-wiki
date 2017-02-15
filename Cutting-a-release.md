@@ -42,7 +42,20 @@ As of 6/17/2016. Please see detailed explanation in next section.
 
   this will deploy to the sonatype and close the staging repo as well.
 
-- send email to [xenon-notif@vmware.com](mailto:xenon-notif@vmware.com) and update the [Releases page](Releases-And-Support).
+- send email to [xenon-notif@vmware.com](mailto:xenon-notif@vmware.com) and update the [Releases page](Releases-And-Support).  
+  _email sample:_
+  ```text
+  Subject: [Xenon-notif] Xenon 1.3.6 has been released
+
+  Hi,
+
+  Xenon 1.3.6 has been released on GitHub and the official release jars have
+  been uploaded to sonatype.org and to Maven Central.
+
+  Please find the release notes attached.
+
+  Thanks
+  ```
 
 ### Prerequisites
 
