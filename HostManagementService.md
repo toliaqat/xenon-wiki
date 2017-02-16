@@ -1,6 +1,7 @@
 # Overview
 
-The service host management service exposes a REST api to manage the lifecycle of the service host, perform maintenance actions and retrieve detailed status.
+The service host management service exposes a REST api to manage the lifecycle of the service host, perform maintenance actions and retrieve detailed status.  
+This service API also takes PATCH requests to perform various management related operations such as configure operation tracing request, backup/restore, and schedule peer synchronization.
 
 # REST Api
 
@@ -221,3 +222,7 @@ GET /core/management/stats
 .....
 }
 ```
+
+# Backup/Restore
+
+see [[Backup-Restore]]

@@ -64,3 +64,12 @@ Subscribe to a service, then manually replicate to a service associated with the
 - high traffic contents oriented website such as blogs
 
 ----
+
+## Document index backup/restore
+
+### Scenario
+Xenon provides API to backup and restore document index from xenon service.
+
+### How to
+see [[Backup-Restore]]
+
