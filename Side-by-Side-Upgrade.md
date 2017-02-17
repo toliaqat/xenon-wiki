@@ -220,3 +220,26 @@ One method of ensuring a "live upgrade" might consist of:
 4. Configure load balancer to route traffic to "blue" node cluster
 
 Even if the "blue" cluster contains a lot of data, the migration is done while the "blue" cluster is still live and responding to clients. Once **most** of the state is migrated, the maintanence window (where the load balancer is queuing requests) will be so small that clients will barely notice.
+
+----
+
+# Migration Task options
+
+## Old document versions
+
+When `MigrationOption#ALL_VERSIONS` is specified in migration request, the task
+attempts to migrate all historical documents(old document versions) by
+performing same operations in order. (e.g: when source has 3 versions of
+document v0=POST, v1=PATCH, v2=PUT, migration task will attempt POST, PATCH,
+PUT operations with versioned document as input)
+
+The migrated versions may not have the same document versions in source, but
+the order of the history will be maintained.
+
+_NOTE:_  
+When migrating a document with DELETE in history, destination will only have
+histories after delete.  
+This is due to the DELETE change in xenon 1.3.7+ that DELETE now purges past
+histories.  
+In prior versions, POST with `PRAGMA_DIRECTIVE_FORCE_INDEX_UPDATE` after DELETE
+added new version on top of existing histories.
