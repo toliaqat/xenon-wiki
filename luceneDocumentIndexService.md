@@ -5,8 +5,6 @@ and querying,  per Xenon host instance.  It abstracts the lucene  APIs and
 exposes rich query functionality through  a "sister" service, the [query
 task](./queryTaskService).
 
-There is also a "blob" index, that can be used to store binary content and queried by a primary key. See the [blob index service](./luceneBlobIndexService) for details.
-
 The document  index is a singleton  and does NOT do  replication between
 nodes. Replication  is done when  updates are sent to  service instances
 that are  marked DURABLE and  REPLICATED. The document index  service is

@@ -12,7 +12,6 @@ the system
 
  * [Example Factory Service](./Example-Service-Tutorial) - A factory service that creates simple document services allowing anyone to interact with Xenon service hosts and experience all the Xenon features in action (durability, indexing, complex query support, replication across nodes, REST API)
  * [Lucene Document Index Service](./luceneDocumentIndexService) - Deeply indexes on disk, any state updates on a co-located service. It enables high throughput, complex queries across documents. Its local only, replication is done by the framework independently.
- * [Lucene Blob Index Service](./luceneBlobIndexService) - Stores and retrieves binary content using a primary key.
  * [Query Task Service](./QueryTaskService) - A task based service to process both local, and multi-node potentially long running queries over all indexed documents. A factory service, QueryTaskFactoryService, is used to create tasks that specify the query to execute and reflect the query progress. The service talks with the document index service, co-located in the same process and translates the query description to the lucene query format
  * [Node Group Service](./NodeGroupService) - Tracks node membership using a scalable gossip layer.
  * [Node Selector Service](./NodeSelectorService) - Selects nodes, given a node group and a key, using a consistent hashing algorithm. Custom node selector implementations can be supplied.
