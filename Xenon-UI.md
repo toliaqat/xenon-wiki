@@ -9,6 +9,23 @@ Xenon provides a built-in application which federates information from nodes acr
 ## Availability
 Xenon UI comes with every Xenon jar after 0.9.5 and is available in [http://localhost:8000/core/ui/default](http://localhost:8000/core/ui/default).
 
+### Configuration
+
+- Include **xenon-ui.jar**
+```
+  <dependency>
+    <groupId>com.vmware.xenon</groupId>
+    <artifactId>xenon-ui</artifactId>
+    <version>[VERSION]</version>
+  </dependency>
+```
+- Start `UiService` in your `ServiceHost#start()`
+```java
+   super.startService(new UiService());
+```
+
+
+
 ## Browser Compatibility
 As of now Xenon UI is fully compatible with Chrome. Better compatibility with other browsers will be introduced in future releases.
 
