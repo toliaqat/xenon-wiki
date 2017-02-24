@@ -11,9 +11,9 @@ In the request body, `kind` and `destination` are required.
 - `kind`:
   specify `com:vmware:xenon:services:common:ServiceHostManagementService:BackupRequest`
 - `destination`:
-  URI that accept PUT request from target xenon host.
+  URI with `http/https` scheme or `file` scheme with local file are supported.
+  When `http/https` is specified, destination is expected to accept PUT request with range header.
   The PUT request contains a zip file that contains files used by document index service.
-
 
 Sample:
 
@@ -21,13 +21,10 @@ Sample:
 > curl -X PATCH -H "Content-Type: application/json" -d '
 {
   "kind": "com:vmware:xenon:services:common:ServiceHostManagementService:BackupRequest",
-  "destination": "http://localhost:8000/myservice"
+  "destination": "file:/var/backup/xenon-backup.zip"
 }
 ' http://localhost:8000/core/management
 ```
-
-In this example command, _myservice_ will receive a PUT request which contains a zip file.  
-e.g.: see [`MinimalFileStore.java`](https://github.com/vmware/xenon/blob/master/xenon-common/src/test/java/com/vmware/xenon/services/common/MinimalTestService.java)
 
 
 ## Restore
@@ -39,18 +36,19 @@ Send a PATCH `RestoreRequest` request to `/core/management`.
 - `kind`:
   specify `com:vmware:xenon:services:common:ServiceHostManagementService:RestoreRequest`
 - `destination`:
-  URI that accept GET request from target xenon host, and return a zip file that contains files used by document index service.
+  URI with `http/https` scheme or `file` scheme with local file are supported.
+  When `http/https` is specified, it is expected to accept GET request from target xenon host with
+  range header, and return a zip file that contains files used by document index service.
 
 ```shell
 > curl -X PATCH -H "Content-Type: application/json" -d '
 {
   "kind": "com:vmware:xenon:services:common:ServiceHostManagementService:RestoreRequest",
-  "destination": "http://localhost:8000/myservice"
+  "destination": "file:/var/backup/xenon-backup.zip"
 }
 ' http://localhost:8000/core/management
 ```
 
-In this example command, _myservice_ will receive a GET request and expected to return a zip file.
 
 ### Time Snapshot Boundary
 
