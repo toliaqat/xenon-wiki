@@ -107,14 +107,19 @@ Assuming you've cloned the `xenon` repo locally, modify the [DecentralizedContro
 Next, build Xenon locally using `mvn clean install -DskipTests`. Then from the root `xenon` directory, startup our "blue" node-cluster (which will only consist of a single Xenon node for this walkthrough):
 
 ```sh
-java -jar xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar --port=8000 --id=blueNodeAtPort8000 --sandbox=xenon-host/target/xenonSandboxBlue
+java -jar xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar \
+     --port=8000 --id=blueNodeAtPort8000 \
+     --sandbox=xenon-host/target/xenonSandboxBlue
 ```
 
 In a separate terminal window, startup the "green" node cluster in a similar manner (but on a different port).
 
 ```sh
-java -jar xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar --port=8001 --id=greenNodeAtPort8001 --sandbox=xenon-host/target/xenonSandboxGreen
+java -jar xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar \
+     --port=8001 --id=greenNodeAtPort8001 \
+     --sandbox=xenon-host/target/xenonSandboxGreen
 ```
+*Please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on other available command line arguments.*
 
 > NOTE: In our example, the [ExampleService](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleService.java) implementation is exactly the same between both "blue" and "green" deployments. In reality, these implementations would be different for an upgrade, but this walkthrough still shows how state from a previous node cluster can be migrated to a new node cluster.
 

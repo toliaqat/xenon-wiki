@@ -8,6 +8,9 @@ To run the container:
 docker run -t -i --net=host dcp:jenkins-4222 bin/run.sh --bindAddress=0.0.0.0
 ```
 
+*Please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on other available command line arguments.*
+
+
 You can now issue requests:
 
 ```sh

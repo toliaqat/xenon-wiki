@@ -45,6 +45,10 @@ After reading more on the [programming model](Programming-Model) and how a servi
 
 To create a new service host, that starts custom services, in its own jar, please see the [custom service hosting tutorial](Hosting-Custom-Services-On-Xenon)
 
+# Starting a Xenon host
+
+Please refer to [Starting Xenon Host](Start-Xenon-Host) page for starting a Xenon application.
+
 # CI / CD
 (Currently this information is relevant for VMware internal development only)
 

@@ -28,6 +28,8 @@ Start the example host, which listens on port 8000 (in the xenon-host directory)
 $ java -jar xenon-host/target/xenon-host-*-with-dependencies.jar
 ```
 
+Please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on other available options/arguments to start the Xenon host.
+
 ## Xenon Container
 
 Note that Xenon is packaged also a **[container](./Developer-Guide#docker-images)**

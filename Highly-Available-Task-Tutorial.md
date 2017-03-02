@@ -55,29 +55,9 @@ We use three ports: 8000, 8001, 8002 for testing, so open three terminals and us
 % java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
-Here are the explanations for each argument.
+Please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on available options/arguments to start the Xenon host.
 
-###1.1 Specify membership quorum 
-
-[membershipQuorum](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/NodeState.java) is the minimum number of available nodes required for consensus operations and synchronization, we can specify the membershipQuorum by using a JVM xenon property "-Dxenon.NodeState.membershipQuorum=3". Since we need to wait for all nodes to be available when starting a cluster, it's the safest to set it to total number of nodes.
-
-###1.2 Specify service host
-
-We can specify the class path "com.vmware.xenon.services.common.ExampleServiceHost" to start the [ExampleServiceHost](https://github.com/vmware/xenon/blob/master/xenon-common/src/main/java/com/vmware/xenon/services/common/ExampleServiceHost.java), which will start the factory service for creating ExampleTaskService. 
-
-###1.3 Specify sandbox
-
-We are going to provide an argument "--sandbox=/tmp/xenon" for the sandbox (where all service documents are stored), instead of relying on the Java temporary directory. When the host is not running, you can delete the sandbox if you need to get back to "factory settings".
-
-###1.4 Specify peer nodes
-
-Use "--peerNodes" to specify the group members. You can either dynamically join a node group by sending a POST to the local (un-joined) node group service at /core/node-groups/default, or, you can have the xenon host join when it starts, by supplying the --peerNodes argument, with a list of URIs. To make startup scripts simple, you can supply the **same set of URIs, including the IP:PORT of the local host**. Xenon will ignore its self address but concurrently join through the other peer addresses. For more details on node group maintenance, see the [node group service](https://github.com/vmware/xenon/wiki/NodeGroupService)
-
-###1.5 Specify host ID
-
-Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host by providing the argument like "--id=hostAtPort8000".
-
-###1.6 Show group status
+###1.1 Show group status
 
 Now we can see the node group has been created:
 

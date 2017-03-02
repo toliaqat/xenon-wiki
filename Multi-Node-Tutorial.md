@@ -38,68 +38,11 @@ java \
 ```
 Notice we started the second host with --port=8001
 
+Also notice the `--peerNodes` argument, and please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on available options/arguments to start the Xenon host in single or mult-node startup configuration.
+
 ## Using HTTPS for Network Communication
 
-Xenon provides the option to use HTTPS for Network Communication. This includes both, when a client communicates with a Xenon Host, and when one Xenon host communicates with another Xenon host (for Group Membership, Forwarding or Replication). This option is useful when running Xenon in an environment with untrusted clients that should be blocked from having direct access to a Xenon host.
-
-To setup a Xenon host with HTTPS you will need the following:
-* An X.509 certificate chain file in PEM format.    
-* A PKCS#8 private key file in PEM format.
-* The password of the private key file (above), if it's password-protected.
-
-Since each Xenon Host acts as both, a Listener for incoming requests and a Client for making requests to other Xenon-hosts, it is important that the X.509 Certificate(s) used for the rest of the Xenon-Hosts, should be registered with either the default trust-store on the machine, or you can create a custom trust-store and use that at Host start up time.
-
-For prototyping, you can use the certificate files checked-in in Xenon git-repo (below). These files are also used by Xenon tests:
-* /xenon/xenon-common/src/test/resources/ssl/trustedcerts.jks
-* /xenon/xenon-common/src/test/resources/ssl/server.crt
-* /xenon/xenon-common/src/test/resources/ssl/server.pem
-
-Once you have the files created, you can start a Xenon host with HTTPS communication by running the below commands:
-```
-java \
-  -Djavax.net.ssl.trustStore=./xenon-common/src/test/resources/ssl/trustedcerts.jks \
-  -Djavax.net.ssl.trustStorePassword=changeit \
-  -jar xenon-host/target/xenon-host-*-with-dependencies.jar \
-  --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
-  --port=-1 --securePort=8000 \
-  --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
-  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
-```
-At a different terminal, start a second host, on a different port, making sure you supply the proper port in the peerNodes argument:
-```
-java \
-  -Djavax.net.ssl.trustStore=./xenon-common/src/test/resources/ssl/trustedcerts.jks \
-  -Djavax.net.ssl.trustStorePassword=changeit \
-  -jar xenon-host/target/xenon-host-*-with-dependencies.jar \
-  --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
-  --port=-1 --securePort=8001 \
-  --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
-  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
-```
-
-## Node join at startup
-
-In xenon you can either dynamically join a node group by sending a POST to the local (un-joined) node group service at /core/node-groups/default, or, you can have the xenon host join when it starts, by supplying the --peerNodes argument, with a list of URIs. To make startup scripts simple, you can supply the **same set of URIs, including the IP:PORT of the local host**. Xenon will ignore its self address but concurrently join through the other peer addresses.
-
-For more details on node group maintenance, see the [node group service](./NodeGroupService)
-
-When a node is starting you will see log output:
-```
-[0][I][1453320789994][DecentralizedControlPlaneHost:8000][startImpl][ServiceHost/2c6a499e listening on 127.0.0.1:8000]
-[1][I][1453320789997][DecentralizedControlPlaneHost:8000][normalizePeerNodeList][Skipping peer http://127.0.0.1:8000, its us]
-[2][I][1453320791195][DecentralizedControlPlaneHost:8000][lambda$4][Joined peer http://127.0.0.1:8001/core/node-groups/default]
-[3][I][1453320791301][8000/core/node-groups/default][lambda$1][Synch quorum: 2. Sending POST to insert self (http://127.0.0.1:8000/core/node-groups/default) to peer http://127.0.0.1:8001/core/node-groups/default]
-[4][I][1453320791302][8000/core/node-groups/default][handlePatch][Adding new peer 866041aa-e8a3-4cbf-ba49-8cf7c567f37d (http://127.0.0.1:8001/core/node-groups/default), status SYNCHRONIZING]
-[5][I][1453320791302][8000/core/node-groups/default][handlePatch][State updated, merge with 866041aa-e8a3-4cbf-ba49-8cf7c567f37d, self 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, 1453320791301005]
-[6][I][1453320797027][8000/core/node-groups/default][handlePatch][State updated, merge with 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, self 79418bdd-c8e4-4ce1-b98b-d073c9ab06c3, 1453320797027026]
-```
-
-### Friendly node IDs
-
-Instead of hard to remember class 4 UUIDs, you can specify an ID when you start a Xenon host:
-```
-java -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001 --id=hostAtPort8001
-```
+Refer to [HTTPS for Network Communication](HTTPS-Network-Communication) for details on starting Xenon host with HTTPS enabled.
 
 ## Dynamic join and custom node groups (post-startup)
 
