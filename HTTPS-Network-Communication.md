@@ -23,7 +23,8 @@ java \
   --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
   --port=-1 --securePort=8000 \
   --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
-  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
+  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt \
+  --adminPassword=changeme
 ```
 At a different terminal, start a second host, on a different port, making sure you supply the proper port in the peerNodes argument:
 ```
@@ -34,7 +35,8 @@ java \
   --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
   --port=-1 --securePort=8001 \
   --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
-  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
+  --certificateFile=./xenon-common/src/test/resources/ssl/server.crt \
+  --adminPassword=changeme
 ```
 
 Please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on other available options/arguments to start the Xenon host.

@@ -13,7 +13,7 @@ We are going to start the Xenon host with an extra argument that specifies the _
 You are not required to do this, but it will make repeat tests easier: you can remove the directory in order to start again with an empty storage system. 
 
 ```
-% java -jar xenon-host/target/xenon-host-0.4.0-SNAPSHOT-jar-with-dependencies.jar --sandbox=/tmp/xenon
+% java -jar xenon-host/target/xenon-host-*-jar-with-dependencies.jar --sandbox=/tmp/xenon --adminPassword=changeme
 [0][I][1452021498723][DecentralizedControlPlaneHost:8000][startImpl][ServiceHost/cd70e1c8 listening on 127.0.0.1:8000]
 ```
 

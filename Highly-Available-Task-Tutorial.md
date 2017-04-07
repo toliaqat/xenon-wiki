@@ -48,11 +48,11 @@ Here are the main steps for the demonstration:
 We use three ports: 8000, 8001, 8002 for testing, so open three terminals and use the commands to start each node:
 
 ```
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8000 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8000 
+% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8000 --adminPassword=changeme  --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8000
 
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8001 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8001
+% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8001 --adminPassword=changeme  --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8001
 
-% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
+% java -Dxenon.NodeState.membershipQuorum=3 -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --adminPassword=changeme  --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
 Please refer to [Starting Xenon Host](Start-Xenon-Host) page for details on available options/arguments to start the Xenon host.
@@ -339,7 +339,7 @@ If wait for less than 60s, the POST request to create task-3 will still work aut
 Now let's restart the node 8002 and set the membershipQuorum = 2:
 
 ```
-% java -Dxenon.NodeState.membershipQuorum=2 -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
+% java -Dxenon.NodeState.membershipQuorum=2 -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --port=8002 --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002 --adminPassword=changeme
 ```
 
 You'll see the node 8002's status is AVAILABLE.

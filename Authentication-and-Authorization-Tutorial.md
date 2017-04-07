@@ -19,7 +19,7 @@ We are going to start the Xenon host differently than the previous tutorials:
 Users in Xenon are always identified by an email address. 
 
 ```
-% java -cp xenon-host/target/xenon-host-0.4.0-SNAPSHOT-j-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --isAuthorizationEnabled=true --adminUser=admin@localhost --adminUserPassword=changeme --exampleUser=example@localhost --exampleUserPassword=changeme
+% java -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon --isAuthorizationEnabled=true --adminUser=admin@localhost --adminUserPassword=changeme --exampleUser=example@localhost --exampleUserPassword=changeme
 
 [0][I][1452037260285][ExampleServiceHost:8000][startImpl][ServiceHost/cd70e1c8 listening on 127.0.0.1:8000]
 [1][I][1452037260557][ExampleServiceHost:8000][printUserDetails][Created user example@localhost (/core/authz/users/13e016c6-d69e-41f0-9ffc-e7e9939227a0) with credentials, user group (/core/authz/user-groups/ef9c5dea-ced1-4375-9ce3-6b5c0216ac12) resource group (/core/authz/resource-groups/d7eea0b5-d814-4d63-8e29-68b32dbb6995) and role(/core/authz/roles/7ce7c6d7-6d40-41da-842c-6af40fd67d32)]

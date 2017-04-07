@@ -171,15 +171,17 @@ Following are the two most important arguments used for multi-node cluster of Xe
 Following example starts one host, on port 8000.
 ```
 java \
-  -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar \
+  -jar xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
   --port=8000 \
+  --adminPassword=changeme \
   --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
 ```
 At a different terminal, start a second host, on a different port, making sure you supply the proper port in the `--peerNodes` argument:
 ```
 java \
-  -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar \
+  -jar xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
   --port=8001 \
+  --adminPassword=changeme \
   --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
 ```
 Notice we started the second host with `--port=8001`
@@ -211,6 +213,7 @@ java \
   -jar xenon-host/target/xenon-host-*-with-dependencies.jar \
   --peerNodes=https://127.0.0.1:8000,https://127.0.0.1:8001 \
   --port=-1 --securePort=8000 \
+  --adminPassword=changeme \
   --keyFile=./xenon-common/src/test/resources/ssl/server.pem \
   --certificateFile=./xenon-common/src/test/resources/ssl/server.crt
 ```
@@ -222,21 +225,24 @@ Following three commands start three node cluster. We use three ports: 8000, 800
 
 ```
 java -Dxenon.NodeState.membershipQuorum=3 \
-     -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar \
+     -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
      com.vmware.xenon.services.common.ExampleServiceHost \
      --sandbox=/data/xenon --port=8000 \
+     --adminPassword=changeme \
      --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8000 
 
 java -Dxenon.NodeState.membershipQuorum=3 \
-     -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar \
+     -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
      com.vmware.xenon.services.common.ExampleServiceHost \
      --sandbox=/data/xenon --port=8001 \
+     --adminPassword=changeme \
      --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8001
 
 java -Dxenon.NodeState.membershipQuorum=3 \
-     -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar \
+     -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
      com.vmware.xenon.services.common.ExampleServiceHost \
      --sandbox=/data/xenon --port=8002 \
+     --adminPassword=changeme \
      --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001,http://127.0.0.1:8002 --id=hostAtPort8002
 ```
 
@@ -256,7 +262,7 @@ java -Xmx512m -Xms512m \
      -Dxenon.ServiceClient.DEFAULT_CONNECTIONS_PER_HOST=1000 \
      -Dxenon.SynchronizationTaskService.isDetailedLoggingEnabled=true \
      -Dxenon.NodeState.membershipQuorum=3 \
-     -cp xenon-host/target/xenon-host-0.8.0-SNAPSHOT-jar-with-dependencies.jar \
+     -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
      com.vmware.xenon.services.common.ExampleServiceHost \
      --publicUri=http://xenon-host1.vmware.com:8000 \
      --sandbox=/data/xenon \

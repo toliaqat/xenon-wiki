@@ -72,7 +72,7 @@ We are going to start the Xenon host differently than the previous tutorials:
 Please note that you will need to change the name of the JAR file to match the version of Xenon you have. 
 
 ```
-% java -cp xenon-host/target/xenon-host-0.4.1-SNAPSHOT-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon
+% java -cp xenon-host/target/xenon-host-*-jar-with-dependencies.jar com.vmware.xenon.services.common.ExampleServiceHost --sandbox=/tmp/xenon
 [0][I][1452210831944][ExampleServiceHost:8000][startImpl][ServiceHost/1161b183 listening on 127.0.0.1:8000]
 ```
 

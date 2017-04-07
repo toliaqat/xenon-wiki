@@ -25,15 +25,17 @@ mvn package -DskipTests=true
 The above should have produced a host jar that we can now start in the terminal. This host will have just core services plus the example factory service (see example tutorial). Now lets start one host, on port 8000. If that port is not available on your system, use a different one.
 ```
 java \
-  -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar \
+  -jar xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
   --port=8000 \
+  --adminPassword=changeme \
   --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
 ```
 At a different terminal, start a second host, on a different port, making sure you supply the proper port in the peerNodes argument:
 ```
 java \
-  -jar xenon-host/target/xenon-host-*-SNAPSHOT-jar-with-dependencies.jar \
+  -jar xenon-host/target/xenon-host-*-jar-with-dependencies.jar \
   --port=8001 \
+  --adminPassword=changeme \
   --peerNodes=http://127.0.0.1:8000,http://127.0.0.1:8001
 ```
 Notice we started the second host with --port=8001
