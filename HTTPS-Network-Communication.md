@@ -14,6 +14,20 @@ For prototyping, you can use the certificate files checked-in in Xenon git-repo 
 * /xenon/xenon-common/src/test/resources/ssl/server.crt
 * /xenon/xenon-common/src/test/resources/ssl/server.pem
 
+### Generating key file, cert and java key store
+
+Using the following sequence, you can generate your own set of files.
+
+** Note: You must supply the --keyPassphrase argument to the Xenon service host if your key file uses one.
+
+ * ```openssl genrsa -out file.key 2048```
+ * ```openssl pkcs8 -topk8 -inform pem -in file.key -outform pem -out server.pem```
+ * ```openssl req -new -x509 -nodes -sha1 -days 365 -key device.pem -out server.crt```
+ * ```keytool -genkey -alias mydomain -keyalg RSA -keystore trustedcerts.jks -keysize 2048```
+ * ```keytool -import -trustcacerts -alias root -file server.crt -keystore trustedcerts.jks```
+
+## Host arguments
+
 Once you have the files created, you can start a Xenon host with HTTPS communication by running the below commands:
 ```
 java \
