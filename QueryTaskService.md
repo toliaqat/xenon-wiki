@@ -62,6 +62,14 @@ public static class QuerySpecification {
             EXPAND_CONTENT,
 
             /**
+             * Query results include the values for selected fields included in
+             * {@link QuerySpecification#selectTerms}. The fields are then available through
+             * the state documents in the {@link ServiceDocumentQueryResult#documents}
+             * collection
+             */
+            EXPAND_SELECTED_FIELDS,
+
+            /**
              * The query will execute over all document versions, not just the latest per self link. Each
              * document self link will be annotated with the version
              */
@@ -206,6 +214,9 @@ matchType. In terms of options, one can use:
 * EXPAND_CONTENT:  the query  results will  include the  entire document
 description  in  addition  to   the  default  _documentLinks_  to  these
 documents.
+* EXPAND_SELECTED_FIELDS: the query results will include the selected
+fields (specified by the selectTerms) from the document in addition to
+the default _documentLinks_ to these documents.
 * INCLUDE_DELETED: will  include the documents that  have either expired
 or have been marked as deleted
 * TASK: TODO
@@ -571,7 +582,8 @@ $ curl http://localhost:8000/core/query-tasks/2de69ad0-08a3-48fa-947a-f50b2e0068
 ```
 ## Sorting Results
 The following query sorts the documents of kind ExampleServiceState based on the property `name`.
-`sortOrder` specifies ASC/DESC order.
+`sortOrder` specifies ASC/DESC order. The `EXPAND_SELECTED_FIELDS` option is used to select just
+the 'name' field in the returned documents.
 ```json
 {
     "taskInfo": {
@@ -579,13 +591,17 @@ The following query sorts the documents of kind ExampleServiceState based on the
     },
     "querySpec": {
         "options": [
-            "SORT", "EXPAND_CONTENT"
+            "SORT", "EXPAND_SELECTED_FIELDS"
         ],
         "sortTerm" : {
                 "propertyType": "STRING",
                 "propertyName": "name"
             },
         "sortOrder" : "DESC",
+        "selectTerms" : [ {
+                "propertyType": "STRING",
+                "propertyName": "name"
+            }],
         "query": {
             "term": {
                 "matchType": "TERM",
@@ -655,15 +671,19 @@ at time `t0`, 1 at `t1` and 2 at `t2`. When QueryOption#TIME_SNAPSHOT
 is set and QuerySpecification#timeSnapshotBoundaryMicros is set to
 `t1 + ∆` the response will include only version `1` of the document.
 
-## OData filter queries
+## OData queries
 
-The document index can also be queried using a subset of the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/#4.5) `$filter` specification.  This is to aid in querying interactively without the use of tools like `xenonc` to form `querySpec` documents.  
+The document index can also be queried using a subset of the [OData](http://www.odata.org/documentation/odata-version-2-0/uri-conventions/#4.5) specification.  This is to aid in querying interactively without the use of tools like `xenonc` to form `querySpec` documents.  
 
-To use OData `$filter` based queries, issue a `GET` on `/core/odata-queries?$filter(...)` with the appropriate filter parameters.  This will result in a direct query task with equivalent an `querySpec`.  The `DIRECT` query has the `EXPAND` option so results will be embedded in the results.
+To use OData `$select` and `$filter` based queries, issue a `GET` on `/core/odata-queries` with the appropriate OData query parameters.  This will result in a direct query task with equivalent an `querySpec`.  The `DIRECT` query has the `EXPAND` option so results will be embedded in the results.
+
+#### OData select
+
+The OData `$select` syntax is: `$select=<comma-separated-fieldname-list>`. Use of the `$select` query parameter will cause only the selected fields to be returned in the expanded results, rather than the default of the full document contents.
 
 #### OData filter verbs
 
-The `odata-queries` service supports only a subset of the OData URI specification.  The following are the only currently supported query verbs.
+The `odata-queries` service supports only a subset of the OData URI specification.  The following are the only currently supported `$filter` query verbs.
 
 | Operator | Description | Example |
 | -------- | ------------| ------- |
@@ -724,9 +744,9 @@ HTTP/1.1 200 OK
     }
 }
 ```
-#### OData $filter on Factory Services
+#### OData query parameters on Factory Services
 
-In addition to `/core/odata-queries`, OData filters can be applied on all
+In addition to `/core/odata-queries`, OData query parameters can be applied on all
 factory services. Factory service adds an implicit booleanClause to match
 the field `documentKind` with the child service document type.
 
