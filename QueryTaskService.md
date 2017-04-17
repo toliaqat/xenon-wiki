@@ -160,17 +160,11 @@ public static class QuerySpecification {
 
 ## Continuous query tasks
 
-The CONTINUOUS option  creates a long running query  filter that process
-all updates to the local index. The query specification is compiled into
-an efficient query  filter that evaluates the document  updates, and the
-filter evaluates  to true,  the query  task is  PATCHed with  a document
-results reflecting  the self link (and  document if EXPAND is  set) that
-changed.
+A CONTINUOUS query is a long-running query which is updated with new query results over time. Under the covers, the query specification is compiled into a query filter against which all updates to the local document index are evaluated. When a document is updated which matches the query filter, the local query task is PATCHed to reflect the updated document.
 
-The  continuous  query  task  acts  as  a  node  wide  black  board,  or
-notification   service  allowing   clients   or   services  to   receive
-notifications  without having  to subscribe  to potentially  millions of
-discrete services
+Continuous queries support normal query options such as EXPAND_CONTENT and COUNT. If EXPAND_CONTENT is specified, the continuous query is updated to contain the new state of the updated document; if COUNT is specified, the discrete results will contain the number of documents created, updated, and deleted since the creation of the continuous query.
+
+Continuous queries can be used as a node-wide blackboard, allowing clients or services to receive notifications for a broad set of updates without subscribing to potentially millions of discrete services.
 
 ## A Basic, Top-level Query
 
