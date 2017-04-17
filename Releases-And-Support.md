@@ -14,12 +14,33 @@ The following releases are supported by the development team, including the crea
 
 ## Releases
 
+### v1.4.2
+
+Xenon 1.4.2 contains new features, performance enhancements, and bug fixes.
+
+#### Major Changes
+
+* **In-memory Lucene index** -- The new InMemoryLuceneDocumentIndexService uses the same code as the existing LuceneDocumentIndexService, but uses the Lucene RAMDirectory index store for document storage instead of using memory-mapped files. The in-memory index is significantly faster than the disk-based index, supports Xenon's existing replication and indexing, and supports disk-based backup and restore, but does not otherwise persist documents (so they can be lost across host restarts).
+
+* **Incremental backup** -- Xenon now supports incremental backup to a local directory. Incremental backup copies only new and modified files and deletes unused index files in the backup directory to reflect the most recent state of the index.
+
+* **Field selection in queries** -- Xenon now supports the EXPAND_SELECTED_FIELDS option which returns only a set of caller-specified fields when expanding results documents.
+
+* **Continuous COUNT queries** -- Xenon now supports the COUNT option for continuous queries. When a continuous COUNT query is created, the continuous results will track the number of service creation, update, and deletion operations which match the specified query.
+
+#### Breaking Changes
+
+* All variants of ServiceHost.initialize have been updated to avoid calling setProcessOwner(true), which means that your Java process will no longer exit when a DELETE is sent to /core/management. To reenable this behavior, it is necessary to manually call setProcessOwner after calling initialize.
+
+* Document signature calculation has changed. If document signatures are stored to disk somehow (unlikely) then this may cause issues.
+
+For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#142).
+
 ### v1.4.1
 
 Xenon 1.4.1 contains minor changes and bug fixes.
 
 For a full description of the changes in this release, please consult the [changelog](https://github.com/vmware/xenon/blob/master/CHANGELOG.md#141).
-
 
 ### v1.3.7
 
