@@ -19,6 +19,8 @@ Lucene uses MUST, MUST_NOT, SHOULD, and SHOULD_NOT as operators. [This blog post
 
 ## URI Path
 
+Xenon provides two factories for query task instances:
+
 ```
 /core/query-tasks
 /core/query-tasks/<task-id>
@@ -26,10 +28,17 @@ Lucene uses MUST, MUST_NOT, SHOULD, and SHOULD_NOT as operators. [This blog post
 /core/local-query-tasks/<task-id>
 ```
 
-The local query tasks are not load balanced and replicated across nodes.
-They are  the appropriate  target for  broadcast requests,  allowing the
-concurrent execution of independent queries on a per-node basis.
+Queries which are created under the `/core/query-tasks` factory are created
+with the REPLICATION and OWNER_SELECTION options and are associated with the 1x
+replication node selector; this means that these tasks will be executed on one
+node which is part of the default node group. Queries which are created under
+the `/core/local-query-tasks` factory are created without these service options
+and will be executed on the node to which they operation is sent.
 
+In practice, `/core/query-tasks` is appropriate only in a limited set of
+scenarios where queries must be load balanced across a cluster and no load
+balancing occurs as part of a higher-level task or workflow. Broadcast queries
+must also target `/core/local-query-tasks` in order to guarantee consistency.
 
 ## Query Specification
 
